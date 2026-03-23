@@ -676,6 +676,23 @@
           <div id="diag-basil"></div>
         </div>
       </div>
+      <div id="custom-crop-rows"></div>
+      <button class="add-crop-btn" onclick="toggleAddForm()">＋ 植物を追加</button>
+      <div class="add-crop-form" id="add-crop-form" style="display:none;">
+        <div class="form-row">
+          <input type="text" id="new-emoji" placeholder="🌱" maxlength="2">
+          <input type="text" id="new-name" placeholder="植物名（例：ピーマン）">
+        </div>
+        <div class="form-row">
+          収穫開始まで
+          <input type="number" id="new-harvest-days" min="1" max="365" placeholder="60">
+          日
+        </div>
+        <div class="form-actions">
+          <button class="btn-add-confirm" onclick="addCustomCrop()">追加</button>
+          <button class="btn-cancel" onclick="toggleAddForm()">キャンセル</button>
+        </div>
+      </div>
     </div>
     <div id="custom-schedule"><p class="schedule-empty">植え付け日を入力するとスケジュールが表示されます</p></div>
   </section>
@@ -797,6 +814,7 @@
 
   // ===== マイスケジュール =====
   const SCHEDULE_KEY = 'garden-plant-dates';
+  const CUSTOM_CROPS_KEY = 'garden-custom-crops';
   const CROPS = [
     { id: 'tomato', name: 'ミニトマト', emoji: '🍅', milestones: [
       { days: 0,   label: '植え付け',       detail: 'プランターに植え、支柱を立てる' },
@@ -834,11 +852,78 @@
     return `${date.getMonth() + 1}/${date.getDate()}`;
   }
 
+  function getCustomCrops() {
+    return JSON.parse(localStorage.getItem(CUSTOM_CROPS_KEY) || '[]');
+  }
+
+  function makeCustomMilestones(harvestDays) {
+    const ms = [{ days: 0, label: '植え付け', detail: '日当たりの良い場所に設置する' }];
+    if (harvestDays > 21) ms.push({ days: 14, label: '液肥スタート', detail: '週1〜2回、液体肥料を与える' });
+    ms.push({ days: harvestDays, label: '収穫開始目安', detail: '様子を見ながら収穫する' });
+    ms.push({ days: harvestDays + 60, label: '終了目安', detail: '株の状態を見て片付け' });
+    return ms;
+  }
+
+  function renderCustomRows() {
+    const crops = getCustomCrops();
+    const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
+    const container = document.getElementById('custom-crop-rows');
+    container.innerHTML = crops.map(c => `
+      <div>
+        <div class="date-row">
+          <span>${c.emoji} ${c.name}</span>
+          <input type="date" id="date-${c.id}" value="${saved[c.id] || ''}" onchange="renderSchedule()">
+          <label class="photo-btn" for="photo-${c.id}" title="写真で診断">📷</label>
+          <input type="file" id="photo-${c.id}" accept="image/*" style="display:none" onchange="analyzePhoto(this,'${c.id}','${c.name}')">
+          <button class="delete-btn" onclick="removeCustomCrop('${c.id}')" title="削除">✕</button>
+        </div>
+        <div id="diag-${c.id}"></div>
+      </div>`).join('');
+  }
+
+  function toggleAddForm() {
+    const f = document.getElementById('add-crop-form');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+    if (f.style.display === 'flex') document.getElementById('new-name').focus();
+  }
+
+  function addCustomCrop() {
+    const emoji = document.getElementById('new-emoji').value.trim() || '🌱';
+    const name  = document.getElementById('new-name').value.trim();
+    const days  = parseInt(document.getElementById('new-harvest-days').value) || 60;
+    if (!name) { alert('植物名を入力してください'); return; }
+    const crops = getCustomCrops();
+    crops.push({ id: 'custom_' + Date.now(), name, emoji, harvestDays: days });
+    localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
+    document.getElementById('new-emoji').value = '';
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-harvest-days').value = '';
+    toggleAddForm();
+    renderCustomRows();
+    renderSchedule();
+  }
+
+  function removeCustomCrop(id) {
+    const crops = getCustomCrops().filter(c => c.id !== id);
+    localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
+    const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
+    delete saved[id];
+    localStorage.setItem(SCHEDULE_KEY, JSON.stringify(saved));
+    renderCustomRows();
+    renderSchedule();
+  }
+
   function renderSchedule() {
+    const customCrops = getCustomCrops();
+    const allCrops = [
+      ...CROPS,
+      ...customCrops.map(c => ({ ...c, milestones: makeCustomMilestones(c.harvestDays) }))
+    ];
+
     const saved = {};
-    CROPS.forEach(c => {
-      const val = document.getElementById('date-' + c.id).value;
-      if (val) saved[c.id] = val;
+    allCrops.forEach(c => {
+      const el = document.getElementById('date-' + c.id);
+      if (el && el.value) saved[c.id] = el.value;
     });
     localStorage.setItem(SCHEDULE_KEY, JSON.stringify(saved));
 
@@ -846,7 +931,7 @@
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const filled = CROPS.filter(c => saved[c.id]);
+    const filled = allCrops.filter(c => saved[c.id]);
     if (filled.length === 0) {
       el.innerHTML = '<p class="schedule-empty">植え付け日を入力するとスケジュールが表示されます</p>';
       return;
@@ -930,6 +1015,7 @@
 
   // 保存済みの日付を復元
   (function loadDates() {
+    renderCustomRows();
     const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
     CROPS.forEach(c => {
       if (saved[c.id]) document.getElementById('date-' + c.id).value = saved[c.id];
