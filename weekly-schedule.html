@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今週のダッシュボード</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    padding: 24px 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+    color: #222;
+  }
+  .subtitle {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* カレンダー */
+  .event-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f0f0f0;
+    align-items: flex-start;
+  }
+  .event-item:last-child { border-bottom: none; }
+  .event-date {
+    font-size: 0.75rem;
+    color: #888;
+    width: 60px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .event-name { font-size: 0.9rem; }
+
+  /* TODO */
+  .todo-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f0f0f0;
+    font-size: 0.9rem;
+  }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #ccc;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .todo-check.done { background: #4caf50; border-color: #4caf50; color: white; }
+  .todo-text.done { color: #bbb; text-decoration: line-through; }
+
+  .loading { color: #aaa; font-size: 0.85rem; padding: 8px 0; }
+  .error   { color: #e53935; font-size: 0.85rem; padding: 8px 0; }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: #888;
+    text-decoration: none;
+  }
+  .back-link:hover { color: #333; }
+
+  .updated {
+    text-align: right;
+    font-size: 0.72rem;
+    color: #ccc;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← ホームに戻る</a>
+
+<h1>📋 今週のダッシュボード</h1>
+<div class="subtitle" id="week-label">読み込み中...</div>
+
+<!-- カレンダー -->
+<div class="card">
+  <div class="card-title">📅 今週の予定</div>
+  <div id="cal-list"><div class="loading">読み込み中...</div></div>
+</div>
+
+<!-- TODO -->
+<div class="card">
+  <div class="card-title">✅ TODOリスト</div>
+  <div id="todo-list"><div class="loading">読み込み中...</div></div>
+</div>
+
+<div class="updated" id="updated-at"></div>
+
+<script>
+  const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
+  const API_BASE = ''; // 同じドメインのVercel API
+
+  // 今週の範囲ラベル
+  function getWeekLabel() {
+    const now = new Date();
+    const mon = new Date(now);
+    mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    const sun = new Date(mon);
+    sun.setDate(mon.getDate() + 6);
+    const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+    return `${now.getFullYear()}年 ${fmt(mon)}（月）〜 ${fmt(sun)}（日）`;
+  }
+
+  // カレンダー
+  async function loadCalendar() {
+    const el = document.getElementById('cal-list');
+    try {
+      const res = await fetch('/api/gcal');
+      const data = await res.json();
+      const items = data.items || [];
+      if (items.length === 0) {
+        el.innerHTML = '<div class="loading">今週の予定はありません</div>';
+        return;
+      }
+      el.innerHTML = items.map(ev => {
+        const start = ev.start.dateTime || ev.start.date;
+        const d = new Date(start);
+        const isAllDay = !ev.start.dateTime;
+        const dateStr = `${d.getMonth()+1}/${d.getDate()}（${DAYS[d.getDay()]}）`;
+        const timeStr = isAllDay ? '終日' : `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        return `
+          <div class="event-item">
+            <div class="event-date">${dateStr}<br>${timeStr}</div>
+            <div class="event-name">${ev.summary || '（無題）'}</div>
+          </div>`;
+      }).join('');
+    } catch (e) {
+      el.innerHTML = '<div class="error">カレンダーの取得に失敗しました</div>';
+    }
+  }
+
+  // Notion TODO
+  async function loadTodo() {
+    const el = document.getElementById('todo-list');
+    try {
+      const res = await fetch('/api/notion');
+      const data = await res.json();
+      const results = data.results || [];
+      if (results.length === 0) {
+        el.innerHTML = '<div class="loading">TODOはありません</div>';
+        return;
+      }
+      el.innerHTML = results.map(page => {
+        // タイトル取得
+        const titleProp = Object.values(page.properties).find(p => p.type === 'title');
+        const title = titleProp?.title?.map(t => t.plain_text).join('') || '（無題）';
+        // チェックボックス取得
+        const checkProp = Object.values(page.properties).find(p => p.type === 'checkbox');
+        const done = checkProp?.checkbox || false;
+        return `
+          <div class="todo-item">
+            <div class="todo-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
+            <div class="todo-text ${done ? 'done' : ''}">${title}</div>
+          </div>`;
+      }).join('');
+    } catch (e) {
+      el.innerHTML = '<div class="error">TODOの取得に失敗しました</div>';
+    }
+  }
+
+  // 初期化
+  document.getElementById('week-label').textContent = getWeekLabel();
+  document.getElementById('updated-at').textContent = `最終更新: ${new Date().toLocaleTimeString('ja-JP')}`;
+  loadCalendar();
+  loadTodo();
+</script>
+
+</body>
+</html>
