@@ -597,10 +597,22 @@
     <div class="date-input-card">
       <p class="date-input-hint">植え付け日を入力すると、作物ごとのスケジュールを自動計算します</p>
       <div class="date-rows">
-        <div class="date-row"><span>🍅 ミニトマト</span><input type="date" id="date-tomato" onchange="renderSchedule()"></div>
-        <div class="date-row"><span>🥒 キュウリ</span><input type="date" id="date-cucumber" onchange="renderSchedule()"></div>
-        <div class="date-row"><span>🌿 大葉</span><input type="date" id="date-shiso" onchange="renderSchedule()"></div>
-        <div class="date-row"><span>🌱 バジル</span><input type="date" id="date-basil" onchange="renderSchedule()"></div>
+        <div>
+          <div class="date-row"><span>🍅 ミニトマト</span><input type="date" id="date-tomato" onchange="renderSchedule()"><label class="photo-btn" for="photo-tomato" title="写真で診断">📷</label><input type="file" id="photo-tomato" accept="image/*" style="display:none" onchange="analyzePhoto(this,'tomato','ミニトマト')"></div>
+          <div id="diag-tomato"></div>
+        </div>
+        <div>
+          <div class="date-row"><span>🥒 キュウリ</span><input type="date" id="date-cucumber" onchange="renderSchedule()"><label class="photo-btn" for="photo-cucumber" title="写真で診断">📷</label><input type="file" id="photo-cucumber" accept="image/*" style="display:none" onchange="analyzePhoto(this,'cucumber','キュウリ')"></div>
+          <div id="diag-cucumber"></div>
+        </div>
+        <div>
+          <div class="date-row"><span>🌿 大葉</span><input type="date" id="date-shiso" onchange="renderSchedule()"><label class="photo-btn" for="photo-shiso" title="写真で診断">📷</label><input type="file" id="photo-shiso" accept="image/*" style="display:none" onchange="analyzePhoto(this,'shiso','大葉')"></div>
+          <div id="diag-shiso"></div>
+        </div>
+        <div>
+          <div class="date-row"><span>🌱 バジル</span><input type="date" id="date-basil" onchange="renderSchedule()"><label class="photo-btn" for="photo-basil" title="写真で診断">📷</label><input type="file" id="photo-basil" accept="image/*" style="display:none" onchange="analyzePhoto(this,'basil','バジル')"></div>
+          <div id="diag-basil"></div>
+        </div>
       </div>
     </div>
     <div id="custom-schedule"><p class="schedule-empty">植え付け日を入力するとスケジュールが表示されます</p></div>
