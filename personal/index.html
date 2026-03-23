@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイガイド集</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px;
+    color: #333;
+  }
+
+  .profile {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 16px;
+  }
+  .profile h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  .profile p  { font-size: 0.88rem; color: #888; }
+
+  .links {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #aaa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 8px 0 4px;
+    padding-left: 4px;
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: white;
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    transition: transform 0.15s, box-shadow 0.15s;
+    border-left: 4px solid transparent;
+  }
+  .link-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+  .link-card .icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    width: 44px;
+    text-align: center;
+  }
+  .link-card .text h3 { font-size: 0.97rem; margin-bottom: 3px; }
+  .link-card .text p  { font-size: 0.78rem; color: #999; }
+  .link-card .arrow {
+    margin-left: auto;
+    color: #ccc;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* カテゴリ別カラー */
+  .green  { border-color: #4caf50; }
+  .blue   { border-color: #2196f3; }
+  .orange { border-color: #ff9800; }
+  .purple { border-color: #9c27b0; }
+  .red    { border-color: #f44336; }
+  .teal   { border-color: #009688; }
+
+  /* 準備中カード */
+  .link-card.coming-soon {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .badge {
+    font-size: 0.65rem;
+    background: #f0f0f0;
+    color: #aaa;
+    border-radius: 8px;
+    padding: 2px 7px;
+    margin-left: 8px;
+    font-weight: bold;
+  }
+
+  footer {
+    margin-top: 48px;
+    font-size: 0.75rem;
+    color: #ccc;
+  }
+</style>
+</head>
+<body>
+
+<div class="profile">
+  <div class="avatar">📚</div>
+  <h1>マイガイド集</h1>
+  <p>暮らしと趣味のまとめノート</p>
+</div>
+
+<div class="links">
+
+  <div class="section-label">🌿 暮らし</div>
+
+  <a href="balcony-garden-guide.html" class="link-card green">
+    <div class="icon">🌱</div>
+    <div class="text">
+      <h3>ベランダ家庭菜園ガイド</h3>
+      <p>4月下旬スタート｜ミニトマト・キュウリ・大葉・バジル</p>
+    </div>
+    <div class="arrow">›</div>
+  </a>
+
+  <a class="link-card blue coming-soon">
+    <div class="icon">✈️</div>
+    <div class="text">
+      <h3>旅行ガイド <span class="badge">準備中</span></h3>
+      <p>旅先のまとめ・持ち物チェックリスト</p>
+    </div>
+    <div class="arrow">›</div>
+  </a>
+
+  <div class="section-label">📖 その他</div>
+
+  <a class="link-card orange coming-soon">
+    <div class="icon">🍳</div>
+    <div class="text">
+      <h3>レシピ集 <span class="badge">準備中</span></h3>
+      <p>よく作る料理のメモ</p>
+    </div>
+    <div class="arrow">›</div>
+  </a>
+
+</div>
+
+<footer>随時更新中</footer>
+
+</body>
+</html>

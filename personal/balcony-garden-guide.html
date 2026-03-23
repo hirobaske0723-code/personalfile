@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ベランダ家庭菜園ガイド</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #f4f9f0;
+    color: #333;
+    line-height: 1.7;
+  }
+
+  /* ヘッダー */
+  .hero {
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
+    color: white;
+    text-align: center;
+    padding: 48px 24px 40px;
+  }
+  .hero h1 { font-size: 2.2rem; margin-bottom: 8px; }
+  .hero p { font-size: 1rem; opacity: 0.9; }
+  .hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 4px 16px;
+    font-size: 0.85rem;
+    margin-top: 12px;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 16px; }
+
+  /* 作物カード */
+  .crop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .crop-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-top: 4px solid;
+  }
+  .crop-card .emoji { font-size: 3rem; margin-bottom: 8px; }
+  .crop-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .crop-card .diff {
+    font-size: 0.75rem;
+    background: #f0f0f0;
+    border-radius: 12px;
+    padding: 2px 10px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .crop-card p { font-size: 0.82rem; color: #666; }
+  .tomato  { border-color: #e53935; }
+  .cucumber{ border-color: #43a047; }
+  .shiso   { border-color: #8e24aa; }
+  .basil   { border-color: #00897b; }
+
+  /* セクション */
+  section { margin-top: 40px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #2e7d32;
+    border-bottom: 3px solid #a5d6a7;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* 買い物リスト */
+  .shopping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .shopping-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .shopping-card h4 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .shopping-card ul { padding-left: 0; list-style: none; }
+  .shopping-card li {
+    padding: 5px 0;
+    border-bottom: 1px dashed #e0e0e0;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .shopping-card li::before { content: "✅"; font-size: 0.75rem; margin-top: 2px; }
+
+  /* 手順 */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step {
+    display: flex;
+    gap: 16px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    align-items: flex-start;
+  }
+  .step-num {
+    background: #2e7d32;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+  .step h4 { font-size: 1rem; margin-bottom: 6px; }
+  .step p, .step ul { font-size: 0.88rem; color: #555; }
+  .step ul { padding-left: 16px; margin-top: 4px; }
+  .step li { margin-bottom: 3px; }
+
+  /* 収穫サイン */
+  .harvest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+  }
+  .harvest-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .harvest-card .big-emoji { font-size: 2.5rem; }
+  .harvest-card h4 { margin: 8px 0 6px; font-size: 1rem; }
+  .harvest-card .sign {
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    color: #2e7d32;
+    margin-bottom: 6px;
+    font-weight: bold;
+  }
+  .harvest-card p { font-size: 0.8rem; color: #888; }
+
+  /* スケジュール */
+  .timeline { position: relative; padding-left: 0; }
+  .timeline-item {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .month-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    flex-shrink: 0;
+  }
+  .month-badge {
+    background: #2e7d32;
+    color: white;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  .month-line {
+    width: 2px;
+    background: #a5d6a7;
+    flex: 1;
+    min-height: 40px;
+    margin-top: 4px;
+  }
+  .timeline-content {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 0 0 12px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    flex: 1;
+    font-size: 0.88rem;
+  }
+  .timeline-content h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .tag {
+    display: inline-block;
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 0.75rem;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+  .tag-red   { background: #ffebee; color: #c62828; }
+  .tag-green { background: #e8f5e9; color: #2e7d32; }
+  .tag-blue  { background: #e3f2fd; color: #1565c0; }
+  .tag-purple{ background: #f3e5f5; color: #6a1b9a; }
+  .tag-orange{ background: #fff3e0; color: #e65100; }
+
+  /* トラブル */
+  .trouble-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .trouble-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-left: 4px solid #ef5350;
+  }
+  .trouble-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: #c62828; }
+  .trouble-card .cause { font-size: 0.82rem; color: #888; margin-bottom: 4px; }
+  .trouble-card .fix {
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.83rem;
+    color: #2e7d32;
+  }
+
+  /* チェックリスト */
+  .checklist {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e0e0e0;
+    font-size: 0.92rem;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #a5d6a7;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: #f1f8f1;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    user-select: none;
+  }
+  .check-box.checked {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: white;
+  }
+  .check-item.checked-row > div:last-child {
+    color: #aaa;
+    text-decoration: line-through;
+  }
+  .check-item {
+    cursor: pointer;
+  }
+  .check-item:hover .check-box:not(.checked) {
+    border-color: #66bb6a;
+    background: #e8f5e9;
+  }
+
+  /* フッター */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 40px;
+  }
+
+  .tip-box {
+    background: #fff8e1;
+    border-left: 4px solid #ffa000;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    margin: 12px 0;
+    color: #555;
+  }
+  .tip-box strong { color: #e65100; }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="hero">
+  <div style="font-size:2.5rem; margin-bottom:8px;">🌱</div>
+  <h1>ベランダ家庭菜園ガイド</h1>
+  <p>4月下旬スタート｜初心者向け完全マニュアル</p>
+  <div class="badge">🍅 ミニトマト　🥒 キュウリ　🌿 大葉　🌿 バジル</div>
+</div>
+
+<div class="container">
+
+  <!-- 作物紹介 -->
+  <section>
+    <div class="section-title">🥗 育てる作物</div>
+    <div class="crop-grid">
+      <div class="crop-card tomato">
+        <div class="emoji">🍅</div>
+        <h3>ミニトマト</h3>
+        <div class="diff">難易度 ★★☆</div>
+        <p>収穫量が多く、毎日の収穫が楽しい。わき芽かきがコツ</p>
+      </div>
+      <div class="crop-card cucumber">
+        <div class="emoji">🥒</div>
+        <h3>キュウリ</h3>
+        <div class="diff">難易度 ★★☆</div>
+        <p>成長が早くて育てがいあり。放置すると大きくなりすぎるので早めに収穫</p>
+      </div>
+      <div class="crop-card shiso">
+        <div class="emoji">🌿</div>
+        <h3>大葉（シソ）</h3>
+        <div class="diff">難易度 ★☆☆</div>
+        <p>初心者最強。放置気味でもよく育つ。秋まで長く収穫できる</p>
+      </div>
+      <div class="crop-card basil">
+        <div class="emoji">🌱</div>
+        <h3>バジル</h3>
+        <div class="diff">難易度 ★☆☆</div>
+        <p>トマトと一緒に使えて便利。花が咲く前に摘むのがポイント</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 用意するもの -->
+  <section>
+    <div class="section-title">🛒 用意するもの</div>
+    <div class="shopping-grid">
+      <div class="shopping-card">
+        <h4>🪣 プランター・鉢</h4>
+        <ul>
+          <li>ミニトマト用：深さ30cm以上（10〜15L）× 1</li>
+          <li>キュウリ用：深さ30cm以上（10〜15L）× 1</li>
+          <li>大葉用：直径20cm程度 × 1</li>
+          <li>バジル用：直径20cm程度 × 1</li>
+          <li>受け皿（各プランターに1枚）</li>
+        </ul>
+      </div>
+      <div class="shopping-card">
+        <h4>🌍 土・肥料</h4>
+        <ul>
+          <li>野菜用培養土（14〜25Lあれば足りる）</li>
+          <li>液体肥料（ハイポネックス等）</li>
+          <li>※培養土に元肥が入っていればOK</li>
+        </ul>
+      </div>
+      <div class="shopping-card">
+        <h4>🪵 支柱・道具</h4>
+        <ul>
+          <li>支柱150〜180cm × 2本（トマト・キュウリ用）</li>
+          <li>麻ひも or 誘引クリップ</li>
+          <li>じょうろ（or ペットボトルジョーロ）</li>
+          <li>軍手</li>
+        </ul>
+      </div>
+      <div class="shopping-card">
+        <h4>🌿 苗の選び方</h4>
+        <ul>
+          <li>茎が太く、葉が濃い緑のものを選ぶ</li>
+          <li>ひょろ長く伸びていないもの（徒長に注意）</li>
+          <li>ミニトマトは花が1〜2輪ついていればベスト</li>
+          <li>ホームセンター・ドン・キホーテなどで4月末〜購入可</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tip-box">
+      💡 <strong>初心者は「苗」を買うのが断然ラク！</strong>　種からだと2ヶ月以上かかります。帰国直後にホームセンターへGO。
+    </div>
+  </section>
+
+  <!-- 手順 -->
+  <section>
+    <div class="section-title">📋 育て方の手順</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h4>🪴 植え付け（4月下旬〜5月上旬）</h4>
+          <ul>
+            <li>プランターに培養土を8分目まで入れる</li>
+            <li>苗をポットから出し、根を崩さずそっと植える</li>
+            <li>土を軽く押さえ、たっぷり水をやる</li>
+            <li>ミニトマト・キュウリは植え付け直後に支柱を立てる（株から10cm離す）</li>
+            <li>日当たりの良い場所（南向き）に置く</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h4>💧 水やり（毎日〜2日に1回）</h4>
+          <ul>
+            <li>土の表面が乾いたらたっぷり与える</li>
+            <li>夏は朝にやる（夕方は蒸れやすい）</li>
+            <li>受け皿に水が溜まったら捨てる（根腐れ防止）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h4>🧪 液体肥料（植え付け2週間後〜）</h4>
+          <ul>
+            <li>ハイポネックス等の液肥を週1〜2回、水やりのついでに与える</li>
+            <li>夏の成長期は欠かさず続ける</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <h4>🍅 わき芽かき【ミニトマト限定・超重要！】</h4>
+          <ul>
+            <li>主茎と葉の間から出る「わき芽」を早めに手でかき取る</li>
+            <li>週1回はチェックする。放置すると株が弱る</li>
+          </ul>
+          <div class="tip-box" style="margin-top:8px;">
+            💡 わき芽＝葉の付け根から出る小さな新芽。親指と人差し指でつまんでポキっと取るだけ！
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div>
+          <h4>🥒 誘引【キュウリ限定】</h4>
+          <ul>
+            <li>茎が伸びたら麻ひもで支柱に結ぶ（週1回チェック）</li>
+            <li>下から5節のわき芽は全部取る</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div>
+          <h4>🌸 花芽摘み【大葉・バジル限定】</h4>
+          <ul>
+            <li>花が咲く前に花芽を摘む → 葉が長期間収穫できるようになる</li>
+            <li>梅雨明け（7月頃）から花芽が出始めるので注意</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 収穫の合図 -->
+  <section>
+    <div class="section-title">🏆 収穫の合図</div>
+    <div class="harvest-grid">
+      <div class="harvest-card">
+        <div class="big-emoji">🍅</div>
+        <h4>ミニトマト</h4>
+        <div class="sign">🔴 実が全体的に赤くなったら</div>
+        <p>ヘタ近くまで色づいたら収穫。<br>開花から約50〜60日が目安</p>
+      </div>
+      <div class="harvest-card">
+        <div class="big-emoji">🥒</div>
+        <h4>キュウリ</h4>
+        <div class="sign">📏 長さ20cm前後になったら</div>
+        <p>放置すると太くなりすぎる。<br>早めの収穫がコツ</p>
+      </div>
+      <div class="harvest-card">
+        <div class="big-emoji">🌿</div>
+        <h4>大葉</h4>
+        <div class="sign">📐 葉が10cm以上になったら</div>
+        <p>下の葉から順に収穫。<br>植え付け後3〜4週間で使い始められる</p>
+      </div>
+      <div class="harvest-card">
+        <div class="big-emoji">🌱</div>
+        <h4>バジル</h4>
+        <div class="sign">✂️ 大きくなった葉を随時</div>
+        <p>使う分だけちぎる。<br>花が咲く前に花芽を摘むのがポイント</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- スケジュール -->
+  <section>
+    <div class="section-title">📅 月別スケジュール</div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="month-col">
+          <div class="month-badge">4月末</div>
+          <div class="month-line"></div>
+        </div>
+        <div class="timeline-content">
+          <h4>🛒 準備・植え付け</h4>
+          <span class="tag tag-green">苗を購入</span>
+          <span class="tag tag-blue">プランターに植える</span>
+          <span class="tag tag-blue">支柱を立てる</span>
+          <p style="font-size:0.82rem; color:#888; margin-top:6px;">水をたっぷりやって日当たりの良い場所に設置</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="month-col">
+          <div class="month-badge">5月</div>
+          <div class="month-line"></div>
+        </div>
+        <div class="timeline-content">
+          <h4>🌱 根付き期</h4>
+          <span class="tag tag-blue">水やりメイン</span>
+          <span class="tag tag-red">わき芽かき開始</span>
+          <span class="tag tag-orange">2週間後から液肥スタート</span>
+          <p style="font-size:0.82rem; color:#888; margin-top:6px;">苗がぐんぐん育ち始める時期</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="month-col">
+          <div class="month-badge">6月</div>
+          <div class="month-line"></div>
+        </div>
+        <div class="timeline-content">
+          <h4>🌿 最初の収穫！</h4>
+          <span class="tag tag-purple">大葉・バジル収穫スタート</span>
+          <span class="tag tag-green">キュウリ収穫開始</span>
+          <p style="font-size:0.82rem; color:#888; margin-top:6px;">梅雨入り→過湿注意。受け皿の水はこまめに捨てる</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="month-col">
+          <div class="month-badge">7月</div>
+          <div class="month-line"></div>
+        </div>
+        <div class="timeline-content">
+          <h4>🍅 ピーク！毎日収穫</h4>
+          <span class="tag tag-red">ミニトマト収穫ピーク</span>
+          <span class="tag tag-green">キュウリ最盛期</span>
+          <p style="font-size:0.82rem; color:#888; margin-top:6px;">猛暑→朝の水やり徹底。大葉・バジルの花芽摘みも忘れずに</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="month-col">
+          <div class="month-badge">8月</div>
+          <div class="month-line"></div>
+        </div>
+        <div class="timeline-content">
+          <h4>☀️ 引き続き収穫</h4>
+          <span class="tag tag-red">ミニトマト継続</span>
+          <span class="tag tag-green">キュウリ終盤</span>
+          <p style="font-size:0.82rem; color:#888; margin-top:6px;">高温で株が疲れてくる。液肥で回復させる</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="month-col">
+          <div class="month-badge">9〜10月</div>
+          <div class="month-line"></div>
+        </div>
+        <div class="timeline-content">
+          <h4>🍂 終わり支度</h4>
+          <span class="tag tag-red">ミニトマト終了</span>
+          <span class="tag tag-purple">大葉・バジルも終盤</span>
+          <p style="font-size:0.82rem; color:#888; margin-top:6px;">気温が下がったら片付け。使った土はふるいにかけて再利用可</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- トラブル対処 -->
+  <section>
+    <div class="section-title">🚨 よくあるトラブルと対処</div>
+    <div class="trouble-grid">
+      <div class="trouble-card">
+        <h4>🟡 葉が黄色くなる</h4>
+        <div class="cause">原因：肥料不足 or 根腐れ</div>
+        <div class="fix">→ 液肥を与える / 水やり量を減らす</div>
+      </div>
+      <div class="trouble-card">
+        <h4>🍅 実が割れる（ミニトマト）</h4>
+        <div class="cause">原因：急激な水分変化</div>
+        <div class="fix">→ 乾燥させすぎず、こまめに水やりを続ける</div>
+      </div>
+      <div class="trouble-card">
+        <h4>📉 実が大きくならない</h4>
+        <div class="cause">原因：肥料不足 or わき芽かき不足</div>
+        <div class="fix">→ 追肥 + わき芽をこまめに取る</div>
+      </div>
+      <div class="trouble-card">
+        <h4>⬜ 葉に白い粉（うどんこ病）</h4>
+        <div class="cause">原因：カビ（梅雨時期に多い）</div>
+        <div class="fix">→ 患部を取り除く。重曹水スプレーも有効</div>
+      </div>
+      <div class="trouble-card">
+        <h4>🐛 葉に虫食い</h4>
+        <div class="cause">原因：アブラムシ等</div>
+        <div class="fix">→ 見つけたら手で取る。市販の虫よけスプレーも可</div>
+      </div>
+      <div class="trouble-card">
+        <h4>🥀 苗がしおれる</h4>
+        <div class="cause">原因：水不足 or 根詰まり</div>
+        <div class="fix">→ すぐたっぷり水やり。土が固くなっていたら割り箸で穴を開ける</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最初の1週間チェックリスト -->
+  <section>
+    <div class="section-title">✅ 最初の1週間でやること</div>
+    <div class="checklist" id="checklist">
+      <div class="check-item" data-id="0">
+        <div class="check-box"></div>
+        <div>ホームセンターで苗・培養土・プランター・支柱・液肥を購入する</div>
+      </div>
+      <div class="check-item" data-id="1">
+        <div class="check-box"></div>
+        <div>プランターに土を入れ、苗を植え付ける</div>
+      </div>
+      <div class="check-item" data-id="2">
+        <div class="check-box"></div>
+        <div>ミニトマト・キュウリに支柱を立てる</div>
+      </div>
+      <div class="check-item" data-id="3">
+        <div class="check-box"></div>
+        <div>植え付け直後にたっぷり水をやる</div>
+      </div>
+      <div class="check-item" data-id="4">
+        <div class="check-box"></div>
+        <div>日当たりの良い場所（南向き）に設置する</div>
+      </div>
+      <div class="check-item" data-id="5">
+        <div class="check-box"></div>
+        <div>「2週間後から液肥スタート」をカレンダーにメモしておく</div>
+      </div>
+      <div class="check-item" data-id="6">
+        <div class="check-box"></div>
+        <div>週1回のわき芽チェックを習慣にする（ミニトマト）</div>
+      </div>
+    </div>
+    <div style="text-align:right; margin-top:10px;">
+      <button onclick="resetChecks()" style="font-size:0.8rem; color:#aaa; background:none; border:none; cursor:pointer; text-decoration:underline;">リセット</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'garden-checklist';
+
+  function loadChecks() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    document.querySelectorAll('.check-item').forEach(item => {
+      if (saved[item.dataset.id]) {
+        item.querySelector('.check-box').classList.add('checked');
+        item.querySelector('.check-box').textContent = '✓';
+        item.classList.add('checked-row');
+      }
+    });
+  }
+
+  function resetChecks() {
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('.check-item').forEach(item => {
+      item.querySelector('.check-box').classList.remove('checked');
+      item.querySelector('.check-box').textContent = '';
+      item.classList.remove('checked-row');
+    });
+  }
+
+  document.getElementById('checklist').addEventListener('click', function(e) {
+    const item = e.target.closest('.check-item');
+    if (!item) return;
+    const box = item.querySelector('.check-box');
+    const isChecked = box.classList.toggle('checked');
+    box.textContent = isChecked ? '✓' : '';
+    item.classList.toggle('checked-row', isChecked);
+
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    saved[item.dataset.id] = isChecked;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  });
+
+  loadChecks();
+</script>
+
+<footer>
+  🌱 ベランダ家庭菜園ガイド｜4月下旬スタート版
+</footer>
+
+</body>
+</html>
