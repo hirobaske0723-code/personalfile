@@ -691,6 +691,99 @@
   });
 
   loadChecks();
+
+  // ===== マイスケジュール =====
+  const SCHEDULE_KEY = 'garden-plant-dates';
+  const CROPS = [
+    { id: 'tomato', name: 'ミニトマト', emoji: '🍅', milestones: [
+      { days: 0,   label: '植え付け',       detail: 'プランターに植え、支柱を立てる' },
+      { days: 14,  label: '液肥スタート',    detail: 'ハイポネックス等を週1〜2回。わき芽かき開始' },
+      { days: 35,  label: '開花目安',        detail: 'わき芽かきを週1回続ける' },
+      { days: 85,  label: '収穫開始目安',    detail: '実が赤くなったら収穫。開花後50〜60日が目安' },
+      { days: 150, label: '終了目安',        detail: '気温が下がったら片付け' },
+    ]},
+    { id: 'cucumber', name: 'キュウリ', emoji: '🥒', milestones: [
+      { days: 0,   label: '植え付け',       detail: 'プランターに植え、支柱を立てる' },
+      { days: 14,  label: '液肥スタート',    detail: '週1〜2回。下から5節のわき芽を取る' },
+      { days: 40,  label: '収穫開始目安',    detail: '20cm前後になったら早めに収穫' },
+      { days: 100, label: '終了目安',        detail: '株が疲れてきたら終わり' },
+    ]},
+    { id: 'shiso', name: '大葉', emoji: '🌿', milestones: [
+      { days: 0,   label: '植え付け',       detail: '日当たり良い場所に設置' },
+      { days: 21,  label: '収穫開始目安',    detail: '葉が10cm以上になったら下から順に収穫' },
+      { days: 75,  label: '花芽注意',        detail: '花が咲く前に花芽を摘む。摘むと長く収穫できる' },
+      { days: 150, label: '終了目安',        detail: '気温低下で枯れてくる' },
+    ]},
+    { id: 'basil', name: 'バジル', emoji: '🌱', milestones: [
+      { days: 0,   label: '植え付け',       detail: '日当たり良い場所に設置' },
+      { days: 14,  label: '収穫開始目安',    detail: '大きくなった葉を随時摘む' },
+      { days: 75,  label: '花芽注意',        detail: '花が咲く前に花芽を摘む' },
+    ]},
+  ];
+
+  function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  function formatDate(date) {
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  }
+
+  function renderSchedule() {
+    const saved = {};
+    CROPS.forEach(c => {
+      const val = document.getElementById('date-' + c.id).value;
+      if (val) saved[c.id] = val;
+    });
+    localStorage.setItem(SCHEDULE_KEY, JSON.stringify(saved));
+
+    const el = document.getElementById('custom-schedule');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const filled = CROPS.filter(c => saved[c.id]);
+    if (filled.length === 0) {
+      el.innerHTML = '<p class="schedule-empty">植え付け日を入力するとスケジュールが表示されます</p>';
+      return;
+    }
+
+    el.innerHTML = filled.map(crop => {
+      const plantDate = new Date(saved[crop.id]);
+      const items = crop.milestones.map((m, i) => {
+        const date = addDays(plantDate, m.days);
+        const isPast = date < today;
+        const isToday = date.getTime() === today.getTime();
+        const isLast = i === crop.milestones.length - 1;
+        return `
+          <div class="milestone-item">
+            <div class="milestone-left">
+              <div class="milestone-date">${formatDate(date)}</div>
+              <div class="milestone-dot${isToday ? ' today' : ''}"></div>
+              ${!isLast ? '<div class="milestone-line"></div>' : ''}
+            </div>
+            <div class="milestone-body${isToday ? ' is-today' : ''}${isPast ? ' is-past' : ''}">
+              <strong>${m.label}</strong>${m.detail}
+            </div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="crop-schedule">
+          <div class="crop-schedule-title">${crop.emoji} ${crop.name}</div>
+          <div class="milestone-list">${items}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // 保存済みの日付を復元
+  (function loadDates() {
+    const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
+    CROPS.forEach(c => {
+      if (saved[c.id]) document.getElementById('date-' + c.id).value = saved[c.id];
+    });
+    if (Object.keys(saved).length > 0) renderSchedule();
+  })();
 </script>
 
 <footer>
