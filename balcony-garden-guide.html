@@ -653,30 +653,24 @@
     </div>
   </section>
 
+  <!-- 削除確認モーダル -->
+  <div id="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; display:none; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:16px; padding:24px; max-width:300px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+      <div style="font-size:2rem; margin-bottom:8px;">🗑️</div>
+      <div id="delete-modal-text" style="font-size:0.95rem; margin-bottom:20px; color:#333;"></div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="cancelDelete()" style="flex:1; padding:10px; border:1.5px solid #ddd; border-radius:10px; background:white; font-size:0.9rem; cursor:pointer;">キャンセル</button>
+        <button onclick="executeDelete()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#e53935; color:white; font-size:0.9rem; cursor:pointer;">削除する</button>
+      </div>
+    </div>
+  </div>
+
   <!-- スケジュール -->
   <section>
     <div class="section-title">📅 マイスケジュール</div>
     <div class="date-input-card">
       <p class="date-input-hint">植え付け日を入力すると、作物ごとのスケジュールを自動計算します</p>
-      <div class="date-rows">
-        <div>
-          <div class="date-row"><span>🍅 ミニトマト</span><input type="date" id="date-tomato" onchange="renderSchedule()"><label class="photo-btn" for="photo-tomato" title="写真で診断">📷</label><input type="file" id="photo-tomato" accept="image/*" style="display:none" onchange="analyzePhoto(this,'tomato','ミニトマト')"></div>
-          <div id="diag-tomato"></div>
-        </div>
-        <div>
-          <div class="date-row"><span>🥒 キュウリ</span><input type="date" id="date-cucumber" onchange="renderSchedule()"><label class="photo-btn" for="photo-cucumber" title="写真で診断">📷</label><input type="file" id="photo-cucumber" accept="image/*" style="display:none" onchange="analyzePhoto(this,'cucumber','キュウリ')"></div>
-          <div id="diag-cucumber"></div>
-        </div>
-        <div>
-          <div class="date-row"><span>🌿 大葉</span><input type="date" id="date-shiso" onchange="renderSchedule()"><label class="photo-btn" for="photo-shiso" title="写真で診断">📷</label><input type="file" id="photo-shiso" accept="image/*" style="display:none" onchange="analyzePhoto(this,'shiso','大葉')"></div>
-          <div id="diag-shiso"></div>
-        </div>
-        <div>
-          <div class="date-row"><span>🌱 バジル</span><input type="date" id="date-basil" onchange="renderSchedule()"><label class="photo-btn" for="photo-basil" title="写真で診断">📷</label><input type="file" id="photo-basil" accept="image/*" style="display:none" onchange="analyzePhoto(this,'basil','バジル')"></div>
-          <div id="diag-basil"></div>
-        </div>
-      </div>
-      <div id="custom-crop-rows"></div>
+      <div class="date-rows" id="all-crop-rows"></div>
       <button class="add-crop-btn" onclick="toggleAddForm()">＋ 植物を追加</button>
       <div class="add-crop-form" id="add-crop-form" style="display:none;">
         <div class="form-row">
@@ -813,8 +807,10 @@
   loadChecks();
 
   // ===== マイスケジュール =====
-  const SCHEDULE_KEY = 'garden-plant-dates';
-  const CUSTOM_CROPS_KEY = 'garden-custom-crops';
+  const SCHEDULE_KEY      = 'garden-plant-dates';
+  const CUSTOM_CROPS_KEY  = 'garden-custom-crops';
+  const HIDDEN_CROPS_KEY  = 'garden-hidden-crops';
+  let pendingDeleteId     = null;
   const CROPS = [
     { id: 'tomato', name: 'ミニトマト', emoji: '🍅', milestones: [
       { days: 0,   label: '植え付け',       detail: 'プランターに植え、支柱を立てる' },
@@ -855,6 +851,9 @@
   function getCustomCrops() {
     return JSON.parse(localStorage.getItem(CUSTOM_CROPS_KEY) || '[]');
   }
+  function getHiddenCrops() {
+    return JSON.parse(localStorage.getItem(HIDDEN_CROPS_KEY) || '[]');
+  }
 
   function makeCustomMilestones(harvestDays) {
     const ms = [{ days: 0, label: '植え付け', detail: '日当たりの良い場所に設置する' }];
@@ -864,21 +863,56 @@
     return ms;
   }
 
-  function renderCustomRows() {
-    const crops = getCustomCrops();
-    const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
-    const container = document.getElementById('custom-crop-rows');
-    container.innerHTML = crops.map(c => `
+  function renderAllRows() {
+    const hidden  = getHiddenCrops();
+    const custom  = getCustomCrops();
+    const saved   = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
+    const visible = [
+      ...CROPS.filter(c => !hidden.includes(c.id)),
+      ...custom.map(c => ({ ...c, isCustom: true }))
+    ];
+    const container = document.getElementById('all-crop-rows');
+    container.innerHTML = visible.map(c => `
       <div>
         <div class="date-row">
           <span>${c.emoji} ${c.name}</span>
           <input type="date" id="date-${c.id}" value="${saved[c.id] || ''}" onchange="renderSchedule()">
           <label class="photo-btn" for="photo-${c.id}" title="写真で診断">📷</label>
           <input type="file" id="photo-${c.id}" accept="image/*" style="display:none" onchange="analyzePhoto(this,'${c.id}','${c.name}')">
-          <button class="delete-btn" onclick="removeCustomCrop('${c.id}')" title="削除">✕</button>
+          <button class="delete-btn" onclick="showDeleteConfirm('${c.id}','${c.name}')" title="削除">✕</button>
         </div>
         <div id="diag-${c.id}"></div>
       </div>`).join('');
+  }
+
+  function showDeleteConfirm(id, name) {
+    pendingDeleteId = id;
+    document.getElementById('delete-modal-text').textContent = `「${name}」を削除しますか？`;
+    const modal = document.getElementById('delete-modal');
+    modal.style.display = 'flex';
+  }
+  function cancelDelete() {
+    pendingDeleteId = null;
+    document.getElementById('delete-modal').style.display = 'none';
+  }
+  function executeDelete() {
+    const id = pendingDeleteId;
+    cancelDelete();
+    // デフォルト作物なら hidden リストに追加
+    const isDefault = CROPS.some(c => c.id === id);
+    if (isDefault) {
+      const hidden = getHiddenCrops();
+      if (!hidden.includes(id)) hidden.push(id);
+      localStorage.setItem(HIDDEN_CROPS_KEY, JSON.stringify(hidden));
+    } else {
+      const custom = getCustomCrops().filter(c => c.id !== id);
+      localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(custom));
+    }
+    const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
+    delete saved[id];
+    localStorage.setItem(SCHEDULE_KEY, JSON.stringify(saved));
+    renderAllRows();
+    renderSchedule();
   }
 
   function toggleAddForm() {
@@ -899,24 +933,15 @@
     document.getElementById('new-name').value = '';
     document.getElementById('new-harvest-days').value = '';
     toggleAddForm();
-    renderCustomRows();
-    renderSchedule();
-  }
-
-  function removeCustomCrop(id) {
-    const crops = getCustomCrops().filter(c => c.id !== id);
-    localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
-    const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
-    delete saved[id];
-    localStorage.setItem(SCHEDULE_KEY, JSON.stringify(saved));
-    renderCustomRows();
+    renderAllRows();
     renderSchedule();
   }
 
   function renderSchedule() {
+    const hidden     = getHiddenCrops();
     const customCrops = getCustomCrops();
     const allCrops = [
-      ...CROPS,
+      ...CROPS.filter(c => !hidden.includes(c.id)),
       ...customCrops.map(c => ({ ...c, milestones: makeCustomMilestones(c.harvestDays) }))
     ];
 
@@ -1015,11 +1040,8 @@
 
   // 保存済みの日付を復元
   (function loadDates() {
-    renderCustomRows();
+    renderAllRows();
     const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
-    CROPS.forEach(c => {
-      if (saved[c.id]) document.getElementById('date-' + c.id).value = saved[c.id];
-    });
     if (Object.keys(saved).length > 0) renderSchedule();
   })();
 </script>
