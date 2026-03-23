@@ -17,23 +17,26 @@ export default async function handler(req, res) {
     });
     const { access_token } = await tokenRes.json();
 
-    // 今週の範囲を計算
+    // 今日〜今週日曜の範囲を計算
     const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    startOfWeek.setHours(0, 0, 0, 0);
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    const endOfWeek = new Date(today);
+    const daysUntilSunday = (7 - today.getDay()) % 7 || 7;
+    endOfWeek.setDate(today.getDate() + daysUntilSunday);
     endOfWeek.setHours(23, 59, 59, 999);
 
     const calId = encodeURIComponent(GCAL_CALENDAR_ID);
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?timeMin=${startOfWeek.toISOString()}&timeMax=${endOfWeek.toISOString()}&singleEvents=true&orderBy=startTime`;
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?timeMin=${today.toISOString()}&timeMax=${endOfWeek.toISOString()}&singleEvents=true&orderBy=startTime`;
 
     const calRes = await fetch(url, {
       headers: { Authorization: `Bearer ${access_token}` },
     });
     const data = await calRes.json();
+
+    // 誕生日イベントを除外
+    data.items = (data.items || []).filter(ev => ev.eventType !== 'birthday');
     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
