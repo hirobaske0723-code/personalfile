@@ -219,31 +219,47 @@
     }
   }
 
-  // チェックしたらNotionを更新
-  async function toggleTodo(checkEl) {
+  // チェックはローカルのみ切り替え
+  function toggleLocal(checkEl) {
     const item = checkEl.closest('.todo-item');
-    const pageId = item.dataset.pageId;
-    const propName = item.dataset.propName;
+    const isDone = checkEl.classList.toggle('done');
+    checkEl.textContent = isDone ? '✓' : '';
+    item.querySelector('.todo-text').classList.toggle('done', isDone);
+    // チェック済みが1件以上あれば更新ボタンを表示
+    const anyChecked = document.querySelectorAll('.todo-check.done').length > 0;
+    document.getElementById('update-btn-wrap').style.display = anyChecked ? 'block' : 'none';
+  }
 
-    // 先にUIを更新（楽観的更新）
-    checkEl.classList.add('done');
-    checkEl.textContent = '✓';
-    item.querySelector('.todo-text').classList.add('done');
-    checkEl.style.pointerEvents = 'none';
+  // 更新ボタン：チェック済みをまとめてNotionに反映
+  async function syncTodo() {
+    const btn = document.getElementById('update-btn');
+    btn.disabled = true;
+    btn.textContent = '反映中...';
 
-    try {
-      await fetch('/api/notion-update', {
+    const checked = document.querySelectorAll('.todo-check.done');
+    const tasks = Array.from(checked).map(checkEl => {
+      const item = checkEl.closest('.todo-item');
+      return fetch('/api/notion-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId, propName, value: true }),
+        body: JSON.stringify({ pageId: item.dataset.pageId, propName: item.dataset.propName, value: true }),
       });
-      setTimeout(() => item.remove(), 600);
+    });
+
+    try {
+      await Promise.all(tasks);
+      // 完了したアイテムを削除
+      checked.forEach(checkEl => checkEl.closest('.todo-item').remove());
+      document.getElementById('update-btn-wrap').style.display = 'none';
+      btn.textContent = 'Notionに反映';
+      btn.disabled = false;
+      // 残りがなければメッセージ表示
+      if (document.querySelectorAll('.todo-item').length === 0) {
+        document.getElementById('todo-list').innerHTML = '<div class="loading">TODOはありません 🎉</div>';
+      }
     } catch (e) {
-      // 失敗したら元に戻す
-      checkEl.classList.remove('done');
-      checkEl.textContent = '';
-      item.querySelector('.todo-text').classList.remove('done');
-      checkEl.style.pointerEvents = '';
+      btn.textContent = '失敗しました。再試行';
+      btn.disabled = false;
     }
   }
 
