@@ -938,7 +938,7 @@
       const data = await res.json();
 
       if (data.error || !data.milestones) {
-        alert('スケジュールの生成に失敗しました。もう一度お試しください。');
+        alert('スケジュールの生成に失敗しました。\n' + (data.error || '') + (data.raw ? '\n\n' + data.raw.slice(0, 200) : ''));
         return;
       }
 

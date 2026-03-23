@@ -35,10 +35,23 @@ export default async function handler(req, res) {
       }
     );
     const data = await response.json();
+
+    // APIエラーチェック
+    if (data.error) return res.status(200).json({ error: data.error.message || 'API error' });
+
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return res.status(200).json({ error: 'スケジュールの生成に失敗しました' });
-    res.status(200).json(JSON.parse(jsonMatch[0]));
+    if (!text) return res.status(200).json({ error: '応答が空でした' });
+
+    // コードブロックを除去してJSONを抽出
+    const cleaned = text.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return res.status(200).json({ error: '解析失敗', raw: text });
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (!parsed.milestones || !Array.isArray(parsed.milestones)) {
+      return res.status(200).json({ error: 'milestones が見つかりません', raw: text });
+    }
+    res.status(200).json(parsed);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
