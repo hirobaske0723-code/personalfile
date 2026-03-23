@@ -178,26 +178,56 @@
     try {
       const res = await fetch('/api/notion');
       const data = await res.json();
-      const results = data.results || [];
+      // 完了済みを除外
+      const results = (data.results || []).filter(page => {
+        const checkProp = Object.values(page.properties).find(p => p.type === 'checkbox');
+        return !checkProp?.checkbox;
+      });
       if (results.length === 0) {
-        el.innerHTML = '<div class="loading">TODOはありません</div>';
+        el.innerHTML = '<div class="loading">TODOはありません 🎉</div>';
         return;
       }
       el.innerHTML = results.map(page => {
-        // タイトル取得
         const titleProp = Object.values(page.properties).find(p => p.type === 'title');
         const title = titleProp?.title?.map(t => t.plain_text).join('') || '（無題）';
-        // チェックボックス取得
-        const checkProp = Object.values(page.properties).find(p => p.type === 'checkbox');
-        const done = checkProp?.checkbox || false;
+        const checkEntry = Object.entries(page.properties).find(([, p]) => p.type === 'checkbox');
+        const propName = checkEntry ? checkEntry[0] : '';
         return `
-          <div class="todo-item">
-            <div class="todo-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
-            <div class="todo-text ${done ? 'done' : ''}">${title}</div>
+          <div class="todo-item" data-page-id="${page.id}" data-prop-name="${propName}">
+            <div class="todo-check" onclick="toggleTodo(this)"></div>
+            <div class="todo-text">${title}</div>
           </div>`;
       }).join('');
     } catch (e) {
       el.innerHTML = '<div class="error">TODOの取得に失敗しました</div>';
+    }
+  }
+
+  // チェックしたらNotionを更新
+  async function toggleTodo(checkEl) {
+    const item = checkEl.closest('.todo-item');
+    const pageId = item.dataset.pageId;
+    const propName = item.dataset.propName;
+
+    // 先にUIを更新（楽観的更新）
+    checkEl.classList.add('done');
+    checkEl.textContent = '✓';
+    item.querySelector('.todo-text').classList.add('done');
+    checkEl.style.pointerEvents = 'none';
+
+    try {
+      await fetch('/api/notion-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId, propName, value: true }),
+      });
+      setTimeout(() => item.remove(), 600);
+    } catch (e) {
+      // 失敗したら元に戻す
+      checkEl.classList.remove('done');
+      checkEl.textContent = '';
+      item.querySelector('.todo-text').classList.remove('done');
+      checkEl.style.pointerEvents = '';
     }
   }
 
