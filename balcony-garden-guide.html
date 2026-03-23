@@ -228,6 +228,65 @@
   .diag-next   { color: #333; margin-bottom: 4px; }
   .diag-note   { font-size: 0.78rem; color: #888; margin-top: 4px; }
 
+  /* 植物追加フォーム */
+  .add-crop-btn {
+    margin-top: 14px;
+    background: none;
+    border: 1.5px dashed #a5d6a7;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 0.88rem;
+    color: #43a047;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s;
+  }
+  .add-crop-btn:hover { background: #f1f8e9; }
+  .add-crop-form {
+    background: #f9fbe7;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .add-crop-form input[type="text"],
+  .add-crop-form input[type="number"] {
+    border: 1.5px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    outline: none;
+  }
+  .add-crop-form input:focus { border-color: #43a047; }
+  .add-crop-form .form-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #555;
+  }
+  .add-crop-form .form-row input[type="text"]:first-child { width: 52px; text-align: center; }
+  .add-crop-form .form-row input[type="text"]:last-of-type { flex: 1; }
+  .add-crop-form input[type="number"] { width: 70px; }
+  .add-crop-form .form-actions { display: flex; gap: 8px; }
+  .btn-add-confirm {
+    background: #43a047; color: white; border: none;
+    border-radius: 8px; padding: 7px 18px; font-size: 0.88rem; cursor: pointer; flex: 1;
+  }
+  .btn-add-confirm:hover { background: #388e3c; }
+  .btn-cancel {
+    background: #eee; color: #666; border: none;
+    border-radius: 8px; padding: 7px 14px; font-size: 0.88rem; cursor: pointer;
+  }
+  .delete-btn {
+    background: none; border: none; color: #ccc;
+    font-size: 1rem; cursor: pointer; padding: 0 4px; margin-left: auto;
+    flex-shrink: 0;
+  }
+  .delete-btn:hover { color: #e53935; }
+
   /* カスタムスケジュール */
   .crop-schedule { margin-bottom: 20px; }
   .crop-schedule-title {
