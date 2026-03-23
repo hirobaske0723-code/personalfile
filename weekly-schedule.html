@@ -210,7 +210,7 @@
         const propName = checkEntry ? checkEntry[0] : '';
         return `
           <div class="todo-item" data-page-id="${page.id}" data-prop-name="${propName}">
-            <div class="todo-check" onclick="toggleTodo(this)"></div>
+            <div class="todo-check" onclick="toggleLocal(this)"></div>
             <div class="todo-text">${title}</div>
           </div>`;
       }).join('');
