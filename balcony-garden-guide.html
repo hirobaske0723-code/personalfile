@@ -564,90 +564,17 @@
 
   <!-- スケジュール -->
   <section>
-    <div class="section-title">📅 月別スケジュール</div>
-    <div class="timeline">
-
-      <div class="timeline-item">
-        <div class="month-col">
-          <div class="month-badge">4月末</div>
-          <div class="month-line"></div>
-        </div>
-        <div class="timeline-content">
-          <h4>🛒 準備・植え付け</h4>
-          <span class="tag tag-green">苗を購入</span>
-          <span class="tag tag-blue">プランターに植える</span>
-          <span class="tag tag-blue">支柱を立てる</span>
-          <p style="font-size:0.82rem; color:#888; margin-top:6px;">水をたっぷりやって日当たりの良い場所に設置</p>
-        </div>
+    <div class="section-title">📅 マイスケジュール</div>
+    <div class="date-input-card">
+      <p class="date-input-hint">植え付け日を入力すると、作物ごとのスケジュールを自動計算します</p>
+      <div class="date-rows">
+        <div class="date-row"><span>🍅 ミニトマト</span><input type="date" id="date-tomato" onchange="renderSchedule()"></div>
+        <div class="date-row"><span>🥒 キュウリ</span><input type="date" id="date-cucumber" onchange="renderSchedule()"></div>
+        <div class="date-row"><span>🌿 大葉</span><input type="date" id="date-shiso" onchange="renderSchedule()"></div>
+        <div class="date-row"><span>🌱 バジル</span><input type="date" id="date-basil" onchange="renderSchedule()"></div>
       </div>
-
-      <div class="timeline-item">
-        <div class="month-col">
-          <div class="month-badge">5月</div>
-          <div class="month-line"></div>
-        </div>
-        <div class="timeline-content">
-          <h4>🌱 根付き期</h4>
-          <span class="tag tag-blue">水やりメイン</span>
-          <span class="tag tag-red">わき芽かき開始</span>
-          <span class="tag tag-orange">2週間後から液肥スタート</span>
-          <p style="font-size:0.82rem; color:#888; margin-top:6px;">苗がぐんぐん育ち始める時期</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="month-col">
-          <div class="month-badge">6月</div>
-          <div class="month-line"></div>
-        </div>
-        <div class="timeline-content">
-          <h4>🌿 最初の収穫！</h4>
-          <span class="tag tag-purple">大葉・バジル収穫スタート</span>
-          <span class="tag tag-green">キュウリ収穫開始</span>
-          <p style="font-size:0.82rem; color:#888; margin-top:6px;">梅雨入り→過湿注意。受け皿の水はこまめに捨てる</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="month-col">
-          <div class="month-badge">7月</div>
-          <div class="month-line"></div>
-        </div>
-        <div class="timeline-content">
-          <h4>🍅 ピーク！毎日収穫</h4>
-          <span class="tag tag-red">ミニトマト収穫ピーク</span>
-          <span class="tag tag-green">キュウリ最盛期</span>
-          <p style="font-size:0.82rem; color:#888; margin-top:6px;">猛暑→朝の水やり徹底。大葉・バジルの花芽摘みも忘れずに</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="month-col">
-          <div class="month-badge">8月</div>
-          <div class="month-line"></div>
-        </div>
-        <div class="timeline-content">
-          <h4>☀️ 引き続き収穫</h4>
-          <span class="tag tag-red">ミニトマト継続</span>
-          <span class="tag tag-green">キュウリ終盤</span>
-          <p style="font-size:0.82rem; color:#888; margin-top:6px;">高温で株が疲れてくる。液肥で回復させる</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="month-col">
-          <div class="month-badge">9〜10月</div>
-          <div class="month-line"></div>
-        </div>
-        <div class="timeline-content">
-          <h4>🍂 終わり支度</h4>
-          <span class="tag tag-red">ミニトマト終了</span>
-          <span class="tag tag-purple">大葉・バジルも終盤</span>
-          <p style="font-size:0.82rem; color:#888; margin-top:6px;">気温が下がったら片付け。使った土はふるいにかけて再利用可</p>
-        </div>
-      </div>
-
     </div>
+    <div id="custom-schedule"><p class="schedule-empty">植え付け日を入力するとスケジュールが表示されます</p></div>
   </section>
 
   <!-- トラブル対処 -->
