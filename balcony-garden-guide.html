@@ -817,6 +817,55 @@
     }).join('');
   }
 
+  // 写真解析
+  async function analyzePhoto(input, cropId, cropName) {
+    const file = input.files[0];
+    if (!file) return;
+    const resultEl = document.getElementById('diag-' + cropId);
+    resultEl.innerHTML = '<div class="diag-loading">🔍 解析中...</div>';
+
+    const base64 = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+
+    try {
+      const res = await fetch('/api/analyze-plant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mimeType: file.type, cropName }),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        resultEl.innerHTML = `<div class="diag-error">⚠️ ${data.error}</div>`;
+        return;
+      }
+
+      // 推定植え付け日を計算して日付を更新
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const plantDate = new Date(today);
+      plantDate.setDate(today.getDate() - data.estimatedDaysFromPlanting);
+      const dateStr = plantDate.toISOString().split('T')[0];
+      document.getElementById('date-' + cropId).value = dateStr;
+      renderSchedule();
+
+      const healthIcon = data.isHealthy ? '✅' : '⚠️';
+      resultEl.innerHTML = `
+        <div class="diag-result${data.isHealthy ? '' : ' unhealthy'}">
+          <div class="diag-stage">${healthIcon} ${data.stage}（植え付けから約${data.estimatedDaysFromPlanting}日）</div>
+          <div class="diag-message">${data.message}</div>
+          <div class="diag-next"><strong>次のステップ：</strong>${data.nextAction}</div>
+          <div class="diag-note">📅 植え付け日を ${formatDate(plantDate)} 頃に自動更新しました</div>
+        </div>`;
+    } catch (e) {
+      resultEl.innerHTML = '<div class="diag-error">⚠️ 通信エラーが発生しました</div>';
+    }
+    input.value = '';
+  }
+
   // 保存済みの日付を復元
   (function loadDates() {
     const saved = JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '{}');
