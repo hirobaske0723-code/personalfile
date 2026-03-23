@@ -195,6 +195,35 @@
     cursor: pointer;
   }
   .date-row input[type="date"]:focus { border-color: #43a047; }
+  .photo-btn {
+    background: #e8f5e9;
+    border: 1.5px solid #a5d6a7;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .photo-btn:hover { background: #c8e6c9; }
+
+  /* 診断結果 */
+  .diag-loading { color: #888; font-size: 0.83rem; padding: 8px 4px; }
+  .diag-error   { color: #e53935; font-size: 0.83rem; padding: 8px 4px; }
+  .diag-result {
+    background: #f1f8e9;
+    border-left: 3px solid #7cb342;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+  }
+  .diag-result.unhealthy { background: #fff8e1; border-color: #ffa000; }
+  .diag-stage  { font-weight: bold; margin-bottom: 4px; color: #2e7d32; }
+  .diag-result.unhealthy .diag-stage { color: #e65100; }
+  .diag-message { color: #555; margin-bottom: 6px; }
+  .diag-next   { color: #333; margin-bottom: 4px; }
+  .diag-note   { font-size: 0.78rem; color: #888; margin-top: 4px; }
 
   /* カスタムスケジュール */
   .crop-schedule { margin-bottom: 20px; }
