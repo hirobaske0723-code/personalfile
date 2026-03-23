@@ -675,15 +675,12 @@
       <div class="add-crop-form" id="add-crop-form" style="display:none;">
         <div class="form-row">
           <input type="text" id="new-emoji" placeholder="🌱" maxlength="2">
-          <input type="text" id="new-name" placeholder="植物名（例：ピーマン）">
+          <input type="text" id="new-name" placeholder="植物名（例：ピーマン）" onkeydown="if(event.key==='Enter')addCustomCrop()">
         </div>
-        <div class="form-row">
-          収穫開始まで
-          <input type="number" id="new-harvest-days" min="1" max="365" placeholder="60">
-          日
-        </div>
+        <p style="font-size:0.78rem; color:#888; margin:0;">植物名を入力するとAIがスケジュールを自動生成します</p>
+        <div id="add-crop-loading" style="display:none; font-size:0.83rem; color:#888;">🤖 スケジュール生成中...</div>
         <div class="form-actions">
-          <button class="btn-add-confirm" onclick="addCustomCrop()">追加</button>
+          <button class="btn-add-confirm" id="btn-add-confirm" onclick="addCustomCrop()">追加</button>
           <button class="btn-cancel" onclick="toggleAddForm()">キャンセル</button>
         </div>
       </div>
@@ -921,20 +918,45 @@
     if (f.style.display === 'flex') document.getElementById('new-name').focus();
   }
 
-  function addCustomCrop() {
+  async function addCustomCrop() {
     const emoji = document.getElementById('new-emoji').value.trim() || '🌱';
     const name  = document.getElementById('new-name').value.trim();
-    const days  = parseInt(document.getElementById('new-harvest-days').value) || 60;
     if (!name) { alert('植物名を入力してください'); return; }
-    const crops = getCustomCrops();
-    crops.push({ id: 'custom_' + Date.now(), name, emoji, harvestDays: days });
-    localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
-    document.getElementById('new-emoji').value = '';
-    document.getElementById('new-name').value = '';
-    document.getElementById('new-harvest-days').value = '';
-    toggleAddForm();
-    renderAllRows();
-    renderSchedule();
+
+    // ローディング表示
+    const btn = document.getElementById('btn-add-confirm');
+    const loading = document.getElementById('add-crop-loading');
+    btn.disabled = true;
+    loading.style.display = 'block';
+
+    try {
+      const res = await fetch('/api/crop-schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cropName: name }),
+      });
+      const data = await res.json();
+
+      if (data.error || !data.milestones) {
+        alert('スケジュールの生成に失敗しました。もう一度お試しください。');
+        return;
+      }
+
+      const crops = getCustomCrops();
+      crops.push({ id: 'custom_' + Date.now(), name, emoji, milestones: data.milestones });
+      localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
+
+      document.getElementById('new-emoji').value = '';
+      document.getElementById('new-name').value = '';
+      toggleAddForm();
+      renderAllRows();
+      renderSchedule();
+    } catch (e) {
+      alert('通信エラーが発生しました。');
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
   }
 
   function renderSchedule() {
@@ -942,7 +964,7 @@
     const customCrops = getCustomCrops();
     const allCrops = [
       ...CROPS.filter(c => !hidden.includes(c.id)),
-      ...customCrops.map(c => ({ ...c, milestones: makeCustomMilestones(c.harvestDays) }))
+      ...customCrops.map(c => ({ ...c, milestones: c.milestones || makeCustomMilestones(c.harvestDays || 60) }))
     ];
 
     const saved = {};
