@@ -126,25 +126,28 @@
   .country-row-del  { font-size: 0.75rem; color: #555; }
   .empty-msg { color: #555; font-size: 0.85rem; padding: 8px 0; }
 
-  /* 共有ボタン */
-  .share-bar {
-    padding: 10px 16px 0;
+  /* 同期ステータス */
+  .sync-bar {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 8px 16px 0;
+    font-size: 0.75rem;
+    color: #666;
   }
-  .btn-share {
-    flex: 1;
-    padding: 11px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    color: #81d4fa;
-    font-size: 0.85rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.15s;
+  .sync-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #666;
   }
-  .btn-share:hover { background: rgba(255,255,255,0.14); }
+  .sync-bar.synced .sync-dot { background: #4caf50; }
+  .sync-bar.synced { color: #81c784; }
+  .sync-bar.syncing .sync-dot { background: #ff9800; animation: pulse 1s infinite; }
+  .sync-bar.syncing { color: #ffb74d; }
+  .sync-bar.error .sync-dot { background: #e53935; }
+  .sync-bar.error { color: #ef9a9a; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   /* トースト */
   .toast {
@@ -275,8 +278,9 @@
 <div id="map-wrap"><div id="map"></div></div>
 <p class="hint">タップ / クリックで訪問済みに切り替え</p>
 
-<div class="share-bar">
-  <button class="btn-share" onclick="copyShareUrl()">📤 このデータを他の端末に共有</button>
+<div class="sync-bar" id="syncBar">
+  <div class="sync-dot"></div>
+  <span id="syncLabel">同期中...</span>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -541,8 +545,8 @@ function confirmAction() {
     visited.push(pendingCode);
   }
   save();
+  saveToNotion();
   updateStats();
-  // モーダルを先に閉じてから同期（closeModal内でsyncMapが走る）
   pendingCode = null;
   document.getElementById('confirmModal').classList.remove('show');
   syncMap();
@@ -597,6 +601,53 @@ function pickCountry(code) {
   showModal(code);
 }
 
+// Notion同期
+let saveTimer = null;
+
+function setSyncStatus(status, label) {
+  const bar = document.getElementById('syncBar');
+  bar.className = `sync-bar ${status}`;
+  document.getElementById('syncLabel').textContent = label;
+}
+
+async function loadFromNotion() {
+  setSyncStatus('syncing', '同期中...');
+  try {
+    const r = await fetch('/api/visited-get');
+    const data = await r.json();
+    if (data.error === 'env not set') { setSyncStatus('', ''); return; }
+    const remote = data.countries || [];
+    // リモートとローカルをマージ（どちらかにあれば追加）
+    let merged = [...new Set([...visited, ...remote])];
+    if (merged.length !== visited.length || !merged.every(c => visited.includes(c))) {
+      visited = merged;
+      save();
+      updateStats();
+      syncMap();
+    }
+    setSyncStatus('synced', `✓ 同期済み`);
+  } catch (e) {
+    setSyncStatus('error', '同期エラー');
+  }
+}
+
+function saveToNotion() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    setSyncStatus('syncing', '保存中...');
+    try {
+      await fetch('/api/visited-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ countries: visited }),
+      });
+      setSyncStatus('synced', '✓ 同期済み');
+    } catch (e) {
+      setSyncStatus('error', '保存エラー');
+    }
+  }, 800); // 連続操作時は800ms後にまとめて保存
+}
+
 // URLハッシュからデータをインポート
 (function importFromHash() {
   const hash = location.hash.slice(1);
@@ -628,7 +679,8 @@ function showToast(msg) {
 }
 
 updateStats();
-syncMap(); // 初期描画
+syncMap();      // 初期描画（localStorageから）
+loadFromNotion(); // バックグラウンドでNotion同期
 </script>
 </body>
 </html>
