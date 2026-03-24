@@ -287,6 +287,7 @@ function getFlag(code) {
 }
 
 let visited = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let pendingCode = null;
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(visited)); }
 
@@ -297,7 +298,6 @@ function updateStats() {
   const conts = new Set(visited.map(c => COUNTRIES[c]?.[1]).filter(Boolean));
   document.getElementById('cont-count').textContent = conts.size;
 
-  // 大陸別カード
   const contData = {};
   visited.forEach(c => {
     const cont = COUNTRIES[c]?.[1];
@@ -310,25 +310,63 @@ function updateStats() {
       <div class="cont-count">${contData[name] || 0}<span style="font-size:0.65rem;color:#666">/${info.total}</span></div>
     </div>`).join('');
 
-  // 訪問済みリスト
   const listEl = document.getElementById('country-list');
   if (visited.length === 0) {
     listEl.innerHTML = '<span class="empty-msg">まだ国が選ばれていません</span>';
   } else {
-    listEl.innerHTML = [...visited].sort((a,b) => (COUNTRIES[a]?.[0]||a).localeCompare(COUNTRIES[b]?.[0]||b)).map(c => `
-      <div class="country-chip" onclick="removeCountry('${c}')">
-        ${getFlag(c)} ${COUNTRIES[c]?.[0] || c}
-      </div>`).join('');
+    listEl.innerHTML = [...visited]
+      .sort((a,b) => (COUNTRIES[a]?.[0]||a).localeCompare(COUNTRIES[b]?.[0]||b))
+      .map(c => `
+        <div class="country-chip" onclick="showModal('${c}')">
+          ${getFlag(c)} ${COUNTRIES[c]?.[0] || c}
+        </div>`).join('');
   }
 }
 
-function removeCountry(code) {
-  visited = visited.filter(c => c !== code);
+function showModal(code) {
+  pendingCode = code;
+  const name = COUNTRIES[code]?.[0] || code;
+  const flag = getFlag(code);
+  const isVisited = visited.includes(code);
+
+  document.getElementById('modalFlag').textContent = flag;
+  document.getElementById('modalName').textContent = name;
+
+  const btn = document.getElementById('modalActionBtn');
+  if (isVisited) {
+    document.getElementById('modalMsg').textContent = '訪問済みから削除しますか？';
+    btn.textContent = '削除';
+    btn.className = 'btn-remove';
+  } else {
+    document.getElementById('modalMsg').textContent = '訪問済みに追加しますか？';
+    btn.textContent = '追加';
+    btn.className = 'btn-add';
+  }
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function confirmAction() {
+  if (!pendingCode) return;
+  if (visited.includes(pendingCode)) {
+    visited = visited.filter(c => c !== pendingCode);
+  } else {
+    visited.push(pendingCode);
+  }
   save();
   map.clearSelectedRegions();
   map.setSelectedRegions(visited);
   updateStats();
+  closeModal();
 }
+
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingCode = null;
+}
+
+document.getElementById('confirmModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('confirmModal')) closeModal();
+});
 
 updateStats();
 
@@ -344,15 +382,7 @@ const map = new jsVectorMap({
   },
   selectedRegions: visited,
   onRegionClick(event, code) {
-    if (visited.includes(code)) {
-      visited = visited.filter(c => c !== code);
-    } else {
-      visited.push(code);
-    }
-    save();
-    map.clearSelectedRegions();
-    map.setSelectedRegions(visited);
-    updateStats();
+    showModal(code);
   },
   onRegionTooltipShow(event, tooltip, code) {
     const name = COUNTRIES[code]?.[0] || code;
