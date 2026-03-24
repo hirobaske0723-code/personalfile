@@ -1,4 +1,4 @@
-const CACHE = 'my-dashboard-v2';
+const CACHE = 'my-dashboard-v3';
 const STATIC = [
   '/index.html',
   '/weekly-schedule.html',
