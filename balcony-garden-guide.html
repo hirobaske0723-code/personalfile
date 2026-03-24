@@ -673,14 +673,44 @@
       <div class="date-rows" id="all-crop-rows"></div>
       <button class="add-crop-btn" onclick="toggleAddForm()">＋ 植物を追加</button>
       <div class="add-crop-form" id="add-crop-form" style="display:none;">
-        <div class="form-row">
-          <input type="text" id="new-emoji" placeholder="🌱" maxlength="2">
-          <input type="text" id="new-name" placeholder="植物名（例：ピーマン）" onkeydown="if(event.key==='Enter')addCustomCrop()">
-        </div>
-        <p style="font-size:0.78rem; color:#888; margin:0;">植物名を入力するとAIがスケジュールを自動生成します</p>
-        <div id="add-crop-loading" style="display:none; font-size:0.83rem; color:#888;">🤖 スケジュール生成中...</div>
+        <select id="new-crop-select" style="border:1.5px solid #c8e6c9; border-radius:8px; padding:8px 10px; font-size:0.9rem; outline:none; width:100%;">
+          <option value="">野菜・ハーブを選んでください</option>
+          <optgroup label="🍅 実もの">
+            <option value="pepper">🫑 ピーマン</option>
+            <option value="paprika">🫑 パプリカ</option>
+            <option value="eggplant">🍆 ナス</option>
+            <option value="okra">🌿 オクラ</option>
+            <option value="goya">🥬 ゴーヤ</option>
+            <option value="strawberry">🍓 イチゴ</option>
+          </optgroup>
+          <optgroup label="🥬 葉もの">
+            <option value="lettuce">🥬 レタス</option>
+            <option value="sunnylettuce">🥬 サニーレタス</option>
+            <option value="spinach">🌿 ほうれん草</option>
+            <option value="komatsuna">🌿 小松菜</option>
+            <option value="mizuna">🌿 水菜</option>
+            <option value="chingensai">🥬 チンゲン菜</option>
+          </optgroup>
+          <optgroup label="🌱 根もの">
+            <option value="radish">🔴 ラディッシュ</option>
+            <option value="kabu">⚪ カブ</option>
+            <option value="carrot">🥕 ニンジン</option>
+          </optgroup>
+          <optgroup label="🫘 豆・さや">
+            <option value="edamame">🫘 えだまめ</option>
+            <option value="ingen">🌿 インゲン</option>
+            <option value="sayaendo">🌿 さやえんどう</option>
+          </optgroup>
+          <optgroup label="🌿 ハーブ">
+            <option value="parsley">🌿 パセリ</option>
+            <option value="mint">🌿 ミント</option>
+            <option value="rosemary">🌿 ローズマリー</option>
+            <option value="chive">🌿 チャイブ</option>
+            <option value="oregano">🌿 オレガノ</option>
+          </optgroup>
+        </select>
         <div class="form-actions">
-          <button class="btn-add-confirm" id="btn-add-confirm" onclick="addCustomCrop()">追加</button>
+          <button class="btn-add-confirm" onclick="addCustomCrop()">追加</button>
           <button class="btn-cancel" onclick="toggleAddForm()">キャンセル</button>
         </div>
       </div>
@@ -845,6 +875,149 @@
     return `${date.getMonth() + 1}/${date.getDate()}`;
   }
 
+  const PRESET_CROPS = {
+    pepper:     { name:'ピーマン',   emoji:'🫑', milestones:[
+      {days:0,  label:'植え付け',     detail:'プランターに植え、支柱を立てる'},
+      {days:14, label:'液肥スタート', detail:'週1〜2回。一番花は早めに摘んで株を充実させる'},
+      {days:55, label:'収穫開始目安', detail:'緑色のうちに収穫。完熟させると赤くなる'},
+      {days:150,label:'終了目安',     detail:'気温低下とともに終了。片付け'},
+    ]},
+    paprika:    { name:'パプリカ',   emoji:'🫑', milestones:[
+      {days:0,  label:'植え付け',     detail:'プランターに植え、支柱を立てる'},
+      {days:14, label:'液肥スタート', detail:'週1〜2回。一番花は摘む'},
+      {days:60, label:'緑で収穫可',   detail:'緑でも食べられる。完熟まで待つと甘くなる'},
+      {days:90, label:'完熟収穫',     detail:'赤・黄に色づいたら収穫'},
+      {days:170,label:'終了目安',     detail:'気温低下で終了'},
+    ]},
+    eggplant:   { name:'ナス',       emoji:'🍆', milestones:[
+      {days:0,  label:'植え付け',     detail:'プランターに植え、支柱を立てる'},
+      {days:14, label:'液肥スタート', detail:'週1〜2回。一番花は早めに摘む'},
+      {days:50, label:'収穫開始目安', detail:'15〜20cmで収穫。放置すると実が固くなる'},
+      {days:90, label:'切り戻し剪定', detail:'株を半分くらいに切ると秋ナスが楽しめる'},
+      {days:150,label:'終了目安',     detail:'秋ナスを楽しんで終了'},
+    ]},
+    okra:       { name:'オクラ',     emoji:'🌿', milestones:[
+      {days:0,  label:'植え付け',     detail:'暖かくなってから。日当たり重要'},
+      {days:14, label:'液肥スタート', detail:'週1〜2回'},
+      {days:50, label:'収穫開始目安', detail:'5〜7cmで収穫。放置すると固くなる'},
+      {days:120,label:'終了目安',     detail:'涼しくなったら終了'},
+    ]},
+    goya:       { name:'ゴーヤ',     emoji:'🥬', milestones:[
+      {days:0,  label:'植え付け',     detail:'ネット（グリーンカーテン用）を設置しておく'},
+      {days:14, label:'液肥スタート', detail:'週1〜2回。つるを誘引する'},
+      {days:45, label:'開花目安',     detail:'雄花・雌花が咲く。放任でもOK'},
+      {days:65, label:'収穫開始目安', detail:'緑色で硬いうちに収穫。黄化すると苦みが増す'},
+      {days:120,label:'終了目安',     detail:'涼しくなったら終了'},
+    ]},
+    strawberry: { name:'イチゴ',     emoji:'🍓', milestones:[
+      {days:0,  label:'植え付け（秋）', detail:'10〜11月が適期。浅めに植える'},
+      {days:60, label:'花芽形成',     detail:'寒さに当てることで花芽ができる'},
+      {days:120,label:'開花',         detail:'3〜4月頃に白い花が咲く'},
+      {days:150,label:'収穫開始',     detail:'全体が赤くなったら収穫'},
+      {days:180,label:'ランナー管理', detail:'収穫後に出るランナーで株を増やせる'},
+    ]},
+    lettuce:    { name:'レタス',     emoji:'🥬', milestones:[
+      {days:0,  label:'植え付け',     detail:'涼しい時期（春・秋）が適期'},
+      {days:21, label:'外葉収穫開始', detail:'外側の葉から順に収穫'},
+      {days:50, label:'収穫目安',     detail:'玉が締まったら丸ごと収穫'},
+      {days:70, label:'終了目安',     detail:'とう立ち（花芽）前に収穫を終える'},
+    ]},
+    sunnylettuce:{ name:'サニーレタス', emoji:'🥬', milestones:[
+      {days:0,  label:'植え付け',     detail:'涼しい時期が適期'},
+      {days:21, label:'収穫開始',     detail:'外葉から順に摘み取り'},
+      {days:60, label:'終了目安',     detail:'とう立ち前に終了。長期間収穫できる'},
+    ]},
+    spinach:    { name:'ほうれん草', emoji:'🌿', milestones:[
+      {days:0,  label:'種まき',       detail:'筋まき。涼しい時期（秋〜春）が適期'},
+      {days:7,  label:'発芽',         detail:'発芽したら間引きを検討'},
+      {days:21, label:'間引き',       detail:'3〜4cm間隔になるよう間引く'},
+      {days:40, label:'収穫目安',     detail:'草丈20〜25cmで根ごと引き抜く'},
+    ]},
+    komatsuna:  { name:'小松菜',     emoji:'🌿', milestones:[
+      {days:0,  label:'種まき',       detail:'筋まき。ほぼ周年栽培可'},
+      {days:5,  label:'発芽',         detail:'発芽後に土寄せ'},
+      {days:14, label:'間引き',       detail:'5cm間隔に間引く'},
+      {days:35, label:'収穫目安',     detail:'草丈20〜25cmで根ごと収穫'},
+    ]},
+    mizuna:     { name:'水菜',       emoji:'🌿', milestones:[
+      {days:0,  label:'種まき',       detail:'筋まき。秋〜冬が旺盛に育つ'},
+      {days:7,  label:'発芽',         detail:'間引きを開始'},
+      {days:20, label:'間引き',       detail:'10cm間隔に'},
+      {days:40, label:'収穫目安',     detail:'草丈30cmで根元から収穫'},
+    ]},
+    chingensai: { name:'チンゲン菜', emoji:'🥬', milestones:[
+      {days:0,  label:'種まき',       detail:'筋まき。春・秋が適期'},
+      {days:5,  label:'発芽',         detail:'間引き開始'},
+      {days:20, label:'間引き',       detail:'1株になるよう最終間引き'},
+      {days:40, label:'収穫目安',     detail:'株元から切って収穫'},
+    ]},
+    radish:     { name:'ラディッシュ', emoji:'🔴', milestones:[
+      {days:0,  label:'種まき',       detail:'2〜3cm間隔でまく。発芽早い'},
+      {days:5,  label:'発芽',         detail:'双葉が出たら間引き'},
+      {days:10, label:'間引き',       detail:'5cm間隔に'},
+      {days:22, label:'収穫目安',     detail:'直径2〜3cmになったら収穫。放置すると割れる'},
+    ]},
+    kabu:       { name:'カブ',       emoji:'⚪', milestones:[
+      {days:0,  label:'種まき',       detail:'筋まき。春・秋が適期'},
+      {days:5,  label:'発芽',         detail:'間引き開始'},
+      {days:21, label:'間引き',       detail:'10cm間隔に'},
+      {days:50, label:'収穫目安',     detail:'直径5〜6cmで収穫。放置すると割れる'},
+    ]},
+    carrot:     { name:'ニンジン',   emoji:'🥕', milestones:[
+      {days:0,  label:'種まき',       detail:'筋まき。発芽に2週間かかる。乾燥注意'},
+      {days:14, label:'発芽',         detail:'発芽が揃ったら間引き開始'},
+      {days:30, label:'1回目の間引き', detail:'3cm間隔に。土寄せもする'},
+      {days:50, label:'2回目の間引き', detail:'10cm間隔に。液肥スタート'},
+      {days:110,label:'収穫目安',     detail:'根元が1〜2cm太くなったら収穫'},
+    ]},
+    edamame:    { name:'えだまめ',   emoji:'🫘', milestones:[
+      {days:0,  label:'種まき',       detail:'5月以降。点まきで2〜3粒ずつ'},
+      {days:7,  label:'発芽',         detail:'鳥害注意。発芽後に間引き'},
+      {days:30, label:'土寄せ',       detail:'草丈20cmで土寄せし倒伏を防ぐ'},
+      {days:50, label:'開花',         detail:'小さな白い花が咲く'},
+      {days:70, label:'収穫目安',     detail:'さやが膨らんで豆が感じられたら収穫'},
+    ]},
+    ingen:      { name:'インゲン',   emoji:'🌿', milestones:[
+      {days:0,  label:'種まき',       detail:'5月以降。支柱を先に立てる'},
+      {days:7,  label:'発芽',         detail:'間引きして1株に'},
+      {days:20, label:'つるの誘引',   detail:'支柱に巻きつけるよう誘引'},
+      {days:40, label:'収穫開始',     detail:'10〜15cmで収穫。こまめに採ると長く続く'},
+      {days:80, label:'終了目安',     detail:'株が疲れたら終了'},
+    ]},
+    sayaendo:   { name:'さやえんどう', emoji:'🌿', milestones:[
+      {days:0,  label:'種まき（秋）', detail:'10〜11月が適期。越冬させる'},
+      {days:14, label:'発芽',         detail:'支柱・ネットを設置'},
+      {days:90, label:'越冬',         detail:'小さいまま冬を越すのがポイント'},
+      {days:120,label:'開花',         detail:'春になると一気に成長・開花'},
+      {days:140,label:'収穫開始',     detail:'さやが平らで豆が太る前に収穫'},
+    ]},
+    parsley:    { name:'パセリ',     emoji:'🌿', milestones:[
+      {days:0,  label:'植え付け',     detail:'日当たり〜半日陰でもOK'},
+      {days:21, label:'収穫開始',     detail:'外側の葉から順に摘み取る'},
+      {days:90, label:'追肥',         detail:'液肥を月2回。長期間収穫できる'},
+    ]},
+    mint:       { name:'ミント',     emoji:'🌿', milestones:[
+      {days:0,  label:'植え付け',     detail:'根が広がるので単独プランター推奨'},
+      {days:14, label:'収穫開始',     detail:'茎ごと切って使う。切るほど育つ'},
+      {days:60, label:'剪定',         detail:'花が咲く前に全体を半分に切り戻す'},
+    ]},
+    rosemary:   { name:'ローズマリー', emoji:'🌿', milestones:[
+      {days:0,  label:'植え付け',     detail:'水はけの良い土。乾燥気味に育てる'},
+      {days:30, label:'収穫開始',     detail:'枝先を5〜10cm切って使う'},
+      {days:90, label:'剪定',         detail:'全体を軽く切り戻して形を整える'},
+    ]},
+    chive:      { name:'チャイブ',   emoji:'🌿', milestones:[
+      {days:0,  label:'植え付け',     detail:'水はけの良い場所。半日陰でもOK'},
+      {days:21, label:'収穫開始',     detail:'根元から2〜3cm残して切る'},
+      {days:60, label:'花芽注意',     detail:'花が咲く前に摘むと長く収穫できる'},
+    ]},
+    oregano:    { name:'オレガノ',   emoji:'🌿', milestones:[
+      {days:0,  label:'植え付け',     detail:'乾燥気味・日当たり良い場所'},
+      {days:30, label:'収穫開始',     detail:'枝先を摘み取る。乾燥させても使える'},
+      {days:75, label:'花芽摘み',     detail:'花が咲く前に摘んで収穫期を延ばす'},
+    ]},
+  };
+
   function getCustomCrops() {
     return JSON.parse(localStorage.getItem(CUSTOM_CROPS_KEY) || '[]');
   }
@@ -918,45 +1091,17 @@
     if (f.style.display === 'flex') document.getElementById('new-name').focus();
   }
 
-  async function addCustomCrop() {
-    const emoji = document.getElementById('new-emoji').value.trim() || '🌱';
-    const name  = document.getElementById('new-name').value.trim();
-    if (!name) { alert('植物名を入力してください'); return; }
-
-    // ローディング表示
-    const btn = document.getElementById('btn-add-confirm');
-    const loading = document.getElementById('add-crop-loading');
-    btn.disabled = true;
-    loading.style.display = 'block';
-
-    try {
-      const res = await fetch('/api/crop-schedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cropName: name }),
-      });
-      const data = await res.json();
-
-      if (data.error || !data.milestones) {
-        alert('スケジュールの生成に失敗しました。\n' + (data.error || '') + (data.raw ? '\n\n' + data.raw.slice(0, 200) : ''));
-        return;
-      }
-
-      const crops = getCustomCrops();
-      crops.push({ id: 'custom_' + Date.now(), name, emoji, milestones: data.milestones });
-      localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
-
-      document.getElementById('new-emoji').value = '';
-      document.getElementById('new-name').value = '';
-      toggleAddForm();
-      renderAllRows();
-      renderSchedule();
-    } catch (e) {
-      alert('通信エラーが発生しました。');
-    } finally {
-      btn.disabled = false;
-      loading.style.display = 'none';
-    }
+  function addCustomCrop() {
+    const key = document.getElementById('new-crop-select').value;
+    if (!key) { alert('野菜を選んでください'); return; }
+    const preset = PRESET_CROPS[key];
+    const crops = getCustomCrops();
+    crops.push({ id: 'custom_' + Date.now(), name: preset.name, emoji: preset.emoji, milestones: preset.milestones });
+    localStorage.setItem(CUSTOM_CROPS_KEY, JSON.stringify(crops));
+    document.getElementById('new-crop-select').value = '';
+    toggleAddForm();
+    renderAllRows();
+    renderSchedule();
   }
 
   function renderSchedule() {
