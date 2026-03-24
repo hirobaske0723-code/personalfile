@@ -424,29 +424,7 @@ document.getElementById('confirmModal').addEventListener('click', e => {
 });
 
 updateStats();
-
-const map = new jsVectorMap({
-  selector: '#map',
-  map: 'world',
-  backgroundColor: '#1a1a2e',
-  regionStyle: {
-    initial: { fill: '#2d3561', stroke: '#1a1a2e', strokeWidth: 0.5 },
-    hover:   { fill: '#42a5f5', fillOpacity: 1 },
-    selected:{ fill: '#4caf50' },
-    selectedHover: { fill: '#66bb6a' },
-  },
-  selectedRegions: visited,
-  multiSelectRegion: true,
-  onRegionClick(event, code) {
-    showModal(code);
-  },
-  onRegionTooltipShow(event, tooltip, code) {
-    const alpha3 = A3[code] || code;
-    const name   = COUNTRIES[code]?.[0] || '';
-    const isVisited = visited.includes(code);
-    tooltip.text(`${alpha3} ${name}${isVisited ? ' ✅' : ''}`);
-  },
-});
+syncMap(); // 初期描画
 </script>
 </body>
 </html>
