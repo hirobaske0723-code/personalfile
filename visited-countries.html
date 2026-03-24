@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>訪問国マップ</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1565c0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+    padding: 20px 16px 16px;
+    text-align: center;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: 0.83rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+  .header h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .header p  { font-size: 0.82rem; color: rgba(255,255,255,0.7); }
+
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    justify-content: center;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    flex: 1;
+    max-width: 130px;
+  }
+  .stat-num  { font-size: 1.6rem; font-weight: bold; color: #4fc3f7; }
+  .stat-label{ font-size: 0.72rem; color: #aaa; margin-top: 2px; }
+
+  #map-wrap {
+    padding: 0 8px;
+    height: 280px;
+  }
+  #map { width: 100%; height: 100%; }
+  .jsvectormap-tooltip {
+    background: #333;
+    color: #fff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+  }
+
+  .hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #666;
+    padding: 6px 0 2px;
+  }
+
+  .continents {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .cont-card {
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .cont-emoji { font-size: 1.3rem; }
+  .cont-name  { font-size: 0.7rem; color: #aaa; margin: 2px 0; }
+  .cont-count { font-size: 1rem; font-weight: bold; color: #81d4fa; }
+
+  .visited-section {
+    padding: 0 16px 32px;
+  }
+  .section-title {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .country-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .country-chip {
+    background: rgba(76, 175, 80, 0.15);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .country-chip:hover { background: rgba(229, 57, 53, 0.2); border-color: #e53935; }
+  .empty-msg { color: #555; font-size: 0.85rem; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="back-link">← ホームに戻る</a>
+  <h1>🗺️ 訪問国マップ</h1>
+  <p>タップした国が緑になります</p>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-num" id="count">0</div>
+    <div class="stat-label">訪問国数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="pct">0%</div>
+    <div class="stat-label">世界の割合</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="cont-count">0</div>
+    <div class="stat-label">大陸数</div>
+  </div>
+</div>
+
+<div id="map-wrap"><div id="map"></div></div>
+<p class="hint">タップ / クリックで訪問済みに切り替え</p>
+
+<div class="continents" id="continents"></div>
+
+<div class="visited-section">
+  <div class="section-title">✅ 訪問済みリスト（タップで取り消し）</div>
+  <div class="country-list" id="country-list">
+    <span class="empty-msg">まだ国が選ばれていません</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"></script>
+<script>
+const STORAGE_KEY = 'visited-countries';
+const TOTAL = 195;
+
+// 国コード → [名前, 大陸]
+const COUNTRIES = {
+  AF:['アフガニスタン','アジア'], AL:['アルバニア','ヨーロッパ'], DZ:['アルジェリア','アフリカ'],
+  AD:['アンドラ','ヨーロッパ'], AO:['アンゴラ','アフリカ'], AG:['アンティグア・バーブーダ','北中米'],
+  AR:['アルゼンチン','南米'], AM:['アルメニア','アジア'], AU:['オーストラリア','オセアニア'],
+  AT:['オーストリア','ヨーロッパ'], AZ:['アゼルバイジャン','アジア'], BS:['バハマ','北中米'],
+  BH:['バーレーン','アジア'], BD:['バングラデシュ','アジア'], BB:['バルバドス','北中米'],
+  BY:['ベラルーシ','ヨーロッパ'], BE:['ベルギー','ヨーロッパ'], BZ:['ベリーズ','北中米'],
+  BJ:['ベナン','アフリカ'], BT:['ブータン','アジア'], BO:['ボリビア','南米'],
+  BA:['ボスニア・ヘルツェゴビナ','ヨーロッパ'], BW:['ボツワナ','アフリカ'], BR:['ブラジル','南米'],
+  BN:['ブルネイ','アジア'], BG:['ブルガリア','ヨーロッパ'], BF:['ブルキナファソ','アフリカ'],
+  BI:['ブルンジ','アフリカ'], CV:['カーボベルデ','アフリカ'], KH:['カンボジア','アジア'],
+  CM:['カメルーン','アフリカ'], CA:['カナダ','北中米'], CF:['中央アフリカ','アフリカ'],
+  TD:['チャド','アフリカ'], CL:['チリ','南米'], CN:['中国','アジア'],
+  CO:['コロンビア','南米'], KM:['コモロ','アフリカ'], CG:['コンゴ共和国','アフリカ'],
+  CD:['コンゴ民主共和国','アフリカ'], CR:['コスタリカ','北中米'], CI:['コートジボワール','アフリカ'],
+  HR:['クロアチア','ヨーロッパ'], CU:['キューバ','北中米'], CY:['キプロス','ヨーロッパ'],
+  CZ:['チェコ','ヨーロッパ'], DK:['デンマーク','ヨーロッパ'], DJ:['ジブチ','アフリカ'],
+  DM:['ドミニカ国','北中米'], DO:['ドミニカ共和国','北中米'], EC:['エクアドル','南米'],
+  EG:['エジプト','アフリカ'], SV:['エルサルバドル','北中米'], GQ:['赤道ギニア','アフリカ'],
+  ER:['エリトリア','アフリカ'], EE:['エストニア','ヨーロッパ'], SZ:['エスワティニ','アフリカ'],
+  ET:['エチオピア','アフリカ'], FJ:['フィジー','オセアニア'], FI:['フィンランド','ヨーロッパ'],
+  FR:['フランス','ヨーロッパ'], GA:['ガボン','アフリカ'], GM:['ガンビア','アフリカ'],
+  GE:['ジョージア','アジア'], DE:['ドイツ','ヨーロッパ'], GH:['ガーナ','アフリカ'],
+  GR:['ギリシャ','ヨーロッパ'], GD:['グレナダ','北中米'], GT:['グアテマラ','北中米'],
+  GN:['ギニア','アフリカ'], GW:['ギニアビサウ','アフリカ'], GY:['ガイアナ','南米'],
+  HT:['ハイチ','北中米'], HN:['ホンジュラス','北中米'], HU:['ハンガリー','ヨーロッパ'],
+  IS:['アイスランド','ヨーロッパ'], IN:['インド','アジア'], ID:['インドネシア','アジア'],
+  IR:['イラン','アジア'], IQ:['イラク','アジア'], IE:['アイルランド','ヨーロッパ'],
+  IL:['イスラエル','アジア'], IT:['イタリア','ヨーロッパ'], JM:['ジャマイカ','北中米'],
+  JP:['日本','アジア'], JO:['ヨルダン','アジア'], KZ:['カザフスタン','アジア'],
+  KE:['ケニア','アフリカ'], KI:['キリバス','オセアニア'], KW:['クウェート','アジア'],
+  KG:['キルギス','アジア'], LA:['ラオス','アジア'], LV:['ラトビア','ヨーロッパ'],
+  LB:['レバノン','アジア'], LS:['レソト','アフリカ'], LR:['リベリア','アフリカ'],
+  LY:['リビア','アフリカ'], LI:['リヒテンシュタイン','ヨーロッパ'], LT:['リトアニア','ヨーロッパ'],
+  LU:['ルクセンブルク','ヨーロッパ'], MG:['マダガスカル','アフリカ'], MW:['マラウイ','アフリカ'],
+  MY:['マレーシア','アジア'], MV:['モルディブ','アジア'], ML:['マリ','アフリカ'],
+  MT:['マルタ','ヨーロッパ'], MH:['マーシャル諸島','オセアニア'], MR:['モーリタニア','アフリカ'],
+  MU:['モーリシャス','アフリカ'], MX:['メキシコ','北中米'], FM:['ミクロネシア','オセアニア'],
+  MD:['モルドバ','ヨーロッパ'], MC:['モナコ','ヨーロッパ'], MN:['モンゴル','アジア'],
+  ME:['モンテネグロ','ヨーロッパ'], MA:['モロッコ','アフリカ'], MZ:['モザンビーク','アフリカ'],
+  MM:['ミャンマー','アジア'], NA:['ナミビア','アフリカ'], NR:['ナウル','オセアニア'],
+  NP:['ネパール','アジア'], NL:['オランダ','ヨーロッパ'], NZ:['ニュージーランド','オセアニア'],
+  NI:['ニカラグア','北中米'], NE:['ニジェール','アフリカ'], NG:['ナイジェリア','アフリカ'],
+  KP:['北朝鮮','アジア'], MK:['北マケドニア','ヨーロッパ'], NO:['ノルウェー','ヨーロッパ'],
+  OM:['オマーン','アジア'], PK:['パキスタン','アジア'], PW:['パラオ','オセアニア'],
+  PA:['パナマ','北中米'], PG:['パプアニューギニア','オセアニア'], PY:['パラグアイ','南米'],
+  PE:['ペルー','南米'], PH:['フィリピン','アジア'], PL:['ポーランド','ヨーロッパ'],
+  PT:['ポルトガル','ヨーロッパ'], QA:['カタール','アジア'], RO:['ルーマニア','ヨーロッパ'],
+  RU:['ロシア','ヨーロッパ'], RW:['ルワンダ','アフリカ'], KN:['セントクリストファー・ネービス','北中米'],
+  LC:['セントルシア','北中米'], VC:['セントビンセント・グレナディーン','北中米'],
+  WS:['サモア','オセアニア'], SM:['サンマリノ','ヨーロッパ'], ST:['サントメ・プリンシペ','アフリカ'],
+  SA:['サウジアラビア','アジア'], SN:['セネガル','アフリカ'], RS:['セルビア','ヨーロッパ'],
+  SC:['セーシェル','アフリカ'], SL:['シエラレオネ','アフリカ'], SG:['シンガポール','アジア'],
+  SK:['スロバキア','ヨーロッパ'], SI:['スロベニア','ヨーロッパ'], SB:['ソロモン諸島','オセアニア'],
+  SO:['ソマリア','アフリカ'], ZA:['南アフリカ','アフリカ'], KR:['韓国','アジア'],
+  SS:['南スーダン','アフリカ'], ES:['スペイン','ヨーロッパ'], LK:['スリランカ','アジア'],
+  SD:['スーダン','アフリカ'], SR:['スリナム','南米'], SE:['スウェーデン','ヨーロッパ'],
+  CH:['スイス','ヨーロッパ'], SY:['シリア','アジア'], TW:['台湾','アジア'],
+  TJ:['タジキスタン','アジア'], TZ:['タンザニア','アフリカ'], TH:['タイ','アジア'],
+  TL:['東ティモール','アジア'], TG:['トーゴ','アフリカ'], TO:['トンガ','オセアニア'],
+  TT:['トリニダード・トバゴ','北中米'], TN:['チュニジア','アフリカ'], TR:['トルコ','ヨーロッパ'],
+  TM:['トルクメニスタン','アジア'], TV:['ツバル','オセアニア'], UG:['ウガンダ','アフリカ'],
+  UA:['ウクライナ','ヨーロッパ'], AE:['UAE','アジア'], GB:['イギリス','ヨーロッパ'],
+  US:['アメリカ','北中米'], UY:['ウルグアイ','南米'], UZ:['ウズベキスタン','アジア'],
+  VU:['バヌアツ','オセアニア'], VE:['ベネズエラ','南米'], VN:['ベトナム','アジア'],
+  YE:['イエメン','アジア'], ZM:['ザンビア','アフリカ'], ZW:['ジンバブエ','アフリカ'],
+};
+
+const CONTINENTS = {
+  'アジア':     { emoji:'🌏', total: 48 },
+  'ヨーロッパ': { emoji:'🌍', total: 44 },
+  'アフリカ':   { emoji:'🌍', total: 54 },
+  '北中米':     { emoji:'🌎', total: 23 },
+  '南米':       { emoji:'🌎', total: 12 },
+  'オセアニア': { emoji:'🌏', total: 14 },
+};
+
+function getFlag(code) {
+  return [...code.toUpperCase()].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('');
+}
+
+let visited = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(visited)); }
+
+function updateStats() {
+  document.getElementById('count').textContent = visited.length;
+  document.getElementById('pct').textContent = Math.round(visited.length / TOTAL * 100) + '%';
+
+  const conts = new Set(visited.map(c => COUNTRIES[c]?.[1]).filter(Boolean));
+  document.getElementById('cont-count').textContent = conts.size;
+
+  // 大陸別カード
+  const contData = {};
+  visited.forEach(c => {
+    const cont = COUNTRIES[c]?.[1];
+    if (cont) contData[cont] = (contData[cont] || 0) + 1;
+  });
+  document.getElementById('continents').innerHTML = Object.entries(CONTINENTS).map(([name, info]) => `
+    <div class="cont-card">
+      <div class="cont-emoji">${info.emoji}</div>
+      <div class="cont-name">${name}</div>
+      <div class="cont-count">${contData[name] || 0}<span style="font-size:0.65rem;color:#666">/${info.total}</span></div>
+    </div>`).join('');
+
+  // 訪問済みリスト
+  const listEl = document.getElementById('country-list');
+  if (visited.length === 0) {
+    listEl.innerHTML = '<span class="empty-msg">まだ国が選ばれていません</span>';
+  } else {
+    listEl.innerHTML = [...visited].sort((a,b) => (COUNTRIES[a]?.[0]||a).localeCompare(COUNTRIES[b]?.[0]||b)).map(c => `
+      <div class="country-chip" onclick="removeCountry('${c}')">
+        ${getFlag(c)} ${COUNTRIES[c]?.[0] || c}
+      </div>`).join('');
+  }
+}
+
+function removeCountry(code) {
+  visited = visited.filter(c => c !== code);
+  save();
+  map.clearSelectedRegions();
+  map.setSelectedRegions(visited);
+  updateStats();
+}
+
+updateStats();
+
+const map = new jsVectorMap({
+  selector: '#map',
+  map: 'world',
+  backgroundColor: '#1a1a2e',
+  regionStyle: {
+    initial: { fill: '#2d3561', stroke: '#1a1a2e', strokeWidth: 0.5 },
+    hover:   { fill: '#42a5f5', fillOpacity: 1 },
+    selected:{ fill: '#4caf50' },
+    selectedHover: { fill: '#66bb6a' },
+  },
+  selectedRegions: visited,
+  onRegionSelected(code, isSelected) {
+    if (isSelected) {
+      if (!visited.includes(code)) visited.push(code);
+    } else {
+      visited = visited.filter(c => c !== code);
+    }
+    save();
+    updateStats();
+  },
+  onRegionTooltipShow(event, tooltip, code) {
+    const name = COUNTRIES[code]?.[0] || code;
+    const flag = getFlag(code);
+    const isVisited = visited.includes(code);
+    tooltip.text(`${flag} ${name}${isVisited ? ' ✅' : ''}`);
+  },
+});
+</script>
+</body>
+</html>
