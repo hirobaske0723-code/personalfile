@@ -114,6 +114,40 @@
   }
   .country-chip:hover { background: rgba(229, 57, 53, 0.2); border-color: #e53935; }
   .empty-msg { color: #555; font-size: 0.85rem; padding: 8px 0; }
+
+  /* 確認モーダル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #1e2a3a;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 28px 20px 20px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+  .modal-flag { font-size: 2.5rem; margin-bottom: 8px; }
+  .modal-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 6px; }
+  .modal-msg  { font-size: 0.85rem; color: #aaa; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1; padding: 12px; border: none;
+    border-radius: 12px; font-size: 0.9rem;
+    font-weight: bold; cursor: pointer;
+  }
+  .btn-add    { background: #4caf50; color: white; }
+  .btn-remove { background: #e53935; color: white; }
+  .btn-cancel { background: rgba(255,255,255,0.1); color: #ccc; }
 </style>
 </head>
 <body>
