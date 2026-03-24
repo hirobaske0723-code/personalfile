@@ -225,6 +225,13 @@
 <div id="map-wrap"><div id="map"></div></div>
 <p class="hint">タップ / クリックで訪問済みに切り替え</p>
 
+<div class="search-wrap">
+  <input class="search-input" id="searchInput" type="text"
+    placeholder="🔍 国名で検索（例: シンガポール、SGP）"
+    oninput="onSearch(this.value)" autocomplete="off">
+</div>
+<div class="search-results" id="searchResults"></div>
+
 <div class="continents" id="continents"></div>
 
 <div class="visited-section">
@@ -471,6 +478,44 @@ function closeModal() {
 document.getElementById('confirmModal').addEventListener('click', e => {
   if (e.target === document.getElementById('confirmModal')) closeModal();
 });
+
+function onSearch(q) {
+  const resultsEl = document.getElementById('searchResults');
+  q = q.trim();
+  if (!q) { resultsEl.classList.remove('show'); return; }
+
+  const lower = q.toLowerCase();
+  const matches = Object.entries(COUNTRIES)
+    .filter(([code, info]) =>
+      info[0].includes(q) ||
+      (A3[code] || '').toLowerCase().includes(lower) ||
+      code.toLowerCase().includes(lower)
+    )
+    .slice(0, 8);
+
+  if (matches.length === 0) {
+    resultsEl.innerHTML = '<div class="search-item"><span style="color:#666">見つかりませんでした</span></div>';
+  } else {
+    resultsEl.innerHTML = matches.map(([code, info]) => {
+      const isVisited = visited.includes(code);
+      return `
+        <div class="search-item" onclick="pickCountry('${code}')">
+          <div class="search-item-left">
+            <span class="search-item-code">${A3[code] || code}</span>
+            <span class="search-item-name">${info[0]}</span>
+          </div>
+          ${isVisited ? '<span class="search-item-badge">✅ 訪問済み</span>' : ''}
+        </div>`;
+    }).join('');
+  }
+  resultsEl.classList.add('show');
+}
+
+function pickCountry(code) {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').classList.remove('show');
+  showModal(code);
+}
 
 updateStats();
 syncMap(); // 初期描画
