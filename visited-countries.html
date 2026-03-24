@@ -423,10 +423,10 @@ const map = new jsVectorMap({
     showModal(code);
   },
   onRegionTooltipShow(event, tooltip, code) {
-    const name = COUNTRIES[code]?.[0] || code;
     const flag = getFlag(code);
+    const alpha3 = A3[code] || code;
     const isVisited = visited.includes(code);
-    tooltip.text(`${flag} ${name}${isVisited ? ' ✅' : ''}`);
+    tooltip.text(`${flag} ${alpha3}${isVisited ? ' ✅' : ''}`);
   },
 });
 </script>
