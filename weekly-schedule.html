@@ -220,10 +220,20 @@
         const title = titleProp?.title?.map(t => t.plain_text).join('') || '（無題）';
         const statusEntry = Object.entries(page.properties).find(([, p]) => p.type === 'select');
         const propName = statusEntry ? statusEntry[0] : '';
+        const dueProp = Object.values(page.properties).find(p => p.type === 'date');
+        const dueStr = dueProp?.date?.start || '';
+        let dueLabel = '', dueClass = '';
+        if (dueStr) {
+          const due = new Date(dueStr);
+          const today = new Date(); today.setHours(0,0,0,0);
+          dueLabel = `${due.getMonth()+1}/${due.getDate()}`;
+          if (due < today) dueClass = 'overdue';
+        }
         return `
           <div class="todo-item" data-page-id="${page.id}" data-prop-name="${propName}">
             <div class="todo-check" onclick="toggleLocal(this)"></div>
             <div class="todo-text">${title}</div>
+            ${dueLabel ? `<div class="todo-due ${dueClass}">${dueLabel}</div>` : ''}
           </div>`;
       }).join('');
     } catch (e) {
