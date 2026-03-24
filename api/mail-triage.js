@@ -44,6 +44,7 @@ export default async function handler(req, res) {
         ai_summary:     p['AI要約']?.rich_text?.map(t => t.plain_text).join('') || '',
         reply_deadline: p['返信期限']?.date?.start || '',
         status:         p['ステータス']?.select?.name || '未対応',
+        gmail_id:       p['Gmail_ID']?.rich_text?.map(t => t.plain_text).join('') || '',
       };
     }).sort((a, b) =>
       PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority)
