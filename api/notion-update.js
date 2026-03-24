@@ -23,7 +23,10 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        properties: { [propName]: { select: { name: value } } }
+        properties: {
+          [propName]: { select: { name: value } },
+          '完了日': { date: { start: new Date().toISOString().split('T')[0] } }
+        }
       }),
     });
     const data = await response.json();
