@@ -352,7 +352,7 @@ function updateStats() {
       .sort((a,b) => (COUNTRIES[a]?.[0]||a).localeCompare(COUNTRIES[b]?.[0]||b))
       .map(c => `
         <div class="country-chip" onclick="showModal('${c}')">
-          ${getFlag(c)} ${COUNTRIES[c]?.[0] || c}
+          ${getFlag(c)} ${A3[c] || c}
         </div>`).join('');
   }
 }
