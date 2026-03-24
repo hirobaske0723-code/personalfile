@@ -4,17 +4,19 @@
 // ===================================================
 
 const PROPS = PropertiesService.getScriptProperties();
-const OPENROUTER_API_KEY     = PROPS.getProperty('OPENROUTER_API_KEY');
-const OPENROUTER_MODEL       = 'google/gemini-2.0-flash-001';
-const NOTION_TOKEN           = PROPS.getProperty('NOTION_TOKEN');
-const NOTION_MAIL_TRIAGE_DB  = PROPS.getProperty('NOTION_MAIL_TRIAGE_DB_ID');
-const SUMMARY_TO             = Session.getActiveUser().getEmail();
+const OPENROUTER_API_KEY       = PROPS.getProperty('OPENROUTER_API_KEY');
+const OPENROUTER_MODEL         = 'google/gemini-2.0-flash-001';
+const NOTION_TOKEN             = PROPS.getProperty('NOTION_TOKEN');
+const NOTION_MAIL_TRIAGE_DB    = PROPS.getProperty('NOTION_MAIL_TRIAGE_DB_ID');
+const NOTION_SENDER_FILTER_DB  = PROPS.getProperty('NOTION_SENDER_FILTER_DB_ID');
+const SUMMARY_TO               = Session.getActiveUser().getEmail();
 
 // ===================================================
 // メインエントリーポイント（トリガーで毎朝8:00に実行）
 // ===================================================
 function runMailTriage() {
   const threads = GmailApp.search('is:unread newer_than:1d');
+  const blockedSenders = getBlockedSenders();
   const added = [];
 
   for (const thread of threads) {
@@ -26,6 +28,9 @@ function runMailTriage() {
       const from      = msg.getFrom();
       const receivedAt = Utilities.formatDate(msg.getDate(), 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ssXXX");
       const body      = msg.getPlainBody().substring(0, 500);
+
+      // ブロック送信者チェック（優先度を低に強制設定）
+      const isBlocked = blockedSenders.some(s => from.includes(s) || s.includes(from));
 
       // 重複チェック
       if (isAlreadyInNotion(gmailId)) {
@@ -40,6 +45,11 @@ function runMailTriage() {
       } catch (e) {
         Logger.log(`分類エラー: ${subject} — ${e}`);
         continue;
+      }
+      // ブロック済み送信者は優先度を低に上書き
+      if (isBlocked) {
+        result.priority = '低';
+        Logger.log(`ブロック送信者につき優先度低に設定: ${from}`);
       }
       Logger.log(`分類結果: ${subject} → ${result.classification} / ${result.priority}`);
 
@@ -160,6 +170,31 @@ function addToNotion({ subject, from, receivedAt, classification, priority, summ
   });
   const data = JSON.parse(res.getContentText());
   if (data.object === 'error') throw new Error(data.message);
+}
+
+// ===================================================
+// Notion: ブロック送信者リスト取得
+// ===================================================
+function getBlockedSenders() {
+  if (!NOTION_SENDER_FILTER_DB) return [];
+  try {
+    const res = UrlFetchApp.fetch(
+      `https://api.notion.com/v1/databases/${NOTION_SENDER_FILTER_DB}/query`,
+      {
+        method: 'post',
+        headers: notionHeaders(),
+        payload: JSON.stringify({ page_size: 100 }),
+        muteHttpExceptions: true,
+      }
+    );
+    const data = JSON.parse(res.getContentText());
+    return (data.results || []).map(page =>
+      (page.properties['送信者']?.title || []).map(t => t.plain_text).join('')
+    ).filter(Boolean);
+  } catch (e) {
+    Logger.log(`ブロックリスト取得エラー: ${e}`);
+    return [];
+  }
 }
 
 function notionHeaders() {

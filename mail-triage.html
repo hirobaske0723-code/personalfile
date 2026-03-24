@@ -167,6 +167,16 @@
   .action-btn:disabled { opacity: 0.3; cursor: default; }
   .btn-inprogress { background: rgba(251,191,36,0.2); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
   .btn-done       { background: rgba(34,197,94,0.2);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .btn-block      { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.25); }
+
+  .mail-subject a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .mail-subject a:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+  }
 
   /* 空・ローディング */
   .state-msg {
@@ -261,7 +271,10 @@
           <div class="mail-card ${isDone ? 'done' : ''}" id="card-${item.id}">
             <div class="mail-top">
               <span class="priority-badge p-${item.priority}">${item.priority}</span>
-              <div class="mail-subject">${escHtml(item.subject)}</div>
+              <div class="mail-subject">${item.gmail_id
+                ? `<a href="https://mail.google.com/mail/u/0/#all/${item.gmail_id}" target="_blank" rel="noopener">${escHtml(item.subject)}</a>`
+                : escHtml(item.subject)
+              }</div>
             </div>
             <div class="mail-meta">
               <span>📨 ${escHtml(item.from)}</span>
@@ -280,6 +293,11 @@
                 onclick="updateStatus('${item.id}', '完了')"
                 ${isDone ? 'disabled' : ''}>
                 完了
+              </button>
+              <button class="action-btn btn-block"
+                onclick="blockSender('${item.id}', '${escHtml(item.from)}')"
+                ${isDone || item.status === '対応不要' ? 'disabled' : ''}>
+                対応不要
               </button>
             </div>
           </div>`;
@@ -311,6 +329,29 @@
         card.querySelector('.mail-meta span:last-child').textContent = `🔖 ${status}`;
         card.querySelector('.btn-inprogress').disabled = true;
       }
+    } catch (e) {
+      alert('更新に失敗しました: ' + e.message);
+      btns.forEach(b => b.disabled = false);
+    }
+  }
+
+  async function blockSender(pageId, from) {
+    if (!confirm(`「${from}」からのメールを今後優先度低に設定しますか？`)) return;
+
+    const card = document.getElementById(`card-${pageId}`);
+    const btns = card.querySelectorAll('.action-btn');
+    btns.forEach(b => b.disabled = true);
+
+    try {
+      const res = await fetch('/api/mail-triage-block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId, from }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      card.classList.add('done');
     } catch (e) {
       alert('更新に失敗しました: ' + e.message);
       btns.forEach(b => b.disabled = false);
