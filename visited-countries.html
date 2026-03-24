@@ -377,11 +377,11 @@ function updateStats() {
 
 function showModal(code) {
   pendingCode = code;
-  const name = COUNTRIES[code]?.[0] || code;
-  const flag = getFlag(code);
+  const alpha3 = A3[code] || code;
+  const name   = COUNTRIES[code]?.[0] || code;
   const isVisited = visited.includes(code);
 
-  document.getElementById('modalFlag').textContent = flag;
+  document.getElementById('modalFlag').textContent = alpha3;
   document.getElementById('modalName').textContent = name;
 
   const btn = document.getElementById('modalActionBtn');
