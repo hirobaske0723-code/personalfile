@@ -291,6 +291,14 @@ let pendingCode = null;
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(visited)); }
 
+// マップの選択状態を visited 配列に合わせて常に同期する
+function syncMap() {
+  try {
+    map.clearSelectedRegions();
+    if (visited.length > 0) map.setSelectedRegions([...visited]);
+  } catch(e) {}
+}
+
 function updateStats() {
   document.getElementById('count').textContent = visited.length;
   document.getElementById('pct').textContent = Math.round(visited.length / TOTAL * 100) + '%';
@@ -353,15 +361,18 @@ function confirmAction() {
     visited.push(pendingCode);
   }
   save();
-  map.clearSelectedRegions();
-  map.setSelectedRegions(visited);
   updateStats();
-  closeModal();
+  // モーダルを先に閉じてから同期（closeModal内でsyncMapが走る）
+  pendingCode = null;
+  document.getElementById('confirmModal').classList.remove('show');
+  syncMap();
 }
 
 function closeModal() {
   document.getElementById('confirmModal').classList.remove('show');
   pendingCode = null;
+  // キャンセル時: jsvectormapが自動変更した選択状態をvisitedに戻す
+  syncMap();
 }
 
 document.getElementById('confirmModal').addEventListener('click', e => {
