@@ -16,17 +16,16 @@
     line-height: 1.7;
   }
 
-  /* ヘッダー */
+  /* 戻るリンク */
   .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: rgba(255,255,255,0.85);
+    display: block;
+    padding: 10px 16px;
+    background: #f5f5f5;
+    color: #555;
     text-decoration: none;
     font-size: 0.82rem;
-    margin-bottom: 12px;
   }
-  .back-link:hover { color: white; }
+  .back-link:hover { background: #eee; color: #222; }
 
   .hero {
     background: linear-gradient(135deg, #2e7d32, #66bb6a);
@@ -472,9 +471,10 @@
 </head>
 <body>
 
+<a href="index.html" class="back-link">← マイガイド集に戻る</a>
+
 <!-- ヘッダー -->
 <div class="hero">
-  <a href="index.html" class="back-link">← トップへ戻る</a>
   <div style="font-size:2.5rem; margin-bottom:8px;">🌱</div>
   <h1>ベランダ家庭菜園ガイド</h1>
   <p>4月下旬スタート｜初心者向け完全マニュアル</p>
