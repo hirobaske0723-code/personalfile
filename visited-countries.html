@@ -95,24 +95,35 @@
     letter-spacing: 0.08em;
     margin-bottom: 10px;
   }
-  .country-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .country-chip {
-    background: rgba(76, 175, 80, 0.15);
-    border: 1px solid rgba(76, 175, 80, 0.4);
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 0.82rem;
+  .cont-group { margin-bottom: 20px; }
+  .cont-group-header {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #81d4fa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .country-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 10px;
     cursor: pointer;
     transition: background 0.15s;
+    margin-bottom: 4px;
   }
-  .country-chip:hover { background: rgba(229, 57, 53, 0.2); border-color: #e53935; }
+  .country-row:hover { background: rgba(229,57,53,0.12); }
+  .country-row-left { display: flex; align-items: center; gap: 10px; }
+  .country-row-code { font-weight: bold; font-size: 0.9rem; color: #eee; min-width: 38px; }
+  .country-row-name { font-size: 0.82rem; color: #aaa; }
+  .country-row-del  { font-size: 0.75rem; color: #555; }
   .empty-msg { color: #555; font-size: 0.85rem; padding: 8px 0; }
 
   /* 検索 */
@@ -236,7 +247,7 @@
 
 <div class="visited-section">
   <div class="section-title">✅ 訪問済みリスト（タップで削除）</div>
-  <div class="country-list" id="country-list">
+  <div id="country-list">
     <span class="empty-msg">まだ国が選ばれていません</span>
   </div>
 </div>
@@ -422,12 +433,36 @@ function updateStats() {
   if (visited.length === 0) {
     listEl.innerHTML = '<span class="empty-msg">まだ国が選ばれていません</span>';
   } else {
-    listEl.innerHTML = [...visited]
-      .sort((a,b) => (COUNTRIES[a]?.[0]||a).localeCompare(COUNTRIES[b]?.[0]||b))
-      .map(c => `
-        <div class="country-chip" onclick="showModal('${c}')">
-          ${getFlag(c)} ${A3[c] || c}
-        </div>`).join('');
+    const CONT_ORDER = ['アジア','ヨーロッパ','アフリカ','北中米','南米','オセアニア'];
+    const grouped = {};
+    visited.forEach(c => {
+      const cont = COUNTRIES[c]?.[1] || 'その他';
+      if (!grouped[cont]) grouped[cont] = [];
+      grouped[cont].push(c);
+    });
+    CONT_ORDER.forEach(cont => {
+      if (grouped[cont]) grouped[cont].sort((a,b) => (A3[a]||a).localeCompare(A3[b]||b));
+    });
+    listEl.innerHTML = CONT_ORDER
+      .filter(cont => grouped[cont])
+      .map(cont => {
+        const info = CONTINENTS[cont];
+        const rows = grouped[cont].map(c => `
+          <div class="country-row" onclick="showModal('${c}')">
+            <div class="country-row-left">
+              <span class="country-row-code">${A3[c] || c}</span>
+              <span class="country-row-name">${COUNTRIES[c]?.[0] || c}</span>
+            </div>
+            <span class="country-row-del">タップで削除</span>
+          </div>`).join('');
+        return `
+          <div class="cont-group">
+            <div class="cont-group-header">
+              ${info?.emoji || ''} ${cont} (${grouped[cont].length})
+            </div>
+            ${rows}
+          </div>`;
+      }).join('');
   }
 }
 
