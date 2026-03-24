@@ -3,139 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>マイダッシュボード</title>
+<title>BASE</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icon.svg">
-<meta name="theme-color" content="#2196f3">
+<meta name="theme-color" content="#080c14">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="ダッシュボード">
+<meta name="apple-mobile-web-app-title" content="BASE">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
-    font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
-    background: #f5f5f5;
+    font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #080c14;
+    background-image:
+      radial-gradient(ellipse at 15% 40%, rgba(59,130,246,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(168,85,247,0.07) 0%, transparent 55%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 48px 16px;
-    color: #333;
+    padding: 60px 16px 52px;
+    color: #f0f0f0;
   }
 
-  .profile {
+  /* ── Header ── */
+  .header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 52px;
   }
-  .avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.2rem;
-    margin: 0 auto 16px;
+  .logo {
+    font-size: 3.2rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
   }
-  .profile h1 { font-size: 1.4rem; margin-bottom: 6px; }
-  .profile p  { font-size: 0.88rem; color: #888; }
+  .tagline {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
 
+  /* ── Card list ── */
   .links {
     width: 100%;
-    max-width: 480px;
+    max-width: 460px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 9px;
   }
 
   .section-label {
-    font-size: 0.75rem;
-    font-weight: bold;
-    color: #aaa;
-    letter-spacing: 0.1em;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.22);
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin: 8px 0 4px;
-    padding-left: 4px;
+    margin: 20px 0 6px 2px;
   }
+  .section-label:first-child { margin-top: 0; }
 
   .link-card {
     display: flex;
     align-items: center;
     gap: 14px;
-    background: white;
-    border-radius: 14px;
-    padding: 16px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 14px 18px;
     text-decoration: none;
-    color: #333;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    transition: transform 0.15s, box-shadow 0.15s;
-    border-left: 4px solid transparent;
+    color: #f0f0f0;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   }
   .link-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   }
-  .link-card .icon {
-    font-size: 1.8rem;
-    flex-shrink: 0;
+
+  .icon-wrap {
     width: 44px;
-    text-align: center;
-  }
-  .link-card .text h3 { font-size: 0.97rem; margin-bottom: 3px; }
-  .link-card .text p  { font-size: 0.78rem; color: #999; }
-  .link-card .arrow {
-    margin-left: auto;
-    color: #ccc;
-    font-size: 1rem;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
     flex-shrink: 0;
   }
+  .blue   .icon-wrap { background: rgba(59,130,246,0.18); }
+  .teal   .icon-wrap { background: rgba(20,184,166,0.18); }
+  .green  .icon-wrap { background: rgba(34,197,94,0.18);  }
+  .orange .icon-wrap { background: rgba(249,115,22,0.18); }
+  .purple .icon-wrap { background: rgba(168,85,247,0.18); }
+  .red    .icon-wrap { background: rgba(239,68,68,0.18);  }
 
-  /* カテゴリ別カラー */
-  .green  { border-color: #4caf50; }
-  .blue   { border-color: #2196f3; }
-  .orange { border-color: #ff9800; }
-  .purple { border-color: #9c27b0; }
-  .red    { border-color: #f44336; }
-  .teal   { border-color: #009688; }
+  .text { flex: 1; min-width: 0; }
+  .text h3 {
+    font-size: 0.93rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .text p {
+    font-size: 0.73rem;
+    color: rgba(255,255,255,0.32);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-  /* 準備中カード */
+  .arrow {
+    color: rgba(255,255,255,0.18);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-left: 4px;
+  }
+
+  /* Coming soon */
   .link-card.coming-soon {
-    opacity: 0.45;
+    opacity: 0.28;
     cursor: default;
     pointer-events: none;
   }
   .badge {
-    font-size: 0.65rem;
-    background: #f0f0f0;
-    color: #aaa;
-    border-radius: 8px;
-    padding: 2px 7px;
-    margin-left: 8px;
-    font-weight: bold;
+    font-size: 0.58rem;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.35);
+    border-radius: 6px;
+    padding: 2px 6px;
+    margin-left: 6px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    vertical-align: middle;
+    text-transform: uppercase;
   }
 
   footer {
-    margin-top: 48px;
-    font-size: 0.75rem;
-    color: #ccc;
+    margin-top: 52px;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.13);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 </style>
 </head>
 <body>
 
-<div class="profile">
-  <div class="avatar">📚</div>
-  <h1>マイガイド集</h1>
-  <p>暮らしと趣味のまとめノート</p>
+<div class="header">
+  <div class="logo">BASE</div>
+  <div class="tagline">your personal hub</div>
 </div>
 
 <div class="links">
 
-  <div class="section-label">📋 ダッシュボード</div>
+  <div class="section-label">Dashboard</div>
 
   <a href="weekly-schedule.html" class="link-card blue">
-    <div class="icon">📅</div>
+    <div class="icon-wrap">📅</div>
     <div class="text">
       <h3>今週のダッシュボード</h3>
       <p>Googleカレンダー・NotionのTODOを確認</p>
@@ -143,10 +176,10 @@
     <div class="arrow">›</div>
   </a>
 
-  <div class="section-label">✈️ 旅</div>
+  <div class="section-label">Travel</div>
 
   <a href="itinerary.html" class="link-card blue">
-    <div class="icon">🗺️</div>
+    <div class="icon-wrap">🗺️</div>
     <div class="text">
       <h3>旅程管理</h3>
       <p>次の旅先・交通・宿泊をまとめて管理</p>
@@ -155,7 +188,7 @@
   </a>
 
   <a href="visited-countries.html" class="link-card teal">
-    <div class="icon">🌍</div>
+    <div class="icon-wrap">🌍</div>
     <div class="text">
       <h3>訪問国マップ</h3>
       <p>行った国を記録・世界地図で可視化</p>
@@ -163,10 +196,10 @@
     <div class="arrow">›</div>
   </a>
 
-  <div class="section-label">🌿 暮らし</div>
+  <div class="section-label">Life</div>
 
   <a href="balcony-garden-guide.html" class="link-card green">
-    <div class="icon">🌱</div>
+    <div class="icon-wrap">🌱</div>
     <div class="text">
       <h3>ベランダ家庭菜園ガイド</h3>
       <p>4月下旬スタート｜ミニトマト・キュウリ・大葉・バジル</p>
@@ -174,12 +207,12 @@
     <div class="arrow">›</div>
   </a>
 
-  <div class="section-label">📖 その他</div>
+  <div class="section-label">More</div>
 
   <a class="link-card orange coming-soon">
-    <div class="icon">🍳</div>
+    <div class="icon-wrap">🍳</div>
     <div class="text">
-      <h3>レシピ集 <span class="badge">準備中</span></h3>
+      <h3>レシピ集 <span class="badge">coming soon</span></h3>
       <p>よく作る料理のメモ</p>
     </div>
     <div class="arrow">›</div>
@@ -187,7 +220,7 @@
 
 </div>
 
-<footer>随時更新中</footer>
+<footer>updated regularly</footer>
 
 <script>
   if ('serviceWorker' in navigator) {
