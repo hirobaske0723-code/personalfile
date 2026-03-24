@@ -296,13 +296,15 @@ const map = new jsVectorMap({
     selectedHover: { fill: '#66bb6a' },
   },
   selectedRegions: visited,
-  onRegionSelected(code, isSelected) {
-    if (isSelected) {
-      if (!visited.includes(code)) visited.push(code);
-    } else {
+  onRegionClick(event, code) {
+    if (visited.includes(code)) {
       visited = visited.filter(c => c !== code);
+    } else {
+      visited.push(code);
     }
     save();
+    map.clearSelectedRegions();
+    map.setSelectedRegions(visited);
     updateStats();
   },
   onRegionTooltipShow(event, tooltip, code) {
