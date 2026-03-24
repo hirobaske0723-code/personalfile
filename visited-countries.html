@@ -179,9 +179,22 @@
 <div class="continents" id="continents"></div>
 
 <div class="visited-section">
-  <div class="section-title">✅ 訪問済みリスト（タップで取り消し）</div>
+  <div class="section-title">✅ 訪問済みリスト（タップで削除）</div>
   <div class="country-list" id="country-list">
     <span class="empty-msg">まだ国が選ばれていません</span>
+  </div>
+</div>
+
+<!-- 確認モーダル -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-flag" id="modalFlag"></div>
+    <div class="modal-name" id="modalName"></div>
+    <div class="modal-msg"  id="modalMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button id="modalActionBtn" onclick="confirmAction()"></button>
+    </div>
   </div>
 </div>
 
