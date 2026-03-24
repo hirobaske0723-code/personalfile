@@ -317,12 +317,30 @@ let pendingCode = null;
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(visited)); }
 
-// マップの選択状態を visited 配列に合わせて常に同期する
+// マップを visited 配列の状態で作り直す
+let map = null;
 function syncMap() {
-  try {
-    map.clearSelectedRegions();
-    if (visited.length > 0) map.setSelectedRegions([...visited]);
-  } catch(e) {}
+  document.getElementById('map').innerHTML = '';
+  map = new jsVectorMap({
+    selector: '#map',
+    map: 'world',
+    backgroundColor: '#1a1a2e',
+    regionStyle: {
+      initial:       { fill: '#2d3561', stroke: '#1a1a2e', strokeWidth: 0.5 },
+      hover:         { fill: '#42a5f5', fillOpacity: 1 },
+      selected:      { fill: '#4caf50' },
+      selectedHover: { fill: '#66bb6a' },
+    },
+    selectedRegions: [...visited],
+    multiSelectRegion: true,
+    onRegionClick(event, code) { showModal(code); },
+    onRegionTooltipShow(event, tooltip, code) {
+      const alpha3 = A3[code] || code;
+      const name   = COUNTRIES[code]?.[0] || '';
+      const isVisited = visited.includes(code);
+      tooltip.text(`${alpha3} ${name}${isVisited ? ' ✅' : ''}`);
+    },
+  });
 }
 
 function updateStats() {
