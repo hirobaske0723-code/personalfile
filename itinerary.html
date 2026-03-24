@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅程管理</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2196f3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+  background: #f0f4ff;
+  min-height: 100vh;
+  color: #333;
+}
+
+/* ヘッダー */
+header {
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
+  color: white;
+  padding: 20px 16px 24px;
+  position: relative;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
+.back-btn:hover { color: white; }
+header h1 { font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
+header p  { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
+
+/* タブ */
+.tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid #e0e7ff;
+}
+.tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.tab.active {
+  color: #1565c0;
+  border-bottom-color: #1565c0;
+}
+
+/* コンテンツ */
+.content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* 旅程カード */
+.trip-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-left: 5px solid #42a5f5;
+  position: relative;
+}
+.trip-card.past { border-left-color: #bdbdbd; opacity: 0.75; }
+.trip-card.active-trip { border-left-color: #4caf50; }
+
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.trip-destination {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.trip-dates {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 2px;
+}
+.trip-badge {
+  font-size: 0.68rem;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.badge-upcoming { background: #e3f2fd; color: #1565c0; }
+.badge-active   { background: #e8f5e9; color: #2e7d32; }
+.badge-past     { background: #f5f5f5; color: #9e9e9e; }
+
+.trip-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+.detail-icon { font-size: 1rem; flex-shrink: 0; }
+.detail-label { font-size: 0.7rem; color: #aaa; display: block; }
+.detail-value { color: #555; }
+
+.trip-memo {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 0.82rem;
+  color: #666;
+  white-space: pre-wrap;
+}
+
+.trip-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.btn-small {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.btn-edit   { background: #e3f2fd; color: #1565c0; }
+.btn-delete { background: #fce4ec; color: #c62828; }
+
+/* 追加ボタン */
+.add-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(21,101,192,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+}
+.add-fab:hover { transform: scale(1.08); }
+
+/* 空状態 */
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: #bbb;
+}
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.88rem; }
+
+/* モーダル */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h2 {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 4px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.form-group textarea { resize: vertical; min-height: 70px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.btn-primary {
+  flex: 1;
+  padding: 12px;
+  background: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-cancel {
+  padding: 12px 20px;
+  background: #f5f5f5;
+  color: #555;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* 確認モーダル */
+.confirm-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.confirm-modal.show { display: flex; }
+.confirm-box {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+}
+.confirm-box p { margin-bottom: 16px; font-size: 0.9rem; color: #555; }
+.confirm-box .destination { font-weight: bold; color: #333; font-size: 1rem; }
+.confirm-actions { display: flex; gap: 10px; }
+.confirm-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 0.88rem; cursor: pointer; }
+.btn-confirm-delete { background: #f44336; color: white; font-weight: bold; }
+.btn-confirm-cancel { background: #f5f5f5; color: #555; }
+
+/* 次の旅バナー */
+.next-trip-banner {
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
+  color: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.next-trip-banner .label { font-size: 0.72rem; opacity: 0.85; margin-bottom: 4px; }
+.next-trip-banner .dest  { font-size: 1.3rem; font-weight: bold; }
+.next-trip-banner .countdown { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="back-btn">← トップへ戻る</a>
+  <h1>✈️ 旅程管理</h1>
+  <p>旅先・交通・宿泊をまとめて管理</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('upcoming')">予定の旅</button>
+  <button class="tab" onclick="switchTab('past')">過去の旅</button>
+</div>
+
+<div class="content" id="tripList">
+  <!-- JS で描画 -->
+</div>
+
+<button class="add-fab" onclick="openModal()">+</button>
+
+<!-- 追加/編集モーダル -->
+<div class="modal-overlay" id="tripModal">
+  <div class="modal">
+    <h2 id="modalTitle">✈️ 旅程を追加</h2>
+    <div class="form-group">
+      <label>目的地 *</label>
+      <input type="text" id="f-destination" placeholder="例: バルセロナ、スペイン">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>出発日 *</label>
+        <input type="date" id="f-startDate">
+      </div>
+      <div class="form-group">
+        <label>帰国日</label>
+        <input type="date" id="f-endDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>✈️ 交通手段</label>
+      <input type="text" id="f-transport" placeholder="例: ラタム航空 LA841便、バス">
+    </div>
+    <div class="form-group">
+      <label>🏨 宿泊先</label>
+      <input type="text" id="f-accommodation" placeholder="例: Airbnb グラシア地区、Hotel Gran Via">
+    </div>
+    <div class="form-group">
+      <label>📍 やりたいこと / メモ</label>
+      <textarea id="f-memo" placeholder="例: サグラダファミリア予約済み&#10;タパスバー巡り&#10;予算: $500"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" onclick="saveTrip()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 削除確認 -->
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-box">
+    <p>この旅程を削除しますか？</p>
+    <p class="destination" id="confirmDest"></p>
+    <div class="confirm-actions" style="margin-top:16px;">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">キャンセル</button>
+      <button class="btn-confirm-delete" onclick="executeDelete()">削除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'itinerary_trips';
+let trips = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let currentTab = 'upcoming';
+let editingId = null;
+let deletingId = null;
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+}
+
+function getStatus(trip) {
+  const today = new Date().toISOString().split('T')[0];
+  if (trip.startDate > today) return 'upcoming';
+  if (trip.endDate && trip.endDate >= today) return 'active';
+  if (!trip.endDate && trip.startDate === today) return 'active';
+  return 'past';
+}
+
+function daysUntil(dateStr) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const target = new Date(dateStr);
+  return Math.round((target - today) / 86400000);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function render() {
+  const container = document.getElementById('tripList');
+  const isUpcoming = currentTab === 'upcoming';
+
+  const filtered = trips
+    .filter(t => {
+      const s = getStatus(t);
+      return isUpcoming ? (s === 'upcoming' || s === 'active') : s === 'past';
+    })
+    .sort((a, b) => isUpcoming
+      ? a.startDate.localeCompare(b.startDate)
+      : b.startDate.localeCompare(a.startDate)
+    );
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">${isUpcoming ? '🗺️' : '📸'}</div>
+        <p>${isUpcoming ? '予定の旅はまだありません<br>右下の＋から追加しよう！' : '過去の旅の記録はまだありません'}</p>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+
+  // 次の旅バナー（upcomingタブのみ、最初の1件）
+  if (isUpcoming) {
+    const next = filtered.find(t => getStatus(t) === 'upcoming' || getStatus(t) === 'active');
+    if (next) {
+      const status = getStatus(next);
+      const d = daysUntil(next.startDate);
+      const countdownText = status === 'active'
+        ? '✈️ 現在旅行中！'
+        : d === 0 ? '🎉 今日出発！' : `出発まで あと ${d} 日`;
+      html += `
+        <div class="next-trip-banner">
+          <div class="label">${status === 'active' ? '旅行中' : '次の旅'}</div>
+          <div class="dest">${next.destination}</div>
+          <div class="countdown">${countdownText}</div>
+        </div>`;
+    }
+  }
+
+  filtered.forEach(trip => {
+    const status = getStatus(trip);
+    const badgeClass = status === 'upcoming' ? 'badge-upcoming' : status === 'active' ? 'badge-active' : 'badge-past';
+    const badgeText = status === 'upcoming' ? '予定' : status === 'active' ? '旅行中' : '完了';
+    const cardClass = status === 'past' ? 'past' : status === 'active' ? 'active-trip' : '';
+
+    const dateStr = trip.endDate
+      ? `${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}`
+      : `${formatDate(trip.startDate)} 〜`;
+
+    html += `
+      <div class="trip-card ${cardClass}">
+        <div class="trip-header">
+          <div>
+            <div class="trip-destination">${trip.destination}</div>
+            <div class="trip-dates">📅 ${dateStr}</div>
+          </div>
+          <span class="trip-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="trip-details">
+          <div class="detail-item">
+            <span class="detail-icon">✈️</span>
+            <div>
+              <span class="detail-label">交通</span>
+              <span class="detail-value">${trip.transport || '未設定'}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon">🏨</span>
+            <div>
+              <span class="detail-label">宿泊</span>
+              <span class="detail-value">${trip.accommodation || '未設定'}</span>
+            </div>
+          </div>
+        </div>
+        ${trip.memo ? `<div class="trip-memo">${trip.memo}</div>` : ''}
+        <div class="trip-actions">
+          <button class="btn-small btn-edit" onclick="editTrip('${trip.id}')">編集</button>
+          <button class="btn-small btn-delete" onclick="confirmDelete('${trip.id}')">削除</button>
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', (i === 0 && tab === 'upcoming') || (i === 1 && tab === 'past'));
+  });
+  render();
+}
+
+function openModal(id = null) {
+  editingId = id;
+  const modal = document.getElementById('tripModal');
+  document.getElementById('modalTitle').textContent = id ? '✏️ 旅程を編集' : '✈️ 旅程を追加';
+
+  if (id) {
+    const t = trips.find(x => x.id === id);
+    document.getElementById('f-destination').value = t.destination || '';
+    document.getElementById('f-startDate').value = t.startDate || '';
+    document.getElementById('f-endDate').value = t.endDate || '';
+    document.getElementById('f-transport').value = t.transport || '';
+    document.getElementById('f-accommodation').value = t.accommodation || '';
+    document.getElementById('f-memo').value = t.memo || '';
+  } else {
+    ['f-destination','f-startDate','f-endDate','f-transport','f-accommodation','f-memo']
+      .forEach(id => document.getElementById(id).value = '');
+  }
+
+  modal.classList.add('show');
+  document.getElementById('f-destination').focus();
+}
+
+function closeModal() {
+  document.getElementById('tripModal').classList.remove('show');
+  editingId = null;
+}
+
+function saveTrip() {
+  const destination = document.getElementById('f-destination').value.trim();
+  const startDate   = document.getElementById('f-startDate').value;
+  if (!destination || !startDate) {
+    alert('目的地と出発日は必須です');
+    return;
+  }
+
+  const data = {
+    destination,
+    startDate,
+    endDate:       document.getElementById('f-endDate').value || '',
+    transport:     document.getElementById('f-transport').value.trim(),
+    accommodation: document.getElementById('f-accommodation').value.trim(),
+    memo:          document.getElementById('f-memo').value.trim(),
+  };
+
+  if (editingId) {
+    const idx = trips.findIndex(t => t.id === editingId);
+    trips[idx] = { ...trips[idx], ...data };
+  } else {
+    trips.push({ id: Date.now().toString(), ...data });
+  }
+
+  save();
+  closeModal();
+  render();
+}
+
+function editTrip(id) {
+  openModal(id);
+}
+
+function confirmDelete(id) {
+  deletingId = id;
+  const t = trips.find(x => x.id === id);
+  document.getElementById('confirmDest').textContent = t.destination;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('show');
+  deletingId = null;
+}
+
+function executeDelete() {
+  if (!deletingId) return;
+  trips = trips.filter(t => t.id !== deletingId);
+  save();
+  closeConfirm();
+  render();
+}
+
+// モーダル外クリックで閉じる
+document.getElementById('tripModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('tripModal')) closeModal();
+});
+document.getElementById('confirmModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('confirmModal')) closeConfirm();
+});
+
+render();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>
