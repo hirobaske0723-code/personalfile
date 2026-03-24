@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        properties: { [propName]: { checkbox: value } }
+        properties: { [propName]: { select: { name: value } } }
       }),
     });
     const data = await response.json();
