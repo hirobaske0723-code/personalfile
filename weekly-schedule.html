@@ -239,30 +239,36 @@
     btn.disabled = true;
     btn.textContent = '反映中...';
 
-    const checked = document.querySelectorAll('.todo-check.done');
-    const tasks = Array.from(checked).map(checkEl => {
-      const item = checkEl.closest('.todo-item');
-      return fetch('/api/notion-update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: item.dataset.pageId, propName: item.dataset.propName, value: true }),
-      });
-    });
+    const checked = Array.from(document.querySelectorAll('.todo-check.done'));
 
     try {
-      await Promise.all(tasks);
+      for (const checkEl of checked) {
+        const item = checkEl.closest('.todo-item');
+        const pageId = item.dataset.pageId;
+        const propName = item.dataset.propName;
+        if (!pageId || !propName) throw new Error(`pageId or propName missing (${pageId}, ${propName})`);
+
+        const res = await fetch('/api/notion-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pageId, propName, value: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      }
+
       // 完了したアイテムを削除
       checked.forEach(checkEl => checkEl.closest('.todo-item').remove());
       document.getElementById('update-btn-wrap').style.display = 'none';
       btn.textContent = 'Notionに反映';
       btn.disabled = false;
-      // 残りがなければメッセージ表示
       if (document.querySelectorAll('.todo-item').length === 0) {
         document.getElementById('todo-list').innerHTML = '<div class="loading">TODOはありません 🎉</div>';
       }
     } catch (e) {
-      btn.textContent = '失敗しました。再試行';
+      btn.textContent = '失敗 — 再試行';
       btn.disabled = false;
+      alert('Notionへの反映に失敗しました:\n' + e.message);
     }
   }
 
