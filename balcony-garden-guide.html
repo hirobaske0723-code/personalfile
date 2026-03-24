@@ -478,7 +478,7 @@
   <div style="font-size:2.5rem; margin-bottom:8px;">🌱</div>
   <h1>ベランダ家庭菜園ガイド</h1>
   <p>4月下旬スタート｜初心者向け完全マニュアル</p>
-  <div class="badge">🍅 ミニトマト　🥒 キュウリ　🌿 大葉　🌿 バジル</div>
+  <div class="badge" id="header-badge">🍅 ミニトマト　🥒 キュウリ　🌿 大葉　🌿 バジル</div>
 </div>
 
 <div class="container">
@@ -486,32 +486,7 @@
   <!-- 作物紹介 -->
   <section>
     <div class="section-title">🥗 育てる作物</div>
-    <div class="crop-grid">
-      <div class="crop-card tomato">
-        <div class="emoji">🍅</div>
-        <h3>ミニトマト</h3>
-        <div class="diff">難易度 ★★☆</div>
-        <p>収穫量が多く、毎日の収穫が楽しい。わき芽かきがコツ</p>
-      </div>
-      <div class="crop-card cucumber">
-        <div class="emoji">🥒</div>
-        <h3>キュウリ</h3>
-        <div class="diff">難易度 ★★☆</div>
-        <p>成長が早くて育てがいあり。放置すると大きくなりすぎるので早めに収穫</p>
-      </div>
-      <div class="crop-card shiso">
-        <div class="emoji">🌿</div>
-        <h3>大葉（シソ）</h3>
-        <div class="diff">難易度 ★☆☆</div>
-        <p>初心者最強。放置気味でもよく育つ。秋まで長く収穫できる</p>
-      </div>
-      <div class="crop-card basil">
-        <div class="emoji">🌱</div>
-        <h3>バジル</h3>
-        <div class="diff">難易度 ★☆☆</div>
-        <p>トマトと一緒に使えて便利。花が咲く前に摘むのがポイント</p>
-      </div>
-    </div>
+    <div class="crop-grid" id="crop-grid"></div>
   </section>
 
   <!-- 用意するもの -->
@@ -1045,6 +1020,45 @@
     return ms;
   }
 
+  // デフォルト作物の詳細表示用データ
+  const CROP_DETAILS = {
+    tomato:   { colorClass: 'tomato',   diff: '★★☆', desc: '収穫量が多く、毎日の収穫が楽しい。わき芽かきがコツ' },
+    cucumber: { colorClass: 'cucumber', diff: '★★☆', desc: '成長が早くて育てがいあり。放置すると大きくなりすぎるので早めに収穫' },
+    shiso:    { colorClass: 'shiso',    diff: '★☆☆', desc: '初心者最強。放置気味でもよく育つ。秋まで長く収穫できる' },
+    basil:    { colorClass: 'basil',    diff: '★☆☆', desc: 'トマトと一緒に使えて便利。花が咲く前に摘むのがポイント' },
+  };
+  const CUSTOM_COLORS = ['#ff9800','#2196f3','#e91e63','#9c27b0','#00bcd4','#ff5722','#607d8b'];
+
+  function renderCropSection(visible) {
+    // ヘッダーバッジ更新
+    document.getElementById('header-badge').textContent =
+      visible.map(c => `${c.emoji} ${c.name}`).join('　');
+
+    // 育てる作物カード更新
+    document.getElementById('crop-grid').innerHTML = visible.map((c, i) => {
+      const detail = CROP_DETAILS[c.id];
+      if (detail) {
+        return `
+          <div class="crop-card ${detail.colorClass}">
+            <div class="emoji">${c.emoji}</div>
+            <h3>${c.name}</h3>
+            <div class="diff">難易度 ${detail.diff}</div>
+            <p>${detail.desc}</p>
+          </div>`;
+      } else {
+        const color = CUSTOM_COLORS[i % CUSTOM_COLORS.length];
+        const harvest = c.milestones.find(m => m.label.includes('収穫'));
+        return `
+          <div class="crop-card" style="border-color:${color}">
+            <div class="emoji">${c.emoji}</div>
+            <h3>${c.name}</h3>
+            <div class="diff">カスタム</div>
+            <p>${harvest ? `収穫目安：植え付けから約${harvest.days}日` : 'マイスケジュールで管理中'}</p>
+          </div>`;
+      }
+    }).join('');
+  }
+
   function renderAllRows() {
     const hidden  = getHiddenCrops();
     const custom  = getCustomCrops();
@@ -1053,6 +1067,7 @@
       ...CROPS.filter(c => !hidden.includes(c.id)),
       ...custom.map(c => ({ ...c, isCustom: true }))
     ];
+    renderCropSection(visible);
     const container = document.getElementById('all-crop-rows');
     container.innerHTML = visible.map(c => `
       <div>
