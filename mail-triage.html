@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>要返信メール — BASE</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #080c14;
+    background-image:
+      radial-gradient(ellipse at 15% 40%, rgba(59,130,246,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(168,85,247,0.07) 0%, transparent 55%);
+    min-height: 100vh;
+    color: #f0f0f0;
+    padding: 40px 16px 60px;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    margin-bottom: 28px;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: rgba(255,255,255,0.7); }
+
+  .header {
+    max-width: 800px;
+    margin: 0 auto 28px;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 1.3rem; font-weight: 700; }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .badge-total  { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+  .badge-high   { background: rgba(239,68,68,0.2);   color: #f87171; }
+  .badge-medium { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+  .badge-low    { background: rgba(34,197,94,0.2);   color: #4ade80; }
+
+  /* フィルタ */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-width: 800px;
+    margin: 0 auto 20px;
+  }
+  .filter-btn {
+    font-size: 0.75rem;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+  .filter-btn.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #f0f0f0; }
+
+  /* メールカード */
+  .mail-list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mail-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .mail-card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.13);
+  }
+  .mail-card.done { opacity: 0.35; }
+
+  .mail-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .priority-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+  .p-高   { background: rgba(239,68,68,0.25);  color: #f87171; }
+  .p-中   { background: rgba(251,191,36,0.25); color: #fbbf24; }
+  .p-低   { background: rgba(34,197,94,0.25);  color: #4ade80; }
+
+  .mail-subject {
+    font-size: 0.95rem;
+    font-weight: 600;
+    flex: 1;
+    line-height: 1.4;
+  }
+  .mail-meta {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .mail-summary {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .deadline {
+    font-size: 0.72rem;
+    color: #fbbf24;
+    margin-bottom: 10px;
+  }
+  .deadline.overdue { color: #f87171; }
+
+  .mail-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .action-btn {
+    font-size: 0.75rem;
+    padding: 5px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.15s;
+  }
+  .action-btn:hover { opacity: 0.8; }
+  .action-btn:disabled { opacity: 0.3; cursor: default; }
+  .btn-inprogress { background: rgba(251,191,36,0.2); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+  .btn-done       { background: rgba(34,197,94,0.2);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+  /* 空・ローディング */
+  .state-msg {
+    max-width: 800px;
+    margin: 60px auto;
+    text-align: center;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.9rem;
+  }
+
+  .refresh-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .refresh-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← BASE</a>
+
+<div class="header">
+  <div class="header-top">
+    <h1>📬 要返信メール</h1>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="badges" id="badges"></div>
+      <button class="refresh-btn" onclick="load()">↺ 更新</button>
+    </div>
+  </div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" data-status="未対応" onclick="setFilter(this)">未対応</button>
+  <button class="filter-btn" data-status="対応中" onclick="setFilter(this)">対応中</button>
+  <button class="filter-btn" data-status="all" onclick="setFilter(this)">すべて</button>
+</div>
+
+<div class="mail-list" id="mail-list">
+  <div class="state-msg">読み込み中...</div>
+</div>
+
+<script>
+  let currentStatus = '未対応';
+
+  function setFilter(btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStatus = btn.dataset.status;
+    load();
+  }
+
+  async function load() {
+    const list = document.getElementById('mail-list');
+    list.innerHTML = '<div class="state-msg">読み込み中...</div>';
+
+    try {
+      const res = await fetch(`/api/mail-triage?status=${encodeURIComponent(currentStatus)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'API error');
+
+      // バッジ更新
+      const { summary } = data;
+      document.getElementById('badges').innerHTML = `
+        <span class="badge badge-total">計 ${summary.total}件</span>
+        ${summary.high   ? `<span class="badge badge-high">高 ${summary.high}</span>` : ''}
+        ${summary.medium ? `<span class="badge badge-medium">中 ${summary.medium}</span>` : ''}
+        ${summary.low    ? `<span class="badge badge-low">低 ${summary.low}</span>` : ''}
+      `;
+
+      if (data.items.length === 0) {
+        list.innerHTML = '<div class="state-msg">要返信メールはありません 🎉</div>';
+        return;
+      }
+
+      list.innerHTML = data.items.map(item => {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const dl = item.reply_deadline ? new Date(item.reply_deadline) : null;
+        const dlStr = dl ? `${dl.getMonth()+1}/${dl.getDate()} までに返信` : '';
+        const dlClass = dl && dl < today ? 'overdue' : '';
+        const received = item.received_at
+          ? new Date(item.received_at).toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})
+          : '';
+        const isDone = item.status === '完了';
+
+        return `
+          <div class="mail-card ${isDone ? 'done' : ''}" id="card-${item.id}">
+            <div class="mail-top">
+              <span class="priority-badge p-${item.priority}">${item.priority}</span>
+              <div class="mail-subject">${escHtml(item.subject)}</div>
+            </div>
+            <div class="mail-meta">
+              <span>📨 ${escHtml(item.from)}</span>
+              ${received ? `<span>🕐 ${received}</span>` : ''}
+              <span>🔖 ${item.status}</span>
+            </div>
+            ${item.ai_summary ? `<div class="mail-summary">${escHtml(item.ai_summary)}</div>` : ''}
+            ${dlStr ? `<div class="deadline ${dlClass}">⏰ ${dlStr}</div>` : ''}
+            <div class="mail-actions">
+              <button class="action-btn btn-inprogress"
+                onclick="updateStatus('${item.id}', '対応中')"
+                ${item.status === '対応中' || isDone ? 'disabled' : ''}>
+                対応中
+              </button>
+              <button class="action-btn btn-done"
+                onclick="updateStatus('${item.id}', '完了')"
+                ${isDone ? 'disabled' : ''}>
+                完了
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+
+    } catch (e) {
+      list.innerHTML = `<div class="state-msg">取得に失敗しました: ${e.message}</div>`;
+    }
+  }
+
+  async function updateStatus(pageId, status) {
+    const card = document.getElementById(`card-${pageId}`);
+    const btns = card.querySelectorAll('.action-btn');
+    btns.forEach(b => b.disabled = true);
+
+    try {
+      const res = await fetch('/api/mail-triage-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId, status }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      if (status === '完了') {
+        card.classList.add('done');
+      } else {
+        // ステータス表示更新
+        card.querySelector('.mail-meta span:last-child').textContent = `🔖 ${status}`;
+        card.querySelector('.btn-inprogress').disabled = true;
+      }
+    } catch (e) {
+      alert('更新に失敗しました: ' + e.message);
+      btns.forEach(b => b.disabled = false);
+    }
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  load();
+</script>
+</body>
+</html>
