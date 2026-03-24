@@ -199,8 +199,9 @@
       const data = await res.json();
       // 完了済みを除外
       const results = (data.results || []).filter(page => {
-        const checkProp = Object.values(page.properties).find(p => p.type === 'checkbox');
-        return !checkProp?.checkbox;
+        const statusEntry = Object.entries(page.properties).find(([, p]) => p.type === 'select');
+        const statusName = statusEntry?.[1]?.select?.name || '';
+        return statusName !== '完了';
       });
       if (results.length === 0) {
         el.innerHTML = '<div class="loading">TODOはありません 🎉</div>';
@@ -209,8 +210,8 @@
       el.innerHTML = results.map(page => {
         const titleProp = Object.values(page.properties).find(p => p.type === 'title');
         const title = titleProp?.title?.map(t => t.plain_text).join('') || '（無題）';
-        const checkEntry = Object.entries(page.properties).find(([, p]) => p.type === 'checkbox');
-        const propName = checkEntry ? checkEntry[0] : '';
+        const statusEntry = Object.entries(page.properties).find(([, p]) => p.type === 'select');
+        const propName = statusEntry ? statusEntry[0] : '';
         return `
           <div class="todo-item" data-page-id="${page.id}" data-prop-name="${propName}">
             <div class="todo-check" onclick="toggleLocal(this)"></div>
