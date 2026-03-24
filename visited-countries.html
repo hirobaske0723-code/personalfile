@@ -126,6 +126,45 @@
   .country-row-del  { font-size: 0.75rem; color: #555; }
   .empty-msg { color: #555; font-size: 0.85rem; padding: 8px 0; }
 
+  /* 共有ボタン */
+  .share-bar {
+    padding: 10px 16px 0;
+    display: flex;
+    gap: 8px;
+  }
+  .btn-share {
+    flex: 1;
+    padding: 11px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: #81d4fa;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-share:hover { background: rgba(255,255,255,0.14); }
+
+  /* トースト */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #263238;
+    color: #e0f7fa;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
   /* 検索 */
   .search-wrap {
     padding: 12px 16px 4px;
@@ -235,6 +274,12 @@
 
 <div id="map-wrap"><div id="map"></div></div>
 <p class="hint">タップ / クリックで訪問済みに切り替え</p>
+
+<div class="share-bar">
+  <button class="btn-share" onclick="copyShareUrl()">📤 このデータを他の端末に共有</button>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <div class="search-wrap">
   <input class="search-input" id="searchInput" type="text"
@@ -550,6 +595,36 @@ function pickCountry(code) {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchResults').classList.remove('show');
   showModal(code);
+}
+
+// URLハッシュからデータをインポート
+(function importFromHash() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  const codes = hash.split(',').filter(c => COUNTRIES[c]);
+  if (codes.length === 0) return;
+  codes.forEach(c => { if (!visited.includes(c)) visited.push(c); });
+  save();
+  history.replaceState(null, '', location.pathname); // URLをきれいにする
+  showToast(`✅ ${codes.length}か国のデータを取り込みました`);
+})();
+
+function copyShareUrl() {
+  if (visited.length === 0) { showToast('まだ国が選ばれていません'); return; }
+  const url = location.origin + location.pathname + '#' + visited.join(',');
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('📋 URLをコピーしました！スマホで開いてください');
+  }).catch(() => {
+    // クリップボードAPIが使えない場合はプロンプトで表示
+    prompt('このURLをコピーしてスマホで開いてください', url);
+  });
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
 }
 
 updateStats();
