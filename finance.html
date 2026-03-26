@@ -186,9 +186,9 @@
           {
             "title": "",
             "symbols": [
-              ["S&P 500", "FOREXCOM:SPXUSD|1D"],
-              ["NASDAQ 100", "NASDAQ:NDX|1D"],
-              ["Dow Jones", "FOREXCOM:DJUSD|1D"]
+              {"description": "S&P 500",    "proName": "FOREXCOM:SPXUSD"},
+              {"description": "NASDAQ 100", "proName": "NASDAQ:NDX"},
+              {"description": "Dow Jones",  "proName": "FOREXCOM:DJUSD"}
             ],
             "colorTheme": "dark",
             "isTransparent": true,
@@ -208,9 +208,9 @@
           {
             "title": "",
             "symbols": [
-              ["日経平均", "INDEX:NKY|1D"],
-              ["TOPIX", "INDEX:TOPIX|1D"],
-              ["マザーズ", "INDEX:MOTHERS|1D"]
+              {"description": "日経平均",   "proName": "INDEX:NKY"},
+              {"description": "TOPIX",     "proName": "INDEX:TOPIX"},
+              {"description": "グロース250", "proName": "INDEX:MOTHERS"}
             ],
             "colorTheme": "dark",
             "isTransparent": true,
@@ -347,6 +347,7 @@
     <div class="section-label">為替</div>
     <div class="two-col">
       <div class="widget-card">
+        <div class="widget-card-header">USD / JPY</div>
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
@@ -355,6 +356,7 @@
         </div>
       </div>
       <div class="widget-card">
+        <div class="widget-card-header">EUR / JPY</div>
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
