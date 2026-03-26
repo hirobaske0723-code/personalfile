@@ -668,11 +668,18 @@ function handleInput() {
   preview.classList.add('visible');
 }
 
-function confirmAdd() {
+async function confirmAdd() {
   if (!pendingItem) return;
 
+  const item = { ...pendingItem, done: false, createdAt: new Date().toISOString() };
+
+  // スケジュールならGoogleカレンダーにも追加
+  if (item.type === 'schedule' && item.date) {
+    await addToGcal(item);
+  }
+
   const items = loadItems();
-  items.push({ ...pendingItem, done: false, createdAt: new Date().toISOString() });
+  items.push(item);
   saveItems(items);
 
   document.getElementById('quick-input').value = '';
@@ -680,6 +687,21 @@ function confirmAdd() {
   pendingItem = null;
 
   renderLocalItems();
+}
+
+async function addToGcal(item) {
+  const gasUrl = getGcalUrl();
+  if (!gasUrl) return;
+
+  try {
+    const startIso = new Date(item.date).toISOString();
+    const url = `${gasUrl}?action=add&title=${encodeURIComponent(item.text)}&start=${encodeURIComponent(startIso)}`;
+    const res = await fetch(url, { redirect: 'follow' });
+    const data = await res.json();
+    if (!data.ok) console.warn('GCal追加失敗:', data.error);
+  } catch(e) {
+    console.warn('GCal追加エラー:', e);
+  }
 }
 
 // Enterキーで送信（Shift+Enterは改行）
@@ -718,16 +740,31 @@ function renderLocalItems() {
 
   updateTodoCount();
 
-  // Schedule
+  // Schedule — 既存ローカルアイテムを削除してから再構築・日付順ソート
   const schedEl = document.getElementById('sched-list');
-  const existingLocalSched = schedEl.querySelectorAll('[data-local-id]');
-  existingLocalSched.forEach(el => el.remove());
+  schedEl.querySelectorAll('[data-local-id]').forEach(el => el.remove());
 
   localScheds
-    .sort((a, b) => (a.date ? new Date(a.date) : Infinity) - (b.date ? new Date(b.date) : Infinity))
+    .sort((a, b) => {
+      const da = a.date ? new Date(a.date).getTime() : Infinity;
+      const db = b.date ? new Date(b.date).getTime() : Infinity;
+      return da - db;
+    })
     .forEach(item => {
+      // GCalイベントと日付順に挿入
       const el = makeSchedEl(item);
-      schedEl.appendChild(el);
+      const itemTime = item.date ? new Date(item.date).getTime() : Infinity;
+      const apiItems = Array.from(schedEl.querySelectorAll('.event-item:not([data-local-id])'));
+      let inserted = false;
+      for (const apiEl of apiItems) {
+        const apiDate = apiEl.dataset.startTime ? parseInt(apiEl.dataset.startTime) : Infinity;
+        if (itemTime <= apiDate) {
+          schedEl.insertBefore(el, apiEl);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) schedEl.appendChild(el);
     });
 
   updateSchedCount();
@@ -850,6 +887,7 @@ async function loadCalendar() {
         const dateStr = fmt(d) + (isAllDay ? '' : ` ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
         const div = document.createElement('div');
         div.className = 'event-item';
+        div.dataset.startTime = d.getTime();
         div.innerHTML = `
           <div class="event-dot"></div>
           <div class="event-date">${dateStr}</div>
