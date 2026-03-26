@@ -3,219 +3,784 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>今週のダッシュボード</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#2196f3">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<title>今週のダッシュボード — BASE</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#080c14">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
-    font-family: 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
-    background: #f5f5f5;
-    color: #333;
-    padding: 24px 16px;
-    max-width: 600px;
-    margin: 0 auto;
+    font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #080c14;
+    background-image:
+      radial-gradient(ellipse at 15% 40%, rgba(59,130,246,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(168,85,247,0.07) 0%, transparent 55%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px 60px;
+    color: #f0f0f0;
   }
 
-  h1 {
-    font-size: 1.3rem;
-    margin-bottom: 4px;
-    color: #222;
-  }
-  .subtitle {
-    font-size: 0.8rem;
-    color: #aaa;
-    margin-bottom: 24px;
-  }
-
-  .card {
-    background: white;
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 0.95rem;
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 14px;
+  /* ── Header ── */
+  .header {
+    width: 100%;
+    max-width: 680px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .back {
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .back:hover { color: rgba(255,255,255,0.7); }
+  .title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .week-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.1em;
+    margin-left: auto;
+    white-space: nowrap;
   }
 
-  /* カレンダー */
+  /* ── Content ── */
+  .content {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── Input Card ── */
+  .input-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .input-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(99,179,237,0.4), rgba(168,85,247,0.4), transparent);
+  }
+  .input-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .input-field {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #f0f0f0;
+    font-size: 0.93rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: none;
+    line-height: 1.5;
+    min-height: 48px;
+    max-height: 120px;
+  }
+  .input-field::placeholder { color: rgba(255,255,255,0.2); }
+  .input-field:focus {
+    border-color: rgba(99,179,237,0.5);
+    background: rgba(255,255,255,0.08);
+  }
+  .send-btn {
+    background: linear-gradient(135deg, rgba(99,179,237,0.3), rgba(168,85,247,0.3));
+    border: 1px solid rgba(99,179,237,0.3);
+    border-radius: 12px;
+    color: #f0f0f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
+  }
+  .send-btn:hover {
+    background: linear-gradient(135deg, rgba(99,179,237,0.5), rgba(168,85,247,0.5));
+    border-color: rgba(99,179,237,0.5);
+    transform: translateY(-1px);
+  }
+  .send-btn:active { transform: translateY(0); }
+
+  /* 判定プレビュー */
+  .preview {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.07);
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.6);
+    display: none;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .preview.visible { display: flex; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .tag-todo    { background: rgba(59,130,246,0.2);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.3);  }
+  .tag-sched   { background: rgba(168,85,247,0.2);  color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+  .tag-high    { background: rgba(239,68,68,0.2);   color: #fca5a5; border: 1px solid rgba(239,68,68,0.3);  }
+  .tag-mid     { background: rgba(249,115,22,0.2);  color: #fdba74; border: 1px solid rgba(249,115,22,0.3); }
+  .tag-low     { background: rgba(34,197,94,0.2);   color: #86efac; border: 1px solid rgba(34,197,94,0.3);  }
+  .preview-text { color: rgba(255,255,255,0.5); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .confirm-btn {
+    background: rgba(34,197,94,0.2);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 8px;
+    color: #86efac;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .confirm-btn:hover { background: rgba(34,197,94,0.35); }
+
+  /* ── Section Card ── */
+  .section-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.22);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 14px 18px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .count-badge {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.68rem;
+  }
+
+  /* ── Schedule Items ── */
   .event-item {
     display: flex;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px dashed #f0f0f0;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
     align-items: flex-start;
+    transition: background 0.15s;
   }
   .event-item:last-child { border-bottom: none; }
-  .event-date {
-    font-size: 0.75rem;
-    color: #888;
-    width: 60px;
+  .event-item:hover { background: rgba(255,255,255,0.03); }
+  .event-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(168,85,247,0.7);
     flex-shrink: 0;
-    padding-top: 2px;
+    margin-top: 6px;
   }
-  .event-name { font-size: 0.9rem; }
+  .event-dot.local { background: rgba(99,179,237,0.7); }
+  .event-date {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 1px;
+    min-width: 70px;
+  }
+  .event-name {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+  }
+  .event-del {
+    margin-left: auto;
+    color: rgba(255,255,255,0.12);
+    font-size: 0.9rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.15s;
+    padding: 0 4px;
+  }
+  .event-del:hover { color: rgba(239,68,68,0.7); }
 
-  /* TODO */
+  /* ── TODO Items ── */
   .todo-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px dashed #f0f0f0;
-    font-size: 0.9rem;
+    gap: 12px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
   }
   .todo-item:last-child { border-bottom: none; }
+  .todo-item:hover { background: rgba(255,255,255,0.03); }
   .todo-check {
     width: 18px;
     height: 18px;
-    border-radius: 4px;
-    border: 2px solid #ccc;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255,255,255,0.2);
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: all 0.15s;
   }
-  .todo-check:hover { border-color: #4caf50; }
-  .todo-check.done { background: #4caf50; border-color: #4caf50; color: white; }
-  .todo-text.done { color: #bbb; text-decoration: line-through; }
-  .todo-due {
-    margin-left: auto;
-    font-size: 0.73rem;
-    color: #aaa;
-    white-space: nowrap;
+  .todo-check:hover { border-color: rgba(34,197,94,0.6); }
+  .todo-check.done { background: rgba(34,197,94,0.3); border-color: rgba(34,197,94,0.5); color: #86efac; }
+  .todo-text {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.8);
+    flex: 1;
+    line-height: 1.4;
+  }
+  .todo-text.done { color: rgba(255,255,255,0.25); text-decoration: line-through; }
+  .todo-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     flex-shrink: 0;
   }
-  .todo-due.overdue { color: #e53935; font-weight: bold; }
-
-  .loading { color: #aaa; font-size: 0.85rem; padding: 8px 0; }
-  .error   { color: #e53935; font-size: 0.85rem; padding: 8px 0; }
-
-  .back-link {
-    display: inline-block;
-    margin-bottom: 20px;
-    font-size: 0.85rem;
-    color: #888;
-    text-decoration: none;
+  .priority-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
-  .back-link:hover { color: #333; }
-
-  .updated {
-    text-align: right;
-    font-size: 0.72rem;
-    color: #ccc;
-    margin-top: 8px;
+  .p-high { background: rgba(239,68,68,0.8); }
+  .p-mid  { background: rgba(249,115,22,0.8); }
+  .p-low  { background: rgba(34,197,94,0.6); }
+  .todo-due {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.25);
+    white-space: nowrap;
   }
-
-  #update-btn {
-    background: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 18px;
-    font-size: 0.85rem;
+  .todo-due.overdue { color: rgba(239,68,68,0.8); }
+  .todo-del {
+    color: rgba(255,255,255,0.1);
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: color 0.15s;
+    padding: 0 2px;
   }
-  #update-btn:hover { background: #43a047; }
-  #update-btn:disabled { background: #aaa; cursor: default; }
+  .todo-del:hover { color: rgba(239,68,68,0.7); }
+
+  .empty-msg {
+    padding: 16px 18px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.2);
+  }
+  .loading-msg {
+    padding: 16px 18px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.18);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* sync btn */
+  .sync-wrap {
+    padding: 10px 18px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    display: none;
+    justify-content: flex-end;
+  }
+  .sync-btn {
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 8px;
+    color: #86efac;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sync-btn:hover { background: rgba(34,197,94,0.25); }
+  .sync-btn:disabled { opacity: 0.4; cursor: default; }
+
+  footer {
+    margin-top: 52px;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 480px) {
+    .week-label { display: none; }
+    .event-date { min-width: 55px; }
+  }
 </style>
 </head>
 <body>
 
-<a href="index.html" class="back-link">← BASE</a>
-
-<h1>📋 今週のダッシュボード</h1>
-<div class="subtitle" id="week-label">読み込み中...</div>
-
-<!-- カレンダー -->
-<div class="card">
-  <div class="card-title">📅 今週の予定</div>
-  <div id="cal-list"><div class="loading">読み込み中...</div></div>
+<div class="header">
+  <a href="index.html" class="back">← BASE</a>
+  <div class="title">DASHBOARD</div>
+  <div class="week-label" id="week-label"></div>
 </div>
 
-<!-- TODO -->
-<div class="card">
-  <div class="card-title">✅ TODOリスト</div>
-  <div id="todo-list"><div class="loading">読み込み中...</div></div>
-  <div id="update-btn-wrap" style="display:none; margin-top:14px; text-align:right;">
-    <button id="update-btn" onclick="syncTodo()">Notionに反映</button>
+<div class="content">
+
+  <!-- ── 入力エリア ── -->
+  <div class="input-card">
+    <div class="input-label">Quick Add — Todo or Schedule</div>
+    <div class="input-row">
+      <textarea
+        class="input-field"
+        id="quick-input"
+        placeholder="「明日14時に歯医者」「企画書を書く」など何でも入力"
+        rows="1"
+      ></textarea>
+      <button class="send-btn" onclick="handleInput()">判定 →</button>
+    </div>
+    <div class="preview" id="preview">
+      <span class="tag" id="preview-type-tag"></span>
+      <span class="tag" id="preview-priority-tag"></span>
+      <span class="preview-text" id="preview-text"></span>
+      <span id="preview-date" style="font-size:0.75rem;color:rgba(255,255,255,0.35);flex-shrink:0;"></span>
+      <button class="confirm-btn" onclick="confirmAdd()">追加</button>
+    </div>
   </div>
+
+  <!-- ── スケジュール ── -->
+  <div>
+    <div class="section-label">Schedule</div>
+    <div class="card">
+      <div class="card-header">
+        📅 今週の予定
+        <span class="count-badge" id="sched-count">—</span>
+      </div>
+      <div id="sched-list"><div class="loading-msg">読み込み中...</div></div>
+    </div>
+  </div>
+
+  <!-- ── TODO ── -->
+  <div>
+    <div class="section-label">Tasks</div>
+    <div class="card">
+      <div class="card-header">
+        ✅ TODOリスト
+        <span class="count-badge" id="todo-count">—</span>
+      </div>
+      <div id="todo-list"><div class="loading-msg">読み込み中...</div></div>
+      <div class="sync-wrap" id="sync-wrap">
+        <button class="sync-btn" id="sync-btn" onclick="syncNotion()">Notionに反映</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<div class="updated" id="updated-at"></div>
+<footer id="updated-at"></footer>
 
 <script>
-  const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
-  const API_BASE = ''; // 同じドメインのVercel API
+/* ────────────────────────────────────────────────
+   定数・ユーティリティ
+──────────────────────────────────────────────── */
+const DAYS = ['日','月','火','水','木','金','土'];
+const LS_KEY = 'base_weekly_items';
+const PRIORITY_LABELS = { high: '高', mid: '中', low: '低' };
 
-  // 今週の範囲ラベル
-  function getWeekLabel() {
-    const now = new Date();
-    const mon = new Date(now);
-    mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    const sun = new Date(mon);
-    sun.setDate(mon.getDate() + 6);
-    const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
-    return `${now.getFullYear()}年 ${fmt(mon)}（月）〜 ${fmt(sun)}（日）`;
+function today() {
+  const d = new Date(); d.setHours(0,0,0,0); return d;
+}
+
+function fmt(d) {
+  return `${d.getMonth()+1}/${d.getDate()}（${DAYS[d.getDay()]}）`;
+}
+
+function fmtFull(d) {
+  const time = d.getHours() !== 0 || d.getMinutes() !== 0
+    ? ` ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+    : '';
+  return fmt(d) + time;
+}
+
+/* ────────────────────────────────────────────────
+   localStorage
+──────────────────────────────────────────────── */
+function loadItems() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveItems(items) {
+  localStorage.setItem(LS_KEY, JSON.stringify(items));
+}
+
+/* ────────────────────────────────────────────────
+   自然言語パーサー
+──────────────────────────────────────────────── */
+function parseDate(text) {
+  const now = new Date();
+  const todayD = new Date(now); todayD.setHours(0,0,0,0);
+
+  // 時刻の抽出（HH:MM or HH時MM分 or HH時）
+  let hour = 0, min = 0, hasTime = false;
+  const timeM = text.match(/(\d{1,2})[時:](\d{2})分?/) || text.match(/(\d{1,2})時/);
+  if (timeM) {
+    hour = parseInt(timeM[1]);
+    min = timeM[2] ? parseInt(timeM[2]) : 0;
+    hasTime = true;
+  }
+  const ampm = text.match(/(午前|AM)/) ? 'am' : text.match(/(午後|PM)/) ? 'pm' : null;
+  if (ampm === 'pm' && hour < 12) hour += 12;
+  if (ampm === 'am' && hour === 12) hour = 0;
+
+  const setTime = (d) => {
+    if (hasTime) { d.setHours(hour, min, 0, 0); }
+    else { d.setHours(0, 0, 0, 0); }
+    return d;
+  };
+
+  // 今日・明日・明後日
+  if (text.match(/今日|本日/)) return setTime(new Date(todayD));
+  if (text.match(/明日/))       return setTime(new Date(todayD.getTime() + 86400000));
+  if (text.match(/明後日/))     return setTime(new Date(todayD.getTime() + 172800000));
+
+  // 来週
+  const nextWeekDayM = text.match(/来週(月|火|水|木|金|土|日)/);
+  if (nextWeekDayM) {
+    const targetDay = '月火水木金土日'.indexOf(nextWeekDayM[1]);
+    const d = new Date(todayD);
+    const diff = (targetDay - now.getDay() + 7) % 7 || 7;
+    d.setDate(d.getDate() + diff + 7);
+    return setTime(d);
   }
 
-  // カレンダー
-  async function loadCalendar() {
-    const el = document.getElementById('cal-list');
-    try {
-      const res = await fetch('/api/gcal');
-      const data = await res.json();
-      const items = data.items || [];
-      if (items.length === 0) {
-        el.innerHTML = '<div class="loading">今週の予定はありません</div>';
-        return;
-      }
-      el.innerHTML = items.map(ev => {
+  // 今週の曜日
+  const weekDayM = text.match(/(今週)?(月|火|水|木|金|土|日)曜?/);
+  if (weekDayM) {
+    const targetDay = '月火水木金土日'.indexOf(weekDayM[2]);
+    const d = new Date(todayD);
+    let diff = (targetDay - now.getDay() + 7) % 7;
+    if (diff === 0) diff = 7; // 同じ曜日は来週
+    d.setDate(d.getDate() + diff);
+    return setTime(d);
+  }
+
+  // ~月~日
+  const dateM = text.match(/(\d{1,2})月(\d{1,2})日?/);
+  if (dateM) {
+    const d = new Date(now.getFullYear(), parseInt(dateM[1])-1, parseInt(dateM[2]));
+    if (d < todayD) d.setFullYear(d.getFullYear()+1);
+    return setTime(d);
+  }
+
+  // 時刻だけある場合は今日
+  if (hasTime) {
+    const d = new Date(todayD);
+    d.setHours(hour, min, 0, 0);
+    if (d < now) d.setDate(d.getDate()+1); // 過去時刻なら明日
+    return d;
+  }
+
+  return null;
+}
+
+/* ────────────────────────────────────────────────
+   判定エンジン
+──────────────────────────────────────────────── */
+function classify(text) {
+  const t = text;
+
+  // ── スケジュール判定 ──
+  const schedPatterns = [
+    /\d{1,2}[時:]\d{2}/, /\d{1,2}時/, /午前|午後|AM|PM/i,
+    /今日|明日|明後日|今週|来週/,
+    /\d{1,2}月\d{1,2}日/,
+    /月曜|火曜|水曜|木曜|金曜|土曜|日曜/,
+    /会議|打ち合わせ|ミーティング|MTG|アポ|訪問|出張|集合|待ち合わせ|予約|診察|歯医者|病院|スクール|レッスン|セミナー|イベント|締め切り|締切|期限/,
+  ];
+  const isSched = schedPatterns.some(p => p.test(t));
+
+  // ── 優先度判定 ──
+  const highP = /急ぎ|至急|緊急|最優先|絶対|今すぐ|やばい|重要|important|ASAP/i.test(t);
+  const lowP  = /余裕|ゆっくり|いつか|気が向いたら|できれば|後で|later/i.test(t);
+  const priority = highP ? 'high' : lowP ? 'low' : 'mid';
+
+  const date = parseDate(t);
+
+  return {
+    type: isSched ? 'schedule' : 'todo',
+    priority,
+    date,
+  };
+}
+
+/* ────────────────────────────────────────────────
+   入力処理
+──────────────────────────────────────────────── */
+let pendingItem = null;
+
+function handleInput() {
+  const input = document.getElementById('quick-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const result = classify(text);
+  pendingItem = { text, ...result, id: Date.now() };
+
+  // プレビュー表示
+  const preview = document.getElementById('preview');
+  const typeTag = document.getElementById('preview-type-tag');
+  const prioTag = document.getElementById('preview-priority-tag');
+  const pvText  = document.getElementById('preview-text');
+  const pvDate  = document.getElementById('preview-date');
+
+  typeTag.textContent = result.type === 'schedule' ? '📅 スケジュール' : '✅ TODO';
+  typeTag.className = 'tag ' + (result.type === 'schedule' ? 'tag-sched' : 'tag-todo');
+
+  const prioClasses = { high: 'tag-high', mid: 'tag-mid', low: 'tag-low' };
+  prioTag.textContent = '優先度 ' + PRIORITY_LABELS[result.priority];
+  prioTag.className = 'tag ' + prioClasses[result.priority];
+
+  pvText.textContent = text;
+  pvDate.textContent = result.date ? fmtFull(result.date) : '';
+
+  preview.classList.add('visible');
+}
+
+function confirmAdd() {
+  if (!pendingItem) return;
+
+  const items = loadItems();
+  items.push({ ...pendingItem, done: false, createdAt: new Date().toISOString() });
+  saveItems(items);
+
+  document.getElementById('quick-input').value = '';
+  document.getElementById('preview').classList.remove('visible');
+  pendingItem = null;
+
+  renderLocalItems();
+}
+
+// Enterキーで送信（Shift+Enterは改行）
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('quick-input');
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleInput();
+    }
+  });
+  // 自動リサイズ
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+});
+
+/* ────────────────────────────────────────────────
+   ローカルアイテム描画
+──────────────────────────────────────────────── */
+function renderLocalItems() {
+  const items = loadItems();
+  const localTodos = items.filter(i => i.type === 'todo');
+  const localScheds = items.filter(i => i.type === 'schedule');
+
+  // TODO
+  const todoEl = document.getElementById('todo-list');
+  const existingLocal = todoEl.querySelectorAll('[data-local-id]');
+  existingLocal.forEach(el => el.remove());
+
+  localTodos.forEach(item => {
+    const el = makeTodoEl(item);
+    todoEl.appendChild(el);
+  });
+
+  updateTodoCount();
+
+  // Schedule
+  const schedEl = document.getElementById('sched-list');
+  const existingLocalSched = schedEl.querySelectorAll('[data-local-id]');
+  existingLocalSched.forEach(el => el.remove());
+
+  localScheds
+    .sort((a, b) => (a.date ? new Date(a.date) : Infinity) - (b.date ? new Date(b.date) : Infinity))
+    .forEach(item => {
+      const el = makeSchedEl(item);
+      schedEl.appendChild(el);
+    });
+
+  updateSchedCount();
+}
+
+function makeTodoEl(item) {
+  const div = document.createElement('div');
+  div.className = 'todo-item';
+  div.dataset.localId = item.id;
+  div.innerHTML = `
+    <div class="todo-check${item.done ? ' done' : ''}" onclick="toggleLocalTodo(this, ${item.id})">${item.done ? '✓' : ''}</div>
+    <div class="todo-text${item.done ? ' done' : ''}">${escHtml(item.text)}</div>
+    <div class="todo-meta">
+      <div class="priority-dot p-${item.priority}"></div>
+      ${item.date ? `<span class="todo-due${new Date(item.date) < today() ? ' overdue' : ''}">${fmtFull(new Date(item.date))}</span>` : ''}
+    </div>
+    <span class="todo-del" onclick="deleteItem(${item.id})">×</span>
+  `;
+  return div;
+}
+
+function makeSchedEl(item) {
+  const div = document.createElement('div');
+  div.className = 'event-item';
+  div.dataset.localId = item.id;
+  div.innerHTML = `
+    <div class="event-dot local"></div>
+    <div class="event-date">${item.date ? fmtFull(new Date(item.date)) : '日時未定'}</div>
+    <div class="event-name">${escHtml(item.text)}</div>
+    <span class="event-del" onclick="deleteItem(${item.id})">×</span>
+  `;
+  return div;
+}
+
+function toggleLocalTodo(checkEl, id) {
+  const items = loadItems();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.done = !item.done;
+  saveItems(items);
+
+  const isDone = item.done;
+  checkEl.classList.toggle('done', isDone);
+  checkEl.textContent = isDone ? '✓' : '';
+  checkEl.nextElementSibling.classList.toggle('done', isDone);
+}
+
+function deleteItem(id) {
+  const items = loadItems().filter(i => i.id !== id);
+  saveItems(items);
+  renderLocalItems();
+}
+
+function updateTodoCount() {
+  const items = loadItems().filter(i => i.type === 'todo' && !i.done);
+  const notionCount = document.querySelectorAll('#todo-list .todo-item:not([data-local-id])').length;
+  const total = items.length + notionCount;
+  document.getElementById('todo-count').textContent = total || '—';
+}
+
+function updateSchedCount() {
+  const localCount = document.querySelectorAll('#sched-list [data-local-id]').length;
+  const apiCount = document.querySelectorAll('#sched-list .event-item:not([data-local-id])').length;
+  const total = localCount + apiCount;
+  document.getElementById('sched-count').textContent = total || '—';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ────────────────────────────────────────────────
+   API読み込み
+──────────────────────────────────────────────── */
+async function loadCalendar() {
+  const el = document.getElementById('sched-list');
+  try {
+    const res = await fetch('/api/gcal');
+    const data = await res.json();
+    const items = data.items || [];
+    el.innerHTML = '';
+    if (items.length === 0) {
+      el.innerHTML = '<div class="empty-msg">Googleカレンダーの予定はありません</div>';
+    } else {
+      items.forEach(ev => {
         const start = ev.start.dateTime || ev.start.date;
         const d = new Date(start);
         const isAllDay = !ev.start.dateTime;
-        const dateStr = `${d.getMonth()+1}/${d.getDate()}（${DAYS[d.getDay()]}）`;
-        const timeStr = isAllDay ? '終日' : `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        return `
-          <div class="event-item">
-            <div class="event-date">${dateStr}<br>${timeStr}</div>
-            <div class="event-name">${ev.summary || '（無題）'}</div>
-          </div>`;
-      }).join('');
-    } catch (e) {
-      el.innerHTML = '<div class="error">カレンダーの取得に失敗しました</div>';
-    }
-  }
-
-  // Notion TODO
-  async function loadTodo() {
-    const el = document.getElementById('todo-list');
-    try {
-      const res = await fetch('/api/notion');
-      const data = await res.json();
-      // 完了済みを除外
-      const results = (data.results || []).filter(page => {
-        const statusEntry = Object.entries(page.properties).find(([, p]) => p.type === 'select');
-        const statusName = statusEntry?.[1]?.select?.name || '';
-        return statusName !== '完了';
+        const dateStr = fmt(d) + (isAllDay ? '' : ` ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
+        const div = document.createElement('div');
+        div.className = 'event-item';
+        div.innerHTML = `
+          <div class="event-dot"></div>
+          <div class="event-date">${dateStr}</div>
+          <div class="event-name">${escHtml(ev.summary || '（無題）')}</div>
+        `;
+        el.appendChild(div);
       });
-      if (results.length === 0) {
-        el.innerHTML = '<div class="loading">TODOはありません 🎉</div>';
-        return;
-      }
-      el.innerHTML = results.map(page => {
+    }
+  } catch {
+    el.innerHTML = '<div class="empty-msg">カレンダーの取得に失敗しました</div>';
+  }
+  renderLocalItems();
+}
+
+async function loadTodo() {
+  const el = document.getElementById('todo-list');
+  try {
+    const res = await fetch('/api/notion');
+    const data = await res.json();
+    const results = (data.results || []).filter(page => {
+      const statusEntry = Object.entries(page.properties).find(([, p]) => p.type === 'select');
+      return (statusEntry?.[1]?.select?.name || '') !== '完了';
+    });
+    el.innerHTML = '';
+    if (results.length === 0) {
+      el.innerHTML = '<div class="empty-msg">NotionのTODOはありません 🎉</div>';
+    } else {
+      results.forEach(page => {
         const titleProp = Object.values(page.properties).find(p => p.type === 'title');
         const title = titleProp?.title?.map(t => t.plain_text).join('') || '（無題）';
         const statusEntry = Object.entries(page.properties).find(([, p]) => p.type === 'select');
@@ -225,78 +790,85 @@
         let dueLabel = '', dueClass = '';
         if (dueStr) {
           const due = new Date(dueStr);
-          const today = new Date(); today.setHours(0,0,0,0);
-          dueLabel = `${due.getMonth()+1}/${due.getDate()}`;
-          if (due < today) dueClass = 'overdue';
+          dueLabel = fmtFull(due);
+          if (due < today()) dueClass = ' overdue';
         }
-        return `
-          <div class="todo-item" data-page-id="${page.id}" data-prop-name="${propName}">
-            <div class="todo-check" onclick="toggleLocal(this)"></div>
-            <div class="todo-text">${title}</div>
-            ${dueLabel ? `<div class="todo-due ${dueClass}">${dueLabel}</div>` : ''}
-          </div>`;
-      }).join('');
-    } catch (e) {
-      el.innerHTML = '<div class="error">TODOの取得に失敗しました</div>';
+        const div = document.createElement('div');
+        div.className = 'todo-item';
+        div.dataset.pageId = page.id;
+        div.dataset.propName = propName;
+        div.innerHTML = `
+          <div class="todo-check" onclick="toggleNotion(this)"></div>
+          <div class="todo-text">${escHtml(title)}</div>
+          <div class="todo-meta">
+            ${dueLabel ? `<span class="todo-due${dueClass}">${dueLabel}</span>` : ''}
+          </div>
+        `;
+        el.appendChild(div);
+      });
     }
+  } catch {
+    el.innerHTML = '<div class="empty-msg">TODOの取得に失敗しました</div>';
   }
+  renderLocalItems();
+}
 
-  // チェックはローカルのみ切り替え
-  function toggleLocal(checkEl) {
-    const item = checkEl.closest('.todo-item');
-    const isDone = checkEl.classList.toggle('done');
-    checkEl.textContent = isDone ? '✓' : '';
-    item.querySelector('.todo-text').classList.toggle('done', isDone);
-    // チェック済みが1件以上あれば更新ボタンを表示
-    const anyChecked = document.querySelectorAll('.todo-check.done').length > 0;
-    document.getElementById('update-btn-wrap').style.display = anyChecked ? 'block' : 'none';
-  }
+function toggleNotion(checkEl) {
+  const item = checkEl.closest('.todo-item');
+  const isDone = checkEl.classList.toggle('done');
+  checkEl.textContent = isDone ? '✓' : '';
+  item.querySelector('.todo-text').classList.toggle('done', isDone);
+  const anyChecked = document.querySelectorAll('#todo-list .todo-check.done').length > 0;
+  document.getElementById('sync-wrap').style.display = anyChecked ? 'flex' : 'none';
+}
 
-  // 更新ボタン：チェック済みをまとめてNotionに反映
-  async function syncTodo() {
-    const btn = document.getElementById('update-btn');
-    btn.disabled = true;
-    btn.textContent = '反映中...';
-
-    const checked = Array.from(document.querySelectorAll('.todo-check.done'));
-
-    try {
-      for (const checkEl of checked) {
-        const item = checkEl.closest('.todo-item');
-        const pageId = item.dataset.pageId;
-        const propName = item.dataset.propName;
-        if (!pageId || !propName) throw new Error(`pageId or propName missing (${pageId}, ${propName})`);
-
-        const res = await fetch('/api/notion-update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pageId, propName, value: '完了' }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-      }
-
-      // 完了したアイテムを削除
-      checked.forEach(checkEl => checkEl.closest('.todo-item').remove());
-      document.getElementById('update-btn-wrap').style.display = 'none';
-      btn.textContent = 'Notionに反映';
-      btn.disabled = false;
-      if (document.querySelectorAll('.todo-item').length === 0) {
-        document.getElementById('todo-list').innerHTML = '<div class="loading">TODOはありません 🎉</div>';
-      }
-    } catch (e) {
-      btn.textContent = '失敗 — 再試行';
-      btn.disabled = false;
-      alert('Notionへの反映に失敗しました:\n' + e.message);
+async function syncNotion() {
+  const btn = document.getElementById('sync-btn');
+  btn.disabled = true; btn.textContent = '反映中...';
+  const checked = Array.from(document.querySelectorAll('#todo-list .todo-item:not([data-local-id]) .todo-check.done'));
+  try {
+    for (const checkEl of checked) {
+      const item = checkEl.closest('.todo-item');
+      const res = await fetch('/api/notion-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId: item.dataset.pageId, propName: item.dataset.propName, value: '完了' }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      item.remove();
     }
+    document.getElementById('sync-wrap').style.display = 'none';
+    btn.textContent = 'Notionに反映'; btn.disabled = false;
+    if (!document.querySelector('#todo-list .todo-item:not([data-local-id])')) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'empty-msg';
+      emptyMsg.textContent = 'NotionのTODOはありません 🎉';
+      document.getElementById('todo-list').prepend(emptyMsg);
+    }
+    updateTodoCount();
+  } catch (e) {
+    btn.textContent = '失敗 — 再試行'; btn.disabled = false;
   }
+}
 
-  // 初期化
-  document.getElementById('week-label').textContent = getWeekLabel();
-  document.getElementById('updated-at').textContent = `最終更新: ${new Date().toLocaleTimeString('ja-JP')}`;
+/* ────────────────────────────────────────────────
+   初期化
+──────────────────────────────────────────────── */
+(function init() {
+  // 週ラベル
+  const now = new Date();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  document.getElementById('week-label').textContent =
+    `${now.getFullYear()}年 ${mon.getMonth()+1}/${mon.getDate()}〜${sun.getMonth()+1}/${sun.getDate()}`;
+
+  document.getElementById('updated-at').textContent =
+    `updated ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`;
+
   loadCalendar();
   loadTodo();
+})();
 </script>
-
 </body>
 </html>
