@@ -606,6 +606,22 @@ function parseDate(text) {
 }
 
 /* ────────────────────────────────────────────────
+   タイトルクリーニング（日時キーワードを除去）
+──────────────────────────────────────────────── */
+function cleanTitle(text) {
+  return text
+    .replace(/今日|本日|明日|明後日/g, '')
+    .replace(/来週|今週/g, '')
+    .replace(/(月|火|水|木|金|土|日)曜日?/g, '')
+    .replace(/\d{1,2}月\d{1,2}日?/g, '')
+    .replace(/\d{1,2}[時:]\d{2}分?/g, '')
+    .replace(/\d{1,2}時/g, '')
+    .replace(/午前|午後|AM|PM/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/* ────────────────────────────────────────────────
    判定エンジン
 ──────────────────────────────────────────────── */
 function classify(text) {
@@ -646,7 +662,8 @@ function handleInput() {
   if (!text) return;
 
   const result = classify(text);
-  pendingItem = { text, ...result, id: Date.now() };
+  const title = result.type === 'schedule' ? (cleanTitle(text) || text) : text;
+  pendingItem = { text: title, rawText: text, ...result, id: Date.now() };
 
   // プレビュー表示
   const preview = document.getElementById('preview');
@@ -662,7 +679,7 @@ function handleInput() {
   prioTag.textContent = '優先度 ' + PRIORITY_LABELS[result.priority];
   prioTag.className = 'tag ' + prioClasses[result.priority];
 
-  pvText.textContent = text;
+  pvText.textContent = pendingItem.text;
   pvDate.textContent = result.date ? fmtFull(result.date) : '';
 
   preview.classList.add('visible');
