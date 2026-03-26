@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance — BASE</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#080c14">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'BIZ UDGothic', sans-serif;
+    background: #080c14;
+    background-image:
+      radial-gradient(ellipse at 15% 40%, rgba(59,130,246,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(168,85,247,0.07) 0%, transparent 55%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px 52px;
+    color: #f0f0f0;
+  }
+
+  .header {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .back {
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .back:hover { color: rgba(255,255,255,0.7); }
+  .title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  .content {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .section-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.22);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Ticker tape */
+  .ticker-wrap {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  /* Widget cards */
+  .widget-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .widget-card-header {
+    padding: 14px 18px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Grid for FANG+ stocks */
+  .stocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .stock-widget {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* 2-col layout for indices + fx */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+    .stocks-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  footer {
+    margin-top: 52px;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.13);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="back">← BASE</a>
+  <div class="title">FINANCE</div>
+  <div class="subtitle">Real-time Market Data</div>
+</div>
+
+<div class="content">
+
+  <!-- Ticker tape -->
+  <div class="ticker-wrap">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {
+        "symbols": [
+          {"proName": "FOREXCOM:SPXUSD", "title": "S&P 500"},
+          {"proName": "NASDAQ:NDX", "title": "NASDAQ 100"},
+          {"description": "日経平均", "proName": "INDEX:NKY"},
+          {"description": "FANG+", "proName": "INDEX:NYFANG"},
+          {"description": "USD/JPY", "proName": "FX:USDJPY"},
+          {"description": "NVDA", "proName": "NASDAQ:NVDA"},
+          {"description": "AAPL", "proName": "NASDAQ:AAPL"},
+          {"description": "MSFT", "proName": "NASDAQ:MSFT"},
+          {"description": "META", "proName": "NASDAQ:META"},
+          {"description": "AMZN", "proName": "NASDAQ:AMZN"},
+          {"description": "GOOGL", "proName": "NASDAQ:GOOGL"},
+          {"description": "NFLX", "proName": "NASDAQ:NFLX"},
+          {"description": "TSLA", "proName": "NASDAQ:TSLA"}
+        ],
+        "showSymbolLogo": true,
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "colorTheme": "dark",
+        "locale": "ja"
+      }
+      </script>
+    </div>
+  </div>
+
+  <!-- 主要指数 -->
+  <div>
+    <div class="section-label">主要指数</div>
+    <div class="two-col">
+      <!-- 市場概要ウィジェット -->
+      <div class="widget-card">
+        <div class="widget-card-header">🇺🇸 US Markets</div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+          {
+            "title": "",
+            "symbols": [
+              ["S&P 500", "FOREXCOM:SPXUSD|1D"],
+              ["NASDAQ 100", "NASDAQ:NDX|1D"],
+              ["Dow Jones", "FOREXCOM:DJUSD|1D"]
+            ],
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "locale": "ja",
+            "width": "100%",
+            "height": 200
+          }
+          </script>
+        </div>
+      </div>
+
+      <div class="widget-card">
+        <div class="widget-card-header">🇯🇵 Japan Markets</div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+          {
+            "title": "",
+            "symbols": [
+              ["日経平均", "INDEX:NKY|1D"],
+              ["TOPIX", "INDEX:TOPIX|1D"],
+              ["マザーズ", "INDEX:MOTHERS|1D"]
+            ],
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "locale": "ja",
+            "width": "100%",
+            "height": 200
+          }
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FANG+ Index チャート -->
+  <div>
+    <div class="section-label">FANG+ Index</div>
+    <div class="widget-card">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+        {
+          "symbol": "INDEX:NYFANG",
+          "interval": "D",
+          "timezone": "Asia/Tokyo",
+          "theme": "dark",
+          "style": "1",
+          "locale": "ja",
+          "backgroundColor": "rgba(8, 12, 20, 0)",
+          "gridColor": "rgba(255, 255, 255, 0.04)",
+          "hide_top_toolbar": false,
+          "hide_legend": false,
+          "save_image": false,
+          "calendar": false,
+          "hide_volume": false,
+          "support_host": "https://www.tradingview.com",
+          "width": "100%",
+          "height": 320
+        }
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <!-- FANG+ 個別株 -->
+  <div>
+    <div class="section-label">FANG+ 個別株</div>
+    <div class="stocks-grid">
+
+      <!-- NVDA -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:NVDA","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- AAPL -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:AAPL","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- MSFT -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:MSFT","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- META -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:META","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- AMZN -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:AMZN","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- GOOGL -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:GOOGL","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- NFLX -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:NFLX","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+      <!-- TSLA -->
+      <div class="stock-widget">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:TSLA","width":"100%","height":150,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FX -->
+  <div>
+    <div class="section-label">為替</div>
+    <div class="two-col">
+      <div class="widget-card">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"FX:USDJPY","width":"100%","height":180,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+      <div class="widget-card">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"FX:EURJPY","width":"100%","height":180,"locale":"ja","dateRange":"1M","colorTheme":"dark","isTransparent":true,"autosize":false,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>powered by TradingView · real-time data</footer>
+
+</body>
+</html>
