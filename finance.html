@@ -342,6 +342,17 @@
     </div>
   </div>
 
+  <!-- FX Bot -->
+  <div>
+    <div class="section-label">FX Bot（ペーパートレード）</div>
+    <div class="widget-card">
+      <div class="widget-card-header">🤖 USD/JPY 自動売買</div>
+      <div id="fx-bot-content" style="padding:16px 18px;">
+        <div style="color:rgba(255,255,255,0.35);font-size:0.8rem;">データ取得中...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- FX -->
   <div>
     <div class="section-label">為替</div>
@@ -368,6 +379,39 @@
   </div>
 
 </div>
+
+<script>
+(function () {
+  var RAW_URL = 'https://raw.githubusercontent.com/hirobaske0723-code/fx-auto/main/logs/stats.json';
+  fetch(RAW_URL + '?t=' + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var pnlColor = d.total_pnl >= 0 ? '#4ade80' : '#f87171';
+      var lastSig = (d.signal_7d.last_signal_at)
+        ? d.signal_7d.last_signal_at + ' ' + d.signal_7d.last_signal_dir
+        : '記録なし';
+      var updatedAt = d.updated_at ? d.updated_at.slice(0, 16).replace('T', ' ') : '—';
+      document.getElementById('fx-bot-content').innerHTML =
+        '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;line-height:2.1;">' +
+        '<tr><td style="color:rgba(255,255,255,0.4);width:150px;">残高</td><td>' + Number(d.balance).toLocaleString() + '円</td></tr>' +
+        '<tr><td style="color:rgba(255,255,255,0.4);">累計PnL</td>' +
+          '<td style="color:' + pnlColor + '">' + (d.total_pnl >= 0 ? '+' : '') + Number(d.total_pnl).toLocaleString() + '円</td></tr>' +
+        '<tr><td style="color:rgba(255,255,255,0.4);">勝率</td>' +
+          '<td>' + d.win_rate + '%（' + d.total_trades + '戦 ' + d.wins + '勝 ' + d.losses + '敗）</td></tr>' +
+        '<tr><td style="color:rgba(255,255,255,0.4);">最大DD</td><td>-' + Number(d.max_drawdown).toLocaleString() + '円</td></tr>' +
+        '<tr><td style="color:rgba(255,255,255,0.4);">シグナル発生率</td>' +
+          '<td>' + d.signal_7d.rate + '%（直近7日 ' + d.signal_7d.total + 'サイクル）</td></tr>' +
+        '<tr><td style="color:rgba(255,255,255,0.4);">最後のシグナル</td><td>' + lastSig + '</td></tr>' +
+        '<tr><td style="color:rgba(255,255,255,0.4);">更新</td>' +
+          '<td style="color:rgba(255,255,255,0.3);font-size:0.75rem;">' + updatedAt + '</td></tr>' +
+        '</table>';
+    })
+    .catch(function () {
+      document.getElementById('fx-bot-content').innerHTML =
+        '<div style="color:rgba(255,255,255,0.25);font-size:0.8rem;">データを取得できませんでした</div>';
+    });
+}());
+</script>
 
 <footer>powered by TradingView · real-time data</footer>
 
