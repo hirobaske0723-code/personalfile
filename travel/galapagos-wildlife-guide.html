@@ -115,6 +115,20 @@ header p{margin-top:6px;font-size:.95rem;opacity:.9;}
   border-left:3px solid var(--ocean);padding-left:8px;
 }
 
+/* ── SPLIT PHOTO (♂♀ 2枚表示) ── */
+.split-photo{flex-direction:row!important;gap:0;}
+.split-photo .photo-half{flex:1;position:relative;overflow:hidden;}
+.split-photo .photo-half:first-child{border-right:2px solid #fff;}
+.split-photo .photo-half img{width:100%;height:100%;object-fit:cover;display:block;}
+.split-photo .fallback{font-size:2.5rem;}
+.sex-half-label{
+  position:absolute;bottom:0;left:0;right:0;
+  font-size:.68rem;font-weight:700;text-align:center;
+  padding:4px 2px;color:#fff;
+}
+.sex-m-label{background:rgba(30,90,180,.82);}
+.sex-f-label{background:rgba(180,60,100,.82);}
+
 /* ── RESPONSIVE ── */
 @media(max-width:480px){
   .animals-grid{grid-template-columns:1fr 1fr;}
@@ -191,14 +205,19 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
     </div>
 
     <div class="acard">
-      <div class="acard-photo">
-        <img src="img/marine-iguana.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="海イグアナ">
-        <span class="fallback">🦎</span>
-        <div class="sex-strip">
-          <div class="sex-m">♂ 繁殖期に赤く発色</div>
-          <div class="sex-f">♀ 黒色・小型</div>
-        </div>
+      <div class="acard-photo split-photo">
+      <div class="photo-half">
+        <img src="img/marine-iguana-m.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♂">
+        <span class="fallback" style="display:none">🦎</span>
+        <div class="sex-half-label sex-m-label">♂ 繁殖期に赤く発色</div>
       </div>
+      <div class="photo-half">
+        <img src="img/marine-iguana.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♀">
+        <span class="fallback" style="display:none">🦎</span>
+        <div class="sex-half-label sex-f-label">♀ 黒色・小型</div>
+      </div>
+      
+    </div>
       <div class="acard-body">
         <div class="aname-ja">海イグアナ</div>
         <div class="aname-en">Marine Iguana</div>
@@ -390,14 +409,19 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
     </div>
 
     <div class="acard">
-      <div class="acard-photo">
-        <img src="img/vermilion-flycatcher.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ヒタキ">
-        <span class="fallback">🐦</span>
-        <div class="sex-strip">
-          <div class="sex-m">♂ 頭と腹が真っ赤</div>
-          <div class="sex-f">♀ 褐色・腹に橙斑</div>
-        </div>
+      <div class="acard-photo split-photo">
+      <div class="photo-half">
+        <img src="img/vermilion-flycatcher.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♂">
+        <span class="fallback" style="display:none">🐦</span>
+        <div class="sex-half-label sex-m-label">♂ 頭と腹が真っ赤</div>
       </div>
+      <div class="photo-half">
+        <img src="img/vermilion-flycatcher-f.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♀">
+        <span class="fallback" style="display:none">🐦</span>
+        <div class="sex-half-label sex-f-label">♀ 褐色・腹に橙斑</div>
+      </div>
+      
+    </div>
       <div class="acard-body">
         <div class="aname-ja">ヒムネヒタキ（バーミリオンヒタキ）</div>
         <div class="aname-en">Vermilion Flycatcher</div>
@@ -441,14 +465,19 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
   <div class="section-label">哺乳類・海洋生物</div>
   <div class="animals-grid">
     <div class="acard">
-      <div class="acard-photo">
-        <img src="img/sea-lion.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスアシカ">
-        <span class="fallback">🦭</span>
-        <div class="sex-strip">
-          <div class="sex-m">♂ 額が隆起・体重250kg超</div>
-          <div class="sex-f">♀ 小型・細身・60〜100kg</div>
-        </div>
+      <div class="acard-photo split-photo">
+      <div class="photo-half">
+        <img src="img/sea-lion-m.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♂">
+        <span class="fallback" style="display:none">🦭</span>
+        <div class="sex-half-label sex-m-label">♂ 額が隆起・250kg超</div>
       </div>
+      <div class="photo-half">
+        <img src="img/sea-lion.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♀">
+        <span class="fallback" style="display:none">🦭</span>
+        <div class="sex-half-label sex-f-label">♀ 小型・細身・60〜100kg</div>
+      </div>
+      
+    </div>
       <div class="acard-body">
         <div class="aname-ja">ガラパゴスアシカ</div>
         <div class="aname-en">Galápagos Sea Lion</div>
@@ -774,14 +803,19 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
     </div>
 
     <div class="acard">
-      <div class="acard-photo">
-        <img src="img/great-frigatebird.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="コグンカンドリ">
-        <span class="fallback">🐦</span>
-        <div class="sex-strip">
-          <div class="sex-m">♂ 全身黒・赤い喉袋</div>
-          <div class="sex-f">♀ 白い胸・赤い目のリング</div>
-        </div>
+      <div class="acard-photo split-photo">
+      <div class="photo-half">
+        <img src="img/great-frigatebird.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♂">
+        <span class="fallback" style="display:none">🐦</span>
+        <div class="sex-half-label sex-m-label">♂ 赤い喉袋</div>
       </div>
+      <div class="photo-half">
+        <img src="img/great-frigatebird-f.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="♀">
+        <span class="fallback" style="display:none">🐦</span>
+        <div class="sex-half-label sex-f-label">♀ 白い胸・赤い眼周囲</div>
+      </div>
+      
+    </div>
       <div class="acard-body">
         <div class="aname-ja">コグンカンドリ</div>
         <div class="aname-en">Great Frigatebird</div>
