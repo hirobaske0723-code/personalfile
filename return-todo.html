@@ -313,8 +313,8 @@ body {
 <div id="saving">⏳ 保存中…</div>
 
 <script>
-const REPO = 'hirobaske0723-code/personalfile';
-const FILE_PATH = 'todo-data/return-todo.json';
+const REPO = 'hirobaske0723-code/return-todo';
+const FILE_PATH = 'return-todo.json';
 const API_BASE = 'https://api.github.com';
 
 let todos = [];
@@ -372,6 +372,12 @@ async function fetchTodos(t) {
   const res = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILE_PATH, {
     headers: { Authorization: 'token ' + t, Accept: 'application/vnd.github.v3+json' }
   });
+  if (res.status === 404) {
+    // ファイル未作成（新リポジトリ）→ 空リストで開始、初回保存時に自動作成
+    todos = [];
+    fileSha = '';
+    return;
+  }
   if (!res.ok) throw new Error('fetch failed');
   const data = await res.json();
   fileSha = data.sha;
@@ -399,11 +405,10 @@ async function saveTodos() {
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        message: 'update return-todo list',
-        content: encoded,
-        sha: fileSha
-      })
+      body: JSON.stringify(Object.assign(
+        { message: 'update return-todo list', content: encoded },
+        fileSha ? { sha: fileSha } : {}
+      ))
     });
     if (!res.ok) throw new Error('save failed');
     const data = await res.json();
