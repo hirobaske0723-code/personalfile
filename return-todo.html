@@ -48,9 +48,7 @@ body {
   gap: 20px;
   margin-top: 14px;
 }
-.stat {
-  text-align: center;
-}
+.stat { text-align: center; }
 .stat-num {
   font-size: 1.5rem;
   font-weight: 700;
@@ -110,9 +108,11 @@ body {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 .add-input {
   flex: 1;
+  min-width: 160px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
@@ -123,6 +123,19 @@ body {
 }
 .add-input:focus { outline: none; border-color: rgba(94,234,212,0.4); }
 .add-input::placeholder { color: rgba(255,255,255,0.2); }
+.cat-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.6);
+  padding: 12px 10px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cat-select:focus { outline: none; border-color: rgba(94,234,212,0.4); }
+.cat-select option { background: #1a2744; color: #f0f0f0; }
 .add-btn {
   background: rgba(20,184,166,0.2);
   border: 1px solid rgba(20,184,166,0.5);
@@ -136,15 +149,40 @@ body {
 }
 .add-btn:hover { background: rgba(20,184,166,0.35); }
 
-/* ── Sections ── */
-.section-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.22);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  margin: 20px 0 8px 2px;
+/* ── Category sections ── */
+.cat-section { margin-bottom: 20px; }
+.cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 8px;
 }
+.cat-icon { font-size: 1rem; }
+.cat-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex: 1;
+}
+.cat-count {
+  font-size: 0.65rem;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 2px 8px;
+  color: rgba(255,255,255,0.4);
+}
+
+/* Category colors */
+.cat-header[data-cat="admin"]    .cat-name { color: #60a5fa; }
+.cat-header[data-cat="job"]      .cat-name { color: #34d399; }
+.cat-header[data-cat="people"]   .cat-name { color: #a78bfa; }
+.cat-header[data-cat="challenge"].cat-name { color: #fbbf24; }
+.cat-header[data-cat="contract"] .cat-name { color: #fb923c; }
+.cat-header[data-cat="buy"]      .cat-name { color: #f87171; }
+.cat-header[data-cat="other"]    .cat-name { color: rgba(255,255,255,0.4); }
 
 /* ── Todo items ── */
 .todo-item {
@@ -157,11 +195,19 @@ body {
   padding: 14px 16px;
   margin-bottom: 8px;
   transition: background 0.15s;
+  border-left: 3px solid transparent;
 }
 .todo-item:hover { background: rgba(255,255,255,0.07); }
-.todo-item.done {
-  opacity: 0.45;
-}
+.todo-item.done { opacity: 0.45; }
+
+.todo-item[data-cat="admin"]    { border-left-color: #3b82f6; }
+.todo-item[data-cat="job"]      { border-left-color: #10b981; }
+.todo-item[data-cat="people"]   { border-left-color: #8b5cf6; }
+.todo-item[data-cat="challenge"]{ border-left-color: #f59e0b; }
+.todo-item[data-cat="contract"] { border-left-color: #f97316; }
+.todo-item[data-cat="buy"]      { border-left-color: #f43f5e; }
+.todo-item[data-cat="other"]    { border-left-color: #6b7280; }
+
 .todo-check {
   width: 22px;
   height: 22px;
@@ -186,9 +232,7 @@ body {
   font-size: 0.9rem;
   line-height: 1.4;
 }
-.todo-item.done .todo-text {
-  text-decoration: line-through;
-}
+.todo-item.done .todo-text { text-decoration: line-through; }
 .todo-del {
   background: none;
   border: none;
@@ -200,6 +244,28 @@ body {
   transition: color 0.15s;
 }
 .todo-del:hover { color: rgba(239,68,68,0.7); }
+
+/* ── Done section ── */
+.done-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 4px;
+  margin: 24px 0 8px;
+  width: 100%;
+  text-align: left;
+}
+.done-toggle:hover { color: rgba(255,255,255,0.45); }
+.done-toggle .toggle-arrow { transition: transform 0.2s; font-size: 0.7rem; }
+.done-toggle.collapsed .toggle-arrow { transform: rotate(-90deg); }
 
 /* ── Empty state ── */
 .empty {
@@ -259,7 +325,7 @@ body {
 
 <div class="page-header">
   <a href="index.html" class="back-link">&#x2190; BASE</a>
-  <h1>✈️ 帰国後やることリスト</h1>
+  <h1>&#x2708;&#xFE0F; 帰国後やることリスト</h1>
   <div class="subtitle">旅先から追加・帰国後に消化</div>
   <div class="stats">
     <div class="stat">
@@ -280,7 +346,7 @@ body {
 <!-- Token Setup -->
 <div id="token-setup" style="display:none;">
   <div class="token-card">
-    <h2>🔑 GitHub Token を設定</h2>
+    <h2>&#x1F511; GitHub Token を設定</h2>
     <p>リストをどのデバイスからでも同期するために、GitHub Personal Access Token（repoスコープ）が必要です。一度設定するとこのブラウザに保存されます。</p>
     <div class="error-msg" id="token-error"></div>
     <input type="password" class="token-input" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
@@ -293,34 +359,101 @@ body {
   <div class="error-msg" id="main-error"></div>
 
   <div class="add-form">
-    <input type="text" class="add-input" id="add-input" placeholder="やることを追加…" onkeydown="if(event.key==='Enter') addTodo()">
+    <input type="text" class="add-input" id="add-input" placeholder="やることを追加…"
+      oninput="autoDetectCat()"
+      onkeydown="if(event.key==='Enter') addTodo()">
+    <select class="cat-select" id="cat-select">
+      <option value="">自動</option>
+      <option value="admin">&#x1F3DB;&#xFE0F; 行政</option>
+      <option value="job">&#x1F4BC; 就活</option>
+      <option value="people">&#x1F465; 会いたい人</option>
+      <option value="challenge">&#x2728; やりたいこと</option>
+      <option value="contract">&#x1F4A1; 契約検討</option>
+      <option value="buy">&#x1F6CD;&#xFE0F; 買いたいもの</option>
+      <option value="other">&#x1F4DD; その他</option>
+    </select>
     <button class="add-btn" onclick="addTodo()">＋</button>
   </div>
 
-  <div class="section-label">未完了</div>
-  <div id="list-pending"></div>
+  <div id="list-by-category"></div>
 
   <div id="done-section" style="display:none;">
-    <div class="section-label">完了済み</div>
+    <button class="done-toggle" id="done-toggle" onclick="toggleDoneSection()">
+      <span class="toggle-arrow">&#x25BC;</span>
+      <span id="done-toggle-label">完了済み</span>
+    </button>
     <div id="list-done"></div>
   </div>
 
   <div class="settings-link">
-    <button onclick="resetToken()">⚙ Tokenを変更</button>
+    <button onclick="resetToken()">&#x2699; Tokenを変更</button>
   </div>
 </div>
 
-<div id="saving">⏳ 保存中…</div>
+<div id="saving">&#x23F3; 保存中…</div>
 
 <script>
-const REPO = 'hirobaske0723-code/return-todo';
+const REPO      = 'hirobaske0723-code/return-todo';
 const FILE_PATH = 'return-todo.json';
-const API_BASE = 'https://api.github.com';
+const API_BASE  = 'https://api.github.com';
 
-let todos = [];
+const CATEGORIES = [
+  { id: 'admin',     label: '行政・手続き',      icon: '🏛️' },
+  { id: 'job',       label: '就活',              icon: '💼' },
+  { id: 'people',    label: '会いたい人',         icon: '👥' },
+  { id: 'challenge', label: 'やりたいこと',       icon: '✨' },
+  { id: 'contract',  label: '契約・サービス検討', icon: '💡' },
+  { id: 'buy',       label: '買いたいもの',       icon: '🛍️' },
+  { id: 'other',     label: 'その他',            icon: '📝' },
+];
+
+const DETECT_RULES = [
+  { cat: 'admin',     kw: ['転送', '届', '役所', '行政', '申請', '手続き', '税', '住民', '二重請求', '役場'] },
+  { cat: 'job',       kw: ['就活', 'エージェント', '面談', '面接', '転職', '就職', '登録', '求人', '採用'] },
+  { cat: 'people',    kw: ['会う', '会いに', '再会', 'さんと会', 'と会う', 'FF'] },
+  { cat: 'challenge', kw: ['育てる', '作る', '観に行く', 'やってみ', '行ってみ', '食べてみ', '試して'] },
+  { cat: 'contract',  kw: ['プラン', '契約', '回線', 'サービス', '乗り換え', '変更検討', 'サブスク'] },
+  { cat: 'buy',       kw: ['購入', '買う', '原木', '冷蔵庫', '買いたい', '購入検討'] },
+];
+
+let todos   = [];
 let fileSha = '';
-let token = '';
-let saveTimer = null;
+let token   = '';
+let saveTimer    = null;
+let doneExpanded = false;
+
+// ── UTF-8 safe base64 ──
+function b64decode(str) {
+  const binaryStr = atob(str.replace(/\n/g, ''));
+  const bytes = new Uint8Array(binaryStr.length);
+  for (let i = 0; i < binaryStr.length; i++) {
+    bytes[i] = binaryStr.charCodeAt(i);
+  }
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// ── Category detection ──
+function detectCategory(text) {
+  for (const rule of DETECT_RULES) {
+    if (rule.kw.some(k => text.includes(k))) return rule.cat;
+  }
+  return 'other';
+}
+
+function autoDetectCat() {
+  const sel = document.getElementById('cat-select');
+  if (sel.value !== '') return; // manual override
+  // just keep as "" (auto) — detection happens on add
+}
 
 // ── Init ──
 window.addEventListener('DOMContentLoaded', function() {
@@ -373,16 +506,15 @@ async function fetchTodos(t) {
     headers: { Authorization: 'token ' + t, Accept: 'application/vnd.github.v3+json' }
   });
   if (res.status === 404) {
-    // ファイル未作成（新リポジトリ）→ 空リストで開始、初回保存時に自動作成
-    todos = [];
+    todos   = [];
     fileSha = '';
     return;
   }
   if (!res.ok) throw new Error('fetch failed');
-  const data = await res.json();
-  fileSha = data.sha;
-  const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-  const parsed = JSON.parse(decoded);
+  const data    = await res.json();
+  fileSha       = data.sha;
+  const decoded = b64decode(data.content);
+  const parsed  = JSON.parse(decoded);
   todos = parsed.todos || [];
 }
 
@@ -396,13 +528,13 @@ async function saveTodos() {
   const saving = document.getElementById('saving');
   saving.classList.add('show');
   try {
-    const json = JSON.stringify({ todos: todos }, null, 2);
-    const encoded = btoa(unescape(encodeURIComponent(json)));
+    const json    = JSON.stringify({ todos: todos }, null, 2);
+    const encoded = b64encode(json);
     const res = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILE_PATH, {
       method: 'PUT',
       headers: {
-        Authorization: 'token ' + token,
-        Accept: 'application/vnd.github.v3+json',
+        Authorization:  'token ' + token,
+        Accept:         'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(Object.assign(
@@ -426,10 +558,20 @@ async function saveTodos() {
 // ── CRUD ──
 function addTodo() {
   const input = document.getElementById('add-input');
-  const text = input.value.trim();
+  const sel   = document.getElementById('cat-select');
+  const text  = input.value.trim();
   if (!text) return;
-  todos.unshift({ id: Date.now(), text: text, done: false, createdAt: new Date().toISOString() });
+
+  const cat = sel.value || detectCategory(text);
+  todos.unshift({
+    id:        Date.now(),
+    text:      text,
+    done:      false,
+    category:  cat,
+    createdAt: new Date().toISOString()
+  });
   input.value = '';
+  sel.value   = '';
   render();
   scheduleSave();
 }
@@ -437,7 +579,7 @@ function addTodo() {
 function toggleTodo(id) {
   const todo = todos.find(t => t.id === id);
   if (!todo) return;
-  if (!todo.done && !confirm(`「${todo.text}」を完了にしますか？`)) return;
+  if (!todo.done && !confirm('「' + todo.text + '」を完了にしますか？')) return;
   todo.done = !todo.done;
   render();
   scheduleSave();
@@ -449,38 +591,95 @@ function deleteTodo(id) {
   scheduleSave();
 }
 
+// ── Done section toggle ──
+function toggleDoneSection() {
+  doneExpanded = !doneExpanded;
+  const btn  = document.getElementById('done-toggle');
+  const list = document.getElementById('list-done');
+  if (doneExpanded) {
+    btn.classList.remove('collapsed');
+    list.style.display = 'block';
+  } else {
+    btn.classList.add('collapsed');
+    list.style.display = 'none';
+  }
+}
+
 // ── Render ──
 function render() {
   const pending = todos.filter(t => !t.done);
-  const done = todos.filter(t => t.done);
+  const done    = todos.filter(t =>  t.done);
 
   document.getElementById('stat-total').textContent = todos.length;
-  document.getElementById('stat-done').textContent = done.length;
-  document.getElementById('stat-left').textContent = pending.length;
+  document.getElementById('stat-done').textContent  = done.length;
+  document.getElementById('stat-left').textContent  = pending.length;
 
-  document.getElementById('list-pending').innerHTML = pending.length
-    ? pending.map(t => todoHTML(t)).join('')
-    : '<div class="empty">未完了のタスクはありません</div>';
+  // ── Category sections ──
+  const container = document.getElementById('list-by-category');
+  container.innerHTML = '';
 
+  let hasAny = false;
+  for (const cat of CATEGORIES) {
+    const items = pending.filter(t => (t.category || 'other') === cat.id);
+    if (items.length === 0) continue;
+    hasAny = true;
+
+    const section = document.createElement('div');
+    section.className = 'cat-section';
+
+    const header = document.createElement('div');
+    header.className = 'cat-header';
+    header.dataset.cat = cat.id;
+    header.innerHTML =
+      '<span class="cat-icon">' + cat.icon + '</span>' +
+      '<span class="cat-name">' + cat.label + '</span>' +
+      '<span class="cat-count">' + items.length + '</span>';
+    section.appendChild(header);
+
+    items.forEach(t => {
+      section.insertAdjacentHTML('beforeend', todoHTML(t));
+    });
+
+    container.appendChild(section);
+  }
+
+  if (!hasAny) {
+    container.innerHTML = '<div class="empty">未完了のタスクはありません</div>';
+  }
+
+  // ── Done section ──
   const doneSection = document.getElementById('done-section');
   if (done.length > 0) {
     doneSection.style.display = 'block';
-    document.getElementById('list-done').innerHTML = done.map(t => todoHTML(t)).join('');
+    document.getElementById('done-toggle-label').textContent =
+      '完了済み (' + done.length + '件)';
+    if (doneExpanded) {
+      document.getElementById('list-done').innerHTML = done.map(t => todoHTML(t)).join('');
+      document.getElementById('list-done').style.display = 'block';
+    } else {
+      document.getElementById('list-done').style.display = 'none';
+      document.getElementById('done-toggle').classList.add('collapsed');
+    }
   } else {
     doneSection.style.display = 'none';
   }
 }
 
 function todoHTML(t) {
-  return '<div class="todo-item' + (t.done ? ' done' : '') + '">' +
-    '<button class="todo-check" onclick="toggleTodo(' + t.id + ')">' + (t.done ? '✓' : '') + '</button>' +
+  const cat = t.category || 'other';
+  return '<div class="todo-item' + (t.done ? ' done' : '') + '" data-cat="' + escHtml(cat) + '">' +
+    '<button class="todo-check" onclick="toggleTodo(' + t.id + ')">' + (t.done ? '&#x2713;' : '') + '</button>' +
     '<span class="todo-text">' + escHtml(t.text) + '</span>' +
-    '<button class="todo-del" onclick="deleteTodo(' + t.id + ')">×</button>' +
+    '<button class="todo-del" onclick="deleteTodo(' + t.id + ')">&#xD7;</button>' +
     '</div>';
 }
 
 function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 </script>
 
