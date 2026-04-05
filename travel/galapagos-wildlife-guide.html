@@ -168,6 +168,55 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 }
 /* make photos feel tappable */
 .acard-photo img,.photo-half img{cursor:zoom-in;}
+
+/* ══ MAP / ISLAND VIEW ══ */
+#map-view {
+  width:100%; padding:20px 12px 40px;
+  background:#080c14; min-height:60vh;
+  display:flex; flex-direction:column; align-items:center;
+}
+#map-intro {
+  text-align:center; color:#a0c8d8; font-size:.9rem; margin-bottom:16px; opacity:.85;
+}
+#island-view { width:100%; }
+#island-view.hidden { display:none; }
+
+/* スライドアニメーション */
+@keyframes slide-in-right {
+  from { transform:translateX(100%); opacity:0; }
+  to   { transform:translateX(0);    opacity:1; }
+}
+@keyframes slide-out-left {
+  from { transform:translateX(0);    opacity:1; }
+  to   { transform:translateX(-100%); opacity:0; }
+}
+.slide-in  { animation:slide-in-right 0.3s ease forwards; }
+.slide-out { animation:slide-out-left 0.3s ease forwards; }
+
+/* 戻るボタン */
+#back-btn {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;
+  color:#f0f0f0;
+  padding:10px 16px;
+  font-size:.9rem;
+  cursor:pointer;
+  margin:16px 12px 4px;
+}
+#back-btn:hover { background:rgba(255,255,255,0.12); }
+
+/* SVG地図 */
+#galapagos-map { width:100%; max-width:500px; display:block; margin:0 auto; }
+.island-shape { cursor:pointer; transition:opacity .2s, filter .2s; }
+.island-shape:hover { opacity:.85; filter:brightness(1.3); }
+.island-shape:active { filter:brightness(1.6); }
+.island-label { fill:#e0f0f8; font-size:10px; text-anchor:middle; pointer-events:none; font-family:'Segoe UI','Hiragino Sans',Arial,sans-serif; }
+.island-emoji { font-size:13px; text-anchor:middle; pointer-events:none; dominant-baseline:central; }
+
+/* タブは非表示 */
+.tab-wrap { display:none !important; }
 </style>
 </head>
 <body>
@@ -178,24 +227,93 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
   <p>島ごとの生き物・写真・オスメスの特徴を完全収録</p>
 </header>
 
-<!-- ISLAND TABS -->
-<div class="tab-wrap" id="tabWrap">
-  <button class="tab-btn active" onclick="showIsland('santacruz',this)">🏝 サンタクルス</button>
-  <button class="tab-btn" onclick="showIsland('espanola',this)">🦅 エスパニョーラ</button>
-  <button class="tab-btn" onclick="showIsland('genovesa',this)">🐦 ジェノベサ</button>
-  <button class="tab-btn" onclick="showIsland('isabela',this)">🌋 イサベラ</button>
-  <button class="tab-btn" onclick="showIsland('fernandina',this)">🦎 フェルナンディナ</button>
-  <button class="tab-btn" onclick="showIsland('sancristobal',this)">⚓ サン・クリストバル</button>
-  <button class="tab-btn" onclick="showIsland('northseymour',this)">🐟 ノース・セイモア</button>
-  <button class="tab-btn" onclick="showIsland('floreana',this)">🦩 フロレアナ</button>
-  <button class="tab-btn" onclick="showIsland('santafe',this)">🦎 サンタ・フェ</button>
-  <button class="tab-btn" onclick="showIsland('bartolome',this)">🏔 バルトロメ</button>
+<!-- ══ MAP VIEW ══ -->
+<div id="map-view">
+  <p id="map-intro">島をタップして動物図鑑を見る</p>
+  <svg id="galapagos-map" viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg">
+    <!-- 海背景 -->
+    <rect width="420" height="360" fill="#0d1b2e" rx="16"/>
+
+    <!-- ジェノベサ島（一番上・右寄り） -->
+    <g class="island-shape" onclick="showIsland('genovesa')">
+      <ellipse cx="310" cy="38" rx="22" ry="14" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="310" y="30">🐦</text>
+      <text class="island-label" x="310" y="57">ジェノベサ</text>
+    </g>
+
+    <!-- フェルナンディナ島（左端・中央） -->
+    <g class="island-shape" onclick="showIsland('fernandina')">
+      <ellipse cx="52" cy="168" rx="22" ry="26" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="52" y="160">🦅</text>
+      <text class="island-label" x="52" y="201">フェルナンディナ</text>
+    </g>
+
+    <!-- イサベラ島（左寄り・中央、最大で縦長） -->
+    <g class="island-shape" onclick="showIsland('isabela')">
+      <ellipse cx="130" cy="178" rx="30" ry="62" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="130" y="168">🐧</text>
+      <text class="island-label" x="130" y="248">イサベラ</text>
+    </g>
+
+    <!-- バルトロメ島（サンタクルスの左上） -->
+    <g class="island-shape" onclick="showIsland('bartolome')">
+      <ellipse cx="210" cy="118" rx="14" ry="10" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="210" y="109">🐧</text>
+      <text class="island-label" x="210" y="135">バルトロメ</text>
+    </g>
+
+    <!-- ノース・セイモア島（サンタクルスの上） -->
+    <g class="island-shape" onclick="showIsland('northseymour')">
+      <ellipse cx="248" cy="132" rx="14" ry="9" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="248" y="123">&#x1F54A;&#xFE0F;</text>
+      <text class="island-label" x="248" y="149">N.セイモア</text>
+    </g>
+
+    <!-- サンタクルス島（中央やや右） -->
+    <g class="island-shape" onclick="showIsland('santacruz')">
+      <ellipse cx="248" cy="188" rx="32" ry="22" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="248" y="179">🐢</text>
+      <text class="island-label" x="248" y="216">サンタクルス</text>
+    </g>
+
+    <!-- サンタフェ島（サンタクルスの右下） -->
+    <g class="island-shape" onclick="showIsland('santafe')">
+      <ellipse cx="292" cy="218" rx="16" ry="11" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="292" y="209">🦎</text>
+      <text class="island-label" x="292" y="235">サンタフェ</text>
+    </g>
+
+    <!-- フロレアーナ島（中央下） -->
+    <g class="island-shape" onclick="showIsland('floreana')">
+      <ellipse cx="222" cy="278" rx="22" ry="14" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="222" y="269">🦩</text>
+      <text class="island-label" x="222" y="298">フロレアナ</text>
+    </g>
+
+    <!-- エスパニョーラ島（右下） -->
+    <g class="island-shape" onclick="showIsland('espanola')">
+      <ellipse cx="330" cy="296" rx="26" ry="14" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="330" y="287">🐦</text>
+      <text class="island-label" x="330" y="316">エスパニョーラ</text>
+    </g>
+
+    <!-- サン・クリストバル島（右端） -->
+    <g class="island-shape" onclick="showIsland('sancristobal')">
+      <ellipse cx="368" cy="200" rx="26" ry="18" fill="rgba(20,184,166,0.6)" stroke="rgba(20,184,166,0.9)" stroke-width="1.5"/>
+      <text class="island-emoji" x="368" y="191">🦭</text>
+      <text class="island-label" x="368" y="224">S.クリストバル</text>
+    </g>
+  </svg>
 </div>
+
+<!-- ══ ISLAND VIEW ══ -->
+<div id="island-view" class="hidden">
+  <button id="back-btn" onclick="showMap()">&#x2190; 地図に戻る</button>
 
 <!-- ======================================================
      SANTA CRUZ
      ====================================================== -->
-<div id="santacruz" class="island-panel active">
+<div id="santacruz" class="island-panel hidden">
   <div class="island-hero">
     <h2>🏝️ サンタクルス島 <span style="font-weight:400;font-size:.9rem">Santa Cruz</span></h2>
     <div class="sub">ガラパゴス最大の観光拠点・チャールズ・ダーウィン研究所がある島</div>
@@ -569,7 +687,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      ESPAÑOLA
      ====================================================== -->
-<div id="espanola" class="island-panel">
+<div id="espanola" class="island-panel hidden">
   <div class="island-hero hero-coral">
     <h2>🏝️ エスパニョーラ島 <span style="font-weight:400;font-size:.9rem">Española / Hood</span></h2>
     <div class="sub">世界唯一のハゲカツオドリ（ウェーブドアルバトロス）繁殖地。最南端の島</div>
@@ -737,7 +855,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      GENOVESA
      ====================================================== -->
-<div id="genovesa" class="island-panel">
+<div id="genovesa" class="island-panel hidden">
   <div class="island-hero hero-teal">
     <h2>🏝️ ジェノベサ島 <span style="font-weight:400;font-size:.9rem">Genovesa / Tower</span></h2>
     <div class="sub">「鳥の天国」。アカアシカツオドリ世界最大営巣地。北部の孤島でクルーズのみアクセス</div>
@@ -886,7 +1004,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      ISABELA
      ====================================================== -->
-<div id="isabela" class="island-panel">
+<div id="isabela" class="island-panel hidden">
   <div class="island-hero hero-green">
     <h2>🏝️ イサベラ島 <span style="font-weight:400;font-size:.9rem">Isabela</span></h2>
     <div class="sub">ガラパゴス最大の島。6つの火山・6亜種のゾウガメ・世界唯一の赤道直下ペンギン</div>
@@ -1065,7 +1183,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      FERNANDINA
      ====================================================== -->
-<div id="fernandina" class="island-panel">
+<div id="fernandina" class="island-panel hidden">
   <div class="island-hero hero-dark" style="background:linear-gradient(135deg,#1a1a1a,#3a2800)!important;">
     <h2>🏝️ フェルナンディナ島 <span style="font-weight:400;font-size:.9rem">Fernandina</span></h2>
     <div class="sub">最も若く火山活動が活発な島。侵略種ゼロの原始の楽園。クルーズのみアクセス</div>
@@ -1201,7 +1319,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      SAN CRISTÓBAL
      ====================================================== -->
-<div id="sancristobal" class="island-panel">
+<div id="sancristobal" class="island-panel hidden">
   <div class="island-hero">
     <h2>🏝️ サン・クリストバル島 <span style="font-weight:400;font-size:.9rem">San Cristóbal</span></h2>
     <div class="sub">ダーウィンが最初に上陸した島。東部の玄関口・県庁所在地プエルト・バケリソ・モレノ</div>
@@ -1319,7 +1437,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      NORTH SEYMOUR
      ====================================================== -->
-<div id="northseymour" class="island-panel">
+<div id="northseymour" class="island-panel hidden">
   <div class="island-hero hero-teal">
     <h2>🏝️ ノース・セイモア島 <span style="font-weight:400;font-size:.9rem">North Seymour</span></h2>
     <div class="sub">バルトラ空港から最も近い日帰りツアーの定番。グンカンドリの大コロニーが有名</div>
@@ -1414,7 +1532,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      FLOREANA
      ====================================================== -->
-<div id="floreana" class="island-panel">
+<div id="floreana" class="island-panel hidden">
   <div class="island-hero hero-purple">
     <h2>🏝️ フロレアナ島 <span style="font-weight:400;font-size:.9rem">Floreana / Charles</span></h2>
     <div class="sub">謎の失踪事件の歴史ある島。ガラパゴス随一のシュノーケルスポット・デビルズ・クラウン</div>
@@ -1527,7 +1645,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      SANTA FÉ
      ====================================================== -->
-<div id="santafe" class="island-panel">
+<div id="santafe" class="island-panel hidden">
   <div class="island-hero hero-gold">
     <h2>🏝️ サンタ・フェ島 <span style="font-weight:400;font-size:.9rem">Santa Fé / Barrington</span></h2>
     <div class="sub">固有の陸イグアナと巨大サボテンの森が特徴的。透明な湾でのシュノーケルが人気</div>
@@ -1616,7 +1734,7 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
 <!-- ======================================================
      BARTOLOMÉ
      ====================================================== -->
-<div id="bartolome" class="island-panel">
+<div id="bartolome" class="island-panel hidden">
   <div class="island-hero">
     <h2>🏝️ バルトロメ島 <span style="font-weight:400;font-size:.9rem">Bartolomé</span></h2>
     <div class="sub">ガラパゴスの絶景スポット。ピナクル・ロックとペンギン・シュノーケルが同時に楽しめる</div>
@@ -1724,19 +1842,40 @@ footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px
   </div>
 </div><!-- /bartolome -->
 
+</div><!-- /island-view -->
+
 <footer>
   ガラパゴス諸島 島別動物図鑑 | 2026-04-04 作成<br>
   ⚠️ 動物との距離は最低2m。触れないこと。国立公園のルールを厳守してください。
 </footer>
 
 <script>
-function showIsland(id, btn) {
-  document.querySelectorAll('.island-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
-  window.scrollTo({top:0, behavior:'smooth'});
+function showIsland(id) {
+  var mapView = document.getElementById('map-view');
+  var islandView = document.getElementById('island-view');
+
+  // 全パネル非表示 → 対象パネル表示
+  document.querySelectorAll('.island-panel').forEach(function(p) { p.classList.add('hidden'); });
+  document.getElementById(id).classList.remove('hidden');
+
+  // アニメーション
+  mapView.style.display = 'none';
+  islandView.classList.remove('hidden');
+  islandView.classList.add('slide-in');
+  islandView.addEventListener('animationend', function() { islandView.classList.remove('slide-in'); }, { once: true });
+
+  window.scrollTo(0, 0);
+}
+
+function showMap() {
+  var islandView = document.getElementById('island-view');
+  islandView.classList.add('slide-out');
+  islandView.addEventListener('animationend', function() {
+    islandView.classList.remove('slide-out');
+    islandView.classList.add('hidden');
+    document.getElementById('map-view').style.display = '';
+    window.scrollTo(0, 0);
+  }, { once: true });
 }
 
 // Image error handling
