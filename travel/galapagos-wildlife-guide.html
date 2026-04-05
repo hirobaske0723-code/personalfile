@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ガラパゴス諸島 島別動物図鑑</title>
+<style>
+:root{
+  --ocean:#00607d;--ocean2:#0095b6;--sand:#fdf6e8;
+  --green:#2d6a4f;--coral:#d95f3b;--teal:#0d7377;
+  --purple:#5e2b80;--gold:#9a6a00;--text:#1a1a2e;
+  --bg:#f0f8ff;--card:#fff;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Hiragino Sans',Arial,sans-serif;background:var(--bg);color:var(--text);}
+
+/* ── HEADER ── */
+header{
+  background:linear-gradient(135deg,var(--ocean) 0%,var(--ocean2) 60%,#2db36b 100%);
+  color:#fff;padding:40px 16px 50px;text-align:center;position:relative;overflow:hidden;
+}
+header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:46px;
+  background:var(--bg);clip-path:ellipse(54% 100% at 50% 100%);
+}
+header h1{font-size:clamp(1.5rem,4.5vw,2.5rem);font-weight:900;text-shadow:0 2px 8px rgba(0,0,0,.3);}
+header p{margin-top:6px;font-size:.95rem;opacity:.9;}
+.h-icons{font-size:2.2rem;margin-bottom:8px;}
+
+/* ── ISLAND TABS ── */
+.tab-wrap{
+  position:sticky;top:0;z-index:200;background:#fff;
+  box-shadow:0 2px 14px rgba(0,0,0,.12);overflow-x:auto;
+  scrollbar-width:none;display:flex;gap:0;
+}
+.tab-wrap::-webkit-scrollbar{display:none;}
+.tab-btn{
+  flex-shrink:0;padding:13px 18px;border:none;background:none;
+  font-size:.82rem;font-weight:700;cursor:pointer;color:#666;
+  border-bottom:3px solid transparent;white-space:nowrap;transition:.2s;
+}
+.tab-btn:hover{color:var(--ocean);}
+.tab-btn.active{color:var(--ocean);border-bottom-color:var(--ocean);background:#f0f8ff;}
+
+/* ── ISLAND PANEL ── */
+.island-panel{display:none;max-width:1280px;margin:0 auto;padding:24px 12px 56px;}
+.island-panel.active{display:block;}
+.island-hero{
+  padding:20px 22px 16px;border-radius:var(--radius);color:#fff;margin-bottom:22px;
+  background:linear-gradient(135deg,var(--ocean),var(--ocean2));
+}
+.island-hero h2{font-size:1.4rem;font-weight:800;}
+.island-hero .sub{font-size:.85rem;opacity:.85;margin-top:3px;}
+.island-meta-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.itag{font-size:.72rem;background:rgba(255,255,255,.2);border-radius:10px;padding:3px 10px;font-weight:600;}
+.itag.hot{background:rgba(255,255,255,.9);color:var(--ocean);}
+
+/* ── ANIMALS GRID ── */
+.animals-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+  gap:16px;
+}
+.acard{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:0 3px 16px rgba(0,0,0,.08);overflow:hidden;
+  transition:transform .22s,box-shadow .22s;
+}
+.acard:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.14);}
+
+/* ── PHOTO ── */
+.acard-photo{
+  position:relative;width:100%;height:190px;overflow:hidden;
+  background:#dde8f0;display:flex;align-items:center;justify-content:center;
+}
+.acard-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s;}
+.acard-photo .fallback{font-size:4rem;position:absolute;display:none;}
+.sex-strip{
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;gap:0;font-size:.72rem;font-weight:700;
+}
+.sex-m{background:rgba(30,90,180,.82);color:#fff;padding:4px 10px;flex:1;text-align:center;}
+.sex-f{background:rgba(180,60,100,.82);color:#fff;padding:4px 10px;flex:1;text-align:center;}
+.sex-same{background:rgba(30,100,80,.82);color:#fff;padding:4px 10px;width:100%;text-align:center;}
+.rare-badge{
+  position:absolute;top:8px;right:8px;
+  background:#e8a800;color:#fff;font-size:.68rem;font-weight:700;
+  border-radius:20px;padding:3px 9px;
+}
+
+/* ── BODY ── */
+.acard-body{padding:14px 16px 16px;}
+.aname-ja{font-size:1rem;font-weight:800;line-height:1.3;}
+.aname-en{font-size:.78rem;color:#777;margin-top:2px;}
+.aname-sci{font-size:.72rem;color:#aaa;font-style:italic;}
+.divider{border:none;border-top:1px solid #eee;margin:10px 0;}
+.features-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#999;margin-bottom:6px;}
+.features{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.features li{font-size:.82rem;line-height:1.45;padding-left:14px;position:relative;color:#333;}
+.features li::before{content:'▸';position:absolute;left:0;color:var(--ocean);font-size:.75rem;}
+
+/* ── ISLAND COLORS ── */
+.hero-green{background:linear-gradient(135deg,#1b4332,#2d6a4f)!important;}
+.hero-coral{background:linear-gradient(135deg,#b33000,#e05a35)!important;}
+.hero-teal{background:linear-gradient(135deg,#0d4f50,#15a086)!important;}
+.hero-purple{background:linear-gradient(135deg,#3b1060,#7c3eb8)!important;}
+.hero-gold{background:linear-gradient(135deg,#6b4600,#c8860a)!important;}
+.hero-dark{background:linear-gradient(135deg,#1a1a3e,#3a3a6e)!important;}
+
+/* ── SECTION DIVIDER ── */
+.section-label{
+  font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:var(--ocean);margin:28px 0 12px;padding-left:4px;
+  border-left:3px solid var(--ocean);padding-left:8px;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .animals-grid{grid-template-columns:1fr 1fr;}
+  .acard-photo{height:150px;}
+  .tab-btn{padding:11px 13px;font-size:.76rem;}
+}
+@media(max-width:360px){
+  .animals-grid{grid-template-columns:1fr;}
+}
+footer{text-align:center;padding:20px;font-size:.78rem;color:#aaa;border-top:1px solid #e8e8e8;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-icons">🐢🦎🐧🐦🦭</div>
+  <h1>ガラパゴス諸島 島別動物図鑑</h1>
+  <p>島ごとの生き物・写真・オスメスの特徴を完全収録</p>
+</header>
+
+<!-- ISLAND TABS -->
+<div class="tab-wrap" id="tabWrap">
+  <button class="tab-btn active" onclick="showIsland('santacruz',this)">🏝 サンタクルス</button>
+  <button class="tab-btn" onclick="showIsland('espanola',this)">🦅 エスパニョーラ</button>
+  <button class="tab-btn" onclick="showIsland('genovesa',this)">🐦 ジェノベサ</button>
+  <button class="tab-btn" onclick="showIsland('isabela',this)">🌋 イサベラ</button>
+  <button class="tab-btn" onclick="showIsland('fernandina',this)">🦎 フェルナンディナ</button>
+  <button class="tab-btn" onclick="showIsland('sancristobal',this)">⚓ サン・クリストバル</button>
+  <button class="tab-btn" onclick="showIsland('northseymour',this)">🐟 ノース・セイモア</button>
+  <button class="tab-btn" onclick="showIsland('floreana',this)">🦩 フロレアナ</button>
+  <button class="tab-btn" onclick="showIsland('santafe',this)">🦎 サンタ・フェ</button>
+  <button class="tab-btn" onclick="showIsland('bartolome',this)">🏔 バルトロメ</button>
+</div>
+
+<!-- ======================================================
+     SANTA CRUZ
+     ====================================================== -->
+<div id="santacruz" class="island-panel active">
+  <div class="island-hero">
+    <h2>🏝️ サンタクルス島 <span style="font-weight:400;font-size:.9rem">Santa Cruz</span></h2>
+    <div class="sub">ガラパゴス最大の観光拠点・チャールズ・ダーウィン研究所がある島</div>
+    <div class="island-meta-tags">
+      <span class="itag">観光拠点</span>
+      <span class="itag">ダーウィン研究所</span>
+      <span class="itag hot">ゾウガメ野生観察</span>
+    </div>
+  </div>
+  <div class="section-label">爬虫類・両生類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Tortoise_at_the_charles_darwin_research_station.jpg/480px-Tortoise_at_the_charles_darwin_research_station.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ゾウガメ">
+        <span class="fallback">🐢</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 最大250kg、サドル型も</div>
+          <div class="sex-f">♀ やや小型・ドーム型</div>
+        </div>
+        <span class="rare-badge">⭐ 固有種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスゾウガメ</div>
+        <div class="aname-en">Galápagos Giant Tortoise</div>
+        <div class="aname-sci">Chelonoidis niger</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>世界最大のリクガメ。体重100〜250kg、寿命150年超</li>
+          <li>甲羅の形が島・亜種ごとに異なる（ドーム型/サドル型）</li>
+          <li>ダーウィン研究所で13亜種を保護繁殖中</li>
+          <li>野生個体はハイランドの牧草地を自由に歩く</li>
+          <li>♂はオスどうしでよく頸を伸ばして高さ競争をする</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Galapagos_iguana.jpg/480px-Galapagos_iguana.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="海イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 繁殖期に赤く発色</div>
+          <div class="sex-f">♀ 黒色・小型</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">海イグアナ</div>
+        <div class="aname-en">Marine Iguana</div>
+        <div class="aname-sci">Amblyrhynchus cristatus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>世界唯一の海に潜るイグアナ。潜水深さ最大12m</li>
+          <li>海藻を食べるため鼻から塩分を噴き出す</li>
+          <li>島ごとに亜種・体色が異なる（エスパニョーラは赤緑）</li>
+          <li>体温が下がると岩上で日光浴し体温を戻す</li>
+          <li>♂は繁殖期（12〜3月）に縄張りをめぐりオスと戦う</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Land_iguana_Galapagos.jpg/480px-Land_iguana_Galapagos.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="陸イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 鮮やかな黄金色</div>
+          <div class="sex-f">♀ やや褐色がかる</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴス陸イグアナ</div>
+        <div class="aname-en">Galápagos Land Iguana</div>
+        <div class="aname-sci">Conolophus subcristatus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>体長1m超、体重13kgに達する大型イグアナ</li>
+          <li>サボテンの実や葉を主食とする草食性</li>
+          <li>海イグアナとの交雑種「ハイブリッドイグアナ」も確認</li>
+          <li>縄張り意識が強く、オス同士で激しい戦いをする</li>
+          <li>ラス・バッカス地区やプラザ島で観察しやすい</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Microlophus_albemarlensis.jpg/480px-Microlophus_albemarlensis.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ラバリザード">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ のど元がオレンジ〜赤</div>
+          <div class="sex-f">♀ 褐色・目立たない</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスラバリザード</div>
+        <div class="aname-en">Galápagos Lava Lizard</div>
+        <div class="aname-sci">Microlophus albemarlensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>溶岩岩礁のあらゆる場所に生息する最も身近なトカゲ</li>
+          <li>島ごとに7種の固有種（亜種）が存在する</li>
+          <li>♂はプッシュアップ動作で縄張りを誇示する</li>
+          <li>昆虫・小型節足動物・植物を食べる雑食性</li>
+          <li>人を恐れずすぐ近くまで寄ってくる</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Chelonia_mydas_is_going_to_the_beach.jpg/480px-Chelonia_mydas_is_going_to_the_beach.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アオウミガメ">
+        <span class="fallback">🐢</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 後ろ足の爪が長く伸びる</div>
+          <div class="sex-f">♀ 産卵のため砂浜に上陸</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アオウミガメ</div>
+        <div class="aname-en">Green Sea Turtle</div>
+        <div class="aname-sci">Chelonia mydas agassizii</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ガラパゴスの海岸に産卵に来る代表的なウミガメ</li>
+          <li>シュノーケル中に共に泳げる確率が高い</li>
+          <li>♀は夜間に砂浜へ上陸し約100個の卵を産む</li>
+          <li>海藻・クラゲを主食とし体脂肪が青みがかる</li>
+          <li>50〜80年生きるとされる長寿な動物</li>
+        </ul>
+      </div>
+    </div>
+  </div><!-- /reptiles -->
+
+  <div class="section-label">鳥類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Footed_Booby.jpg/480px-Blue_Footed_Booby.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アオアシカツオドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 瞳孔が小さい・足が鮮青</div>
+          <div class="sex-f">♀ 瞳孔が大きい・体やや大</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アオアシカツオドリ</div>
+        <div class="aname-en">Blue-footed Booby</div>
+        <div class="aname-sci">Sula nebouxii</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>鮮やかな青い足が特徴。若いほど足の青みが強い</li>
+          <li>♂は求愛ダンスで青い足を高く上げて見せる</li>
+          <li>時速100kmで垂直ダイブして魚を捕る</li>
+          <li>ガラパゴス全島で観察可能な最も有名な鳥</li>
+          <li>卵を2〜3個産み、両親が交代で足で温める</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Pelecanus_occidentalis_-_Galapagos.jpg/480px-Pelecanus_occidentalis_-_Galapagos.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="カッショクペリカン">
+        <span class="fallback">🦅</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ ほぼ同じ外見</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">カッショクペリカン</div>
+        <div class="aname-en">Brown Pelican</div>
+        <div class="aname-sci">Pelecanus occidentalis urinator</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>港周辺の岩やボートによく止まっている</li>
+          <li>大きな喉袋で魚を丸ごとすくい取る</li>
+          <li>高所からのダイブ漁が豪快。成功率は高い</li>
+          <li>漁船に集まり水揚げのおこぼれを狙うことも</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Galapagos_mockingbird_(Nesomimus_parvulus)_on_Santa_Cruz.jpg/480px-Galapagos_mockingbird_(Nesomimus_parvulus)_on_Santa_Cruz.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスモッキングバード">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスモッキングバード</div>
+        <div class="aname-en">Galápagos Mockingbird</div>
+        <div class="aname-sci">Mimus parvulus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>人を全く恐れず足元に近づいてくる好奇心旺盛な鳥</li>
+          <li>ダーウィンが進化論の着想を得た鳥の一つ</li>
+          <li>島ごとに4種の固有種が存在する</li>
+          <li>昆虫・小トカゲ・卵など何でも食べる雑食性</li>
+          <li>他の動物の巣から卵を盗むこともある</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/GalapagosDove.jpg/480px-GalapagosDove.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスバト">
+        <span class="fallback">🕊️</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 青いアイリング</div>
+          <div class="sex-f">♀ アイリングが小さい</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスバト</div>
+        <div class="aname-en">Galápagos Dove</div>
+        <div class="aname-sci">Zenaida galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>青いアイリングが美しいガラパゴス固有のハト</li>
+          <li>サボテンの花粉を運ぶ重要な花粉媒介者</li>
+          <li>地面をテクテク歩いて種子を食べる</li>
+          <li>非常に人慣れしていて手が届く距離まで来る</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Vermilion_flycatcher_male.jpg/480px-Vermilion_flycatcher_male.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ヒタキ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 頭と腹が真っ赤</div>
+          <div class="sex-f">♀ 褐色・腹に橙斑</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ヒムネヒタキ（バーミリオンヒタキ）</div>
+        <div class="aname-en">Vermilion Flycatcher</div>
+        <div class="aname-sci">Pyrocephalus rubinus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>♂の真紅の頭と腹が目を引くガラパゴスで最も美しい鳥の一つ</li>
+          <li>内陸の湿潤林・農業地帯で観察できる</li>
+          <li>飛んでいる虫を空中でキャッチするフライキャッチャー</li>
+          <li>♀は地味な褐色で木の枝に紛れやすい</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Yellow_warbler_(Setophaga_petechia).jpg/480px-Yellow_warbler_(Setophaga_petechia).jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="キイロアメリカムシクイ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 鮮黄色・頭に赤縞</div>
+          <div class="sex-f">♀ くすんだ黄色</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">キイロアメリカムシクイ</div>
+        <div class="aname-en">Yellow Warbler</div>
+        <div class="aname-sci">Setophaga petechia aureola</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>全島に生息する最もよく見かける小鳥の一つ</li>
+          <li>♂は頭に赤い縦縞があり識別しやすい</li>
+          <li>マングローブ林や海岸沿いの低木を好む</li>
+          <li>昆虫を主食とし、海イグアナについた虫を食べることも</li>
+        </ul>
+      </div>
+    </div>
+  </div><!-- /birds -->
+
+  <div class="section-label">哺乳類・海洋生物</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Galapagos_sea_lion_Zalophus_wollebaeki.jpg/480px-Galapagos_sea_lion_Zalophus_wollebaeki.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスアシカ">
+        <span class="fallback">🦭</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 額が隆起・体重250kg超</div>
+          <div class="sex-f">♀ 小型・細身・60〜100kg</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスアシカ</div>
+        <div class="aname-en">Galápagos Sea Lion</div>
+        <div class="aname-sci">Zalophus wollebaeki</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>港の桟橋・ベンチで堂々と昼寝。人を恐れない</li>
+          <li>シュノーケル中に一緒に泳いでくれることも</li>
+          <li>♂（ブルマスター）は縄張りを持ち、メス集団を管理</li>
+          <li>約5万頭がガラパゴスに生息（絶滅危惧種）</li>
+          <li>最大時速35kmで泳ぐ優れた水泳家</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grapsus_grapsus_Galapagos.jpg/480px-Grapsus_grapsus_Galapagos.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="サリーライトフットクラブ">
+        <span class="fallback">🦀</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 大型・より鮮やかな赤橙</div>
+          <div class="sex-f">♀ 小型・暗色</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">サリーライトフットクラブ</div>
+        <div class="aname-en">Sally Lightfoot Crab</div>
+        <div class="aname-sci">Grapsus grapsus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>鮮やかな赤橙色が黒い溶岩岩礁に映える美しいカニ</li>
+          <li>幼体は黒色。成長とともに赤く変化する</li>
+          <li>波が来ても素早く避ける驚異的な運動能力</li>
+          <li>海イグアナの体についた寄生虫を食べる共生関係</li>
+          <li>動物の死骸も食べる海岸の清掃係</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /santacruz -->
+
+
+<!-- ======================================================
+     ESPAÑOLA
+     ====================================================== -->
+<div id="espanola" class="island-panel">
+  <div class="island-hero hero-coral">
+    <h2>🏝️ エスパニョーラ島 <span style="font-weight:400;font-size:.9rem">Española / Hood</span></h2>
+    <div class="sub">世界唯一のハゲカツオドリ（ウェーブドアルバトロス）繁殖地。最南端の島</div>
+    <div class="island-meta-tags">
+      <span class="itag">クルーズのみアクセス可</span>
+      <span class="itag hot">⭐ アルバトロス唯一の繁殖地</span>
+      <span class="itag">赤緑の海イグアナ</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Phoebastria_irrorata_-Española_Island%2C_Galapagos-8_%281%29.jpg/480px-Phoebastria_irrorata_-Española_Island%2C_Galapagos-8_%281%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ハゲカツオドリ">
+        <span class="fallback">🕊️</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ ほぼ同じ外見・求愛ダンスをともに行う</div>
+        </div>
+        <span class="rare-badge">⭐ 世界唯一</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ハゲカツオドリ（ウェーブドアルバトロス）</div>
+        <div class="aname-en">Waved Albatross</div>
+        <div class="aname-sci">Phoebastria irrorata</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>世界でエスパニョーラ島にのみ繁殖する絶滅危惧種（約12,000ペア）</li>
+          <li>翼開長2.4m。海上を何週間も休まず飛ぶ</li>
+          <li>4〜12月が繁殖シーズン。プンタ・スアレスで観察</li>
+          <li>求愛ダンスが複雑で有名：嘴合わせ・空鳴き・歩行ダンスをペアで延々と繰り返す</li>
+          <li>生涯同じパートナーと暮らす一夫一妻制</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Footed_Booby.jpg/480px-Blue_Footed_Booby.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アオアシカツオドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 足が明るい青・瞳孔小</div>
+          <div class="sex-f">♀ やや大型・瞳孔が大</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アオアシカツオドリ</div>
+        <div class="aname-en">Blue-footed Booby</div>
+        <div class="aname-sci">Sula nebouxii</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>エスパニョーラではプンタ・スアレスに大規模コロニー</li>
+          <li>足の青色は食べた魚の色素に由来。鮮やかさが健康度の指標</li>
+          <li>群れで水面に一斉ダイブする集団漁が壮観</li>
+          <li>雛も巣を作らず砂地・岩の上で育てる</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Sula_granti_-_Nazca_booby.jpg/480px-Sula_granti_-_Nazca_booby.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ナスカカツオドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ くちばしがオレンジ色</div>
+          <div class="sex-f">♀ くちばしがピンク</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ナスカカツオドリ</div>
+        <div class="aname-en">Nazca Booby</div>
+        <div class="aname-sci">Sula granti</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>白い体に黒い飛翔羽・橙黄のくちばしが美しい</li>
+          <li>2卵産むが兄弟競争で生き残るのは1羽だけ</li>
+          <li>エスパニョーラ島に最大のコロニーがある</li>
+          <li>♂と♀でくちばしの色が異なるので識別しやすい</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Espanola-mockingbird.jpg/480px-Espanola-mockingbird.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="エスパニョーラモッキングバード">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ</div>
+        </div>
+        <span class="rare-badge">⭐ 固有種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">エスパニョーラモッキングバード</div>
+        <div class="aname-en">Española Mockingbird</div>
+        <div class="aname-sci">Mimus macdonaldi</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>エスパニョーラ島とその近隣小岩礁にのみ生息する固有種</li>
+          <li>他のモッキングバードより嘴が長くカーブしている</li>
+          <li>集団で縄張りを防衛する珍しい社会行動をもつ</li>
+          <li>訪問者の靴紐をついばむほど大胆不敵</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">爬虫類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Amblyrhynchus_cristatus_venustissimus_male_3.jpg/480px-Amblyrhynchus_cristatus_venustissimus_male_3.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="エスパニョーラ海イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 赤×緑の鮮やかな体色</div>
+          <div class="sex-f">♀ 黒〜暗灰色</div>
+        </div>
+        <span class="rare-badge">⭐ 最美亜種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">エスパニョーラ海イグアナ</div>
+        <div class="aname-en">Española Marine Iguana</div>
+        <div class="aname-sci">Amblyrhynchus cristatus venustissimus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>繁殖期（12〜3月）の♂は赤と緑のクリスマスカラーになる</li>
+          <li>「世界で最もカラフルな海イグアナ亜種」と呼ばれる</li>
+          <li>体色の変化は縄張り誇示と求愛シグナル</li>
+          <li>ガラパゴスの海イグアナ亜種の中で最も鮮やかとされる</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Tortoise_at_the_charles_darwin_research_station.jpg/480px-Tortoise_at_the_charles_darwin_research_station.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="エスパニョーラゾウガメ">
+        <span class="fallback">🐢</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 甲羅後部が大きく上がるサドル型</div>
+          <div class="sex-f">♀ やや小型</div>
+        </div>
+        <span class="rare-badge">⭐ 絶滅危惧</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">エスパニョーラゾウガメ</div>
+        <div class="aname-en">Española Tortoise</div>
+        <div class="aname-sci">Chelonoidis hoodensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>1970年代に野生個体が15頭まで激減した絶滅寸前の亜種</li>
+          <li>ダーウィン研究所での繁殖プログラムで現在2,000頭以上に回復</li>
+          <li>サドル型甲羅（首を高く伸ばせる形）が特徴的</li>
+          <li>首を高く伸ばして高い場所の植物を食べる</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /espanola -->
+
+
+<!-- ======================================================
+     GENOVESA
+     ====================================================== -->
+<div id="genovesa" class="island-panel">
+  <div class="island-hero hero-teal">
+    <h2>🏝️ ジェノベサ島 <span style="font-weight:400;font-size:.9rem">Genovesa / Tower</span></h2>
+    <div class="sub">「鳥の天国」。アカアシカツオドリ世界最大営巣地。北部の孤島でクルーズのみアクセス</div>
+    <div class="island-meta-tags">
+      <span class="itag">クルーズのみ</span>
+      <span class="itag hot">⭐ アカアシカツオドリ世界最大コロニー</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Red-footed_Booby_-_Sula_sula.jpg/480px-Red-footed_Booby_-_Sula_sula.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アカアシカツオドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ やや小型・赤い足</div>
+          <div class="sex-f">♀ やや大型・同じ外見</div>
+        </div>
+        <span class="rare-badge">⭐ 世界最大コロニー</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アカアシカツオドリ</div>
+        <div class="aname-en">Red-footed Booby</div>
+        <div class="aname-sci">Sula sula websteri</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ジェノベサ島に約14万ペアが繁殖（世界最大のコロニー）</li>
+          <li>3種のカツオドリの中で最小・赤い足が特徴</li>
+          <li>木の上に巣を作る唯一のカツオドリ（アシのような足で枝を掴める）</li>
+          <li>白色型と褐色型の2つのモルフが存在</li>
+          <li>飛行距離が長く、外洋まで200km以上遠征して魚を捕る</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Fregata_magnificens_-Galapagos%2C_Ecuador-8.jpg/480px-Fregata_magnificens_-Galapagos%2C_Ecuador-8.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="グンカンドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 真紅の喉袋を風船のように膨らませる</div>
+          <div class="sex-f">♀ 白い胸・喉袋なし</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">オオグンカンドリ</div>
+        <div class="aname-en">Magnificent Frigatebird</div>
+        <div class="aname-sci">Fregata magnificens</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>♂の巨大な赤い喉袋（最大30cm）が求愛の主役</li>
+          <li>繁殖期に喉袋を膨らませたオスが木に並ぶ光景は圧巻</li>
+          <li>翼開長2.2m・体重が軽くほぼ一日中飛び続けられる</li>
+          <li>他の鳥から魚を強奪するクレプトパラサイト（海賊戦法）</li>
+          <li>水に濡れると飛べなくなるため海には絶対に着水しない</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Short-eared_Owl_-_Asio_flammeus.jpg/480px-Short-eared_Owl_-_Asio_flammeus.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="コミミズク">
+        <span class="fallback">🦅</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ わずかに淡色</div>
+          <div class="sex-f">♀ やや大型・褐色が濃い</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスコミミズク</div>
+        <div class="aname-en">Short-eared Owl (Galápagos)</div>
+        <div class="aname-sci">Asio flammeus galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>昼間でも活動する珍しいフクロウ（主に夕方〜朝）</li>
+          <li>ジェノベサ島では昼間岩の上や草地で発見できる</li>
+          <li>ウミツバメの雛や小型鳥を捕食する</li>
+          <li>低く地表近くを滑空しながら獲物を探す独特のスタイル</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Oceanodroma_castro_-_Madeira.jpg/480px-Oceanodroma_castro_-_Madeira.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ウミツバメ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">マデラウミツバメ</div>
+        <div class="aname-en">Band-rumped Storm-petrel</div>
+        <div class="aname-sci">Hydrobates castro</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>翼開長わずか43cm・海上を低く舞う小型の海鳥</li>
+          <li>夜間に帰巣。集団で島を飛び回る光景が幻想的</li>
+          <li>岩の割れ目や穴に巣を作り、卵を1個だけ産む</li>
+          <li>外洋では海面スレスレを「ウォーキング」しながら飛ぶ</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Fregata_minor_-landing_-Galapagos.jpg/480px-Fregata_minor_-landing_-Galapagos.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="コグンカンドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 全身黒・赤い喉袋</div>
+          <div class="sex-f">♀ 白い胸・赤い目のリング</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">コグンカンドリ</div>
+        <div class="aname-en">Great Frigatebird</div>
+        <div class="aname-sci">Fregata minor ridgwayi</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>オオグンカンドリに似るが♀の眼周囲の赤リングで識別</li>
+          <li>ジェノベサ島のプリンス・フィリップス・ステップスに多い</li>
+          <li>同じくクレプトパラサイト行動をとる</li>
+          <li>翼開長2.3m・体重わずか1.5kgの超軽量飛行家</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /genovesa -->
+
+
+<!-- ======================================================
+     ISABELA
+     ====================================================== -->
+<div id="isabela" class="island-panel">
+  <div class="island-hero hero-green">
+    <h2>🏝️ イサベラ島 <span style="font-weight:400;font-size:.9rem">Isabela</span></h2>
+    <div class="sub">ガラパゴス最大の島。6つの火山・6亜種のゾウガメ・世界唯一の赤道直下ペンギン</div>
+    <div class="island-meta-tags">
+      <span class="itag">最大の島</span>
+      <span class="itag hot">⭐ 6亜種のゾウガメ</span>
+      <span class="itag">ペンギン</span>
+      <span class="itag">飛べないウミウ</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Galapagos_penguin_%28Spheniscus_mendiculus%29_3.jpg/480px-Galapagos_penguin_%28Spheniscus_mendiculus%29_3.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスペンギン">
+        <span class="fallback">🐧</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ（♂わずかに大型）</div>
+        </div>
+        <span class="rare-badge">⭐ 赤道直下唯一</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスペンギン</div>
+        <div class="aname-en">Galápagos Penguin</div>
+        <div class="aname-sci">Spheniscus mendiculus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>赤道直下に生息する世界唯一のペンギン（世界最小クラス・49cm）</li>
+          <li>フンボルト海流の冷たい海水がガラパゴスまで届くため生存可能</li>
+          <li>翼を広げて体を冷やし暑さに対応する</li>
+          <li>タヘウス岬・バルトロメ島周辺が最も観察しやすい</li>
+          <li>シュノーケル中に水中で一緒に泳げることがある</li>
+          <li>現在約1,200羽のみ。絶滅危惧IA類（CR）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Flightless_cormorant_%28Nannopterum_harrisi%29.jpg/480px-Flightless_cormorant_%28Nannopterum_harrisi%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="飛べないウミウ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 約30%大型・翼が小さい</div>
+          <div class="sex-f">♀ 小型・同様に翼が退化</div>
+        </div>
+        <span class="rare-badge">⭐ 世界唯一</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスウミウ（飛べないウミウ）</div>
+        <div class="aname-en">Flightless Cormorant</div>
+        <div class="aname-sci">Nannopterum harrisi</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>世界唯一の「飛べないウ」。翼が体の1/3程度に退化</li>
+          <li>フェルナンディナ島とイサベラ島にのみ生息（約1,500羽）</li>
+          <li>泳ぎが得意で潜水してタコ・ウナギを捕る</li>
+          <li>産卵後、♀は巣を離れ別のオスと再交尾・子育ては♂が担う</li>
+          <li>天敵がいないため翼が退化した進化の典型例</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Phoenicopterus_ruber_-Santa_Cruz_Island%2C_Galapagos-8a_%281%29.jpg/480px-Phoenicopterus_ruber_-Santa_Cruz_Island%2C_Galapagos-8a_%281%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="フラミンゴ">
+        <span class="fallback">🦩</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ わずかに大型・より深いピンク</div>
+          <div class="sex-f">♀ 同様の外見</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アメリカフラミンゴ（ガラパゴス亜種）</div>
+        <div class="aname-en">American Flamingo</div>
+        <div class="aname-sci">Phoenicopterus ruber</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>イサベラ島のプンタ・モレノのラグーンに生息</li>
+          <li>群島全体で約500羽のみの希少種</li>
+          <li>ピンク色は食べているフラミンゴエビ（アルテミア）の色素由来</li>
+          <li>逆さまにした嘴でラグーンをフィルタリングして餌を取る</li>
+          <li>片足立ちは体温保持と筋肉疲労の軽減が目的</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Buteo_galapagoensis_%28cropped%29.jpg/480px-Buteo_galapagoensis_%28cropped%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスタカ">
+        <span class="fallback">🦅</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 小型・ポリアンドリー（複数の♀と交尾）</div>
+          <div class="sex-f">♀ ♂より大型・縄張りを持つ</div>
+        </div>
+        <span class="rare-badge">⭐ 固有種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスタカ</div>
+        <div class="aname-en">Galápagos Hawk</div>
+        <div class="aname-sci">Buteo galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ガラパゴス群島唯一の猛禽類（固有種）</li>
+          <li>天敵がいないため人を全く恐れない</li>
+          <li>珍しいポリアンドリー（♀1羽に♂複数）の繁殖システム</li>
+          <li>イグアナ・ウミガメの幼体・アシカの胎盤まで食べる</li>
+          <li>現在約800羽のみ。絶滅危惧種</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">爬虫類・哺乳類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Conolophus_marthae_Santa_Cruz.jpg/480px-Conolophus_marthae_Santa_Cruz.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="イサベラ陸イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 大型・頭が大きい</div>
+          <div class="sex-f">♀ 小型・おとなしい</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴス陸イグアナ（イサベラ亜種）</div>
+        <div class="aname-en">Land Iguana (Isabela)</div>
+        <div class="aname-sci">Conolophus subcristatus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>イサベラ島の乾燥地帯に生息する最大の陸イグアナ集団</li>
+          <li>ウルフ火山周辺には特に大型個体が多い</li>
+          <li>ツノサボテンの実・葉・果実を主食とする</li>
+          <li>タランチュラも捕食することがある</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Arctocephalus_galapagoensis.jpg/480px-Arctocephalus_galapagoensis.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスオットセイ">
+        <span class="fallback">🦭</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 体重70kg・立派なたてがみ</div>
+          <div class="sex-f">♀ 体重30kg・細長い</div>
+        </div>
+        <span class="rare-badge">⭐ 固有種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスオットセイ</div>
+        <div class="aname-en">Galápagos Fur Seal</div>
+        <div class="aname-sci">Arctocephalus galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>アシカより小型で毛が密・ふさふさしているのが特徴</li>
+          <li>岩場の涼しい影を好む（熱に弱い）</li>
+          <li>深さ200m以上まで潜水して夜間に魚を捕る</li>
+          <li>♂は縄張りを持ち繁殖期に激しく争う</li>
+          <li>フェルナンディナ島が最大の生息地</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /isabela -->
+
+
+<!-- ======================================================
+     FERNANDINA
+     ====================================================== -->
+<div id="fernandina" class="island-panel">
+  <div class="island-hero hero-dark" style="background:linear-gradient(135deg,#1a1a1a,#3a2800)!important;">
+    <h2>🏝️ フェルナンディナ島 <span style="font-weight:400;font-size:.9rem">Fernandina</span></h2>
+    <div class="sub">最も若く火山活動が活発な島。侵略種ゼロの原始の楽園。クルーズのみアクセス</div>
+    <div class="island-meta-tags">
+      <span class="itag">クルーズのみ</span>
+      <span class="itag hot">⭐ 侵略種ゼロ</span>
+      <span class="itag">飛べないウミウ最大生息地</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類・爬虫類・哺乳類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Flightless_cormorant_%28Nannopterum_harrisi%29.jpg/480px-Flightless_cormorant_%28Nannopterum_harrisi%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="飛べないウミウ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 大型・つがい後も子育て継続</div>
+          <div class="sex-f">♀ 小型・産卵後すぐ次の♂へ</div>
+        </div>
+        <span class="rare-badge">⭐ 最大生息地</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスウミウ（飛べないウミウ）</div>
+        <div class="aname-en">Flightless Cormorant</div>
+        <div class="aname-sci">Nannopterum harrisi</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>フェルナンディナ島のプンタ・エスピノサが最大の観察ポイント</li>
+          <li>翼が退化して飛べないが、水中では素早く泳ぐ</li>
+          <li>独特の繁殖システム：♀が子育てを♂に任せて別オスと再ペアリング</li>
+          <li>巣は海藻を積み上げて作る。いつも新鮮な海藻を持ち帰る</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Galapagos_iguana.jpg/480px-Galapagos_iguana.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="フェルナンディナ海イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 最大2kg・縄張り争い激しい</div>
+          <div class="sex-f">♀ 小型・黒色</div>
+        </div>
+        <span class="rare-badge">⭐ 世界最大群落</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">フェルナンディナ海イグアナ</div>
+        <div class="aname-en">Fernandina Marine Iguana</div>
+        <div class="aname-sci">Amblyrhynchus cristatus cristatus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>プンタ・エスピノサで数千頭が溶岩岩礁を埋め尽くす壮観な光景</li>
+          <li>全島の海イグアナの中で最大亜種</li>
+          <li>寒い時期は体を重ね合わせて集団で体温を維持する</li>
+          <li>潜水時間は最大60分、深さ最大20m</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Galapagos_penguin_%28Spheniscus_mendiculus%29_3.jpg/480px-Galapagos_penguin_%28Spheniscus_mendiculus%29_3.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスペンギン">
+        <span class="fallback">🐧</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスペンギン</div>
+        <div class="aname-en">Galápagos Penguin</div>
+        <div class="aname-sci">Spheniscus mendiculus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>イサベラ島との境界付近の岩礁に多く生息</li>
+          <li>溶岩の岩礁上でのんびり日向ぼっこする姿が愛らしい</li>
+          <li>水中では時速35kmで泳ぐ優れた漁師</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Buteo_galapagoensis_%28cropped%29.jpg/480px-Buteo_galapagoensis_%28cropped%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスタカ">
+        <span class="fallback">🦅</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 複数が1♀と協力育雛</div>
+          <div class="sex-f">♀ 大型・縄張り所有</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスタカ</div>
+        <div class="aname-en">Galápagos Hawk</div>
+        <div class="aname-sci">Buteo galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>フェルナンディナは人為的影響が最も少なく観察しやすい</li>
+          <li>観光客のすぐそばに降り立つほど人を恐れない</li>
+          <li>ヘビ・イグアナ・ウミガメの雛を捕食する頂点捕食者</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Arctocephalus_galapagoensis.jpg/480px-Arctocephalus_galapagoensis.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスオットセイ">
+        <span class="fallback">🦭</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ たてがみあり・大型</div>
+          <div class="sex-f">♀ 小型・細身</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスオットセイ</div>
+        <div class="aname-en">Galápagos Fur Seal</div>
+        <div class="aname-sci">Arctocephalus galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>フェルナンディナが全個体数の約40%を擁する最大の生息地</li>
+          <li>岩礁の洞窟や影に潜むことが多く目立ちにくい</li>
+          <li>夜間潜水漁が主で日中は休息していることが多い</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /fernandina -->
+
+
+<!-- ======================================================
+     SAN CRISTÓBAL
+     ====================================================== -->
+<div id="sancristobal" class="island-panel">
+  <div class="island-hero">
+    <h2>🏝️ サン・クリストバル島 <span style="font-weight:400;font-size:.9rem">San Cristóbal</span></h2>
+    <div class="sub">ダーウィンが最初に上陸した島。東部の玄関口・県庁所在地プエルト・バケリソ・モレノ</div>
+    <div class="island-meta-tags">
+      <span class="itag">フライト直行便あり</span>
+      <span class="itag hot">3種のカツオドリが1島で</span>
+      <span class="itag">アシカが町を歩く</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Footed_Booby.jpg/480px-Blue_Footed_Booby.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="3種カツオドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-same">3種すべてプンタ・ピットで観察可</div>
+        </div>
+        <span class="rare-badge">⭐ 3種同時観察</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">3種のカツオドリ（同時観察地点）</div>
+        <div class="aname-en">All 3 Booby Species</div>
+        <div class="aname-sci">Sula nebouxii / S. granti / S. sula</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>プンタ・ピットはアオアシ・ナスカ・アカアシの3種が同時に観察できるガラパゴス唯一のポイント</li>
+          <li>アカアシは木の上、ナスカとアオアシは地面に巣を作る</li>
+          <li>3種の足の色比較が一度にできるレアな場所</li>
+          <li>プンタ・ピットへは島東端への3km程度のトレッキングが必要</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Nesomimus_melanotis_-San_Cristobal%2C_Galapagos-8.jpg/480px-Nesomimus_melanotis_-San_Cristobal%2C_Galapagos-8.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="チャサム モッキングバード">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ</div>
+        </div>
+        <span class="rare-badge">⭐ 固有種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">チャサムモッキングバード</div>
+        <div class="aname-en">Chatham Mockingbird</div>
+        <div class="aname-sci">Mimus melanotis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>サン・クリストバル島とそのごく近い小島のみに生息する固有種</li>
+          <li>ダーウィンが1835年に初めて採集した種の一つ</li>
+          <li>ガラパゴスモッキングバードより黒い耳斑が大きい</li>
+          <li>非常に好奇心旺盛で観光客のバックパックをつついてくる</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">爬虫類・哺乳類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Galapagos_sea_lion_Zalophus_wollebaeki.jpg/480px-Galapagos_sea_lion_Zalophus_wollebaeki.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アシカ">
+        <span class="fallback">🦭</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 250kgまで成長・額の隆起</div>
+          <div class="sex-f">♀ 60〜100kg・細身</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスアシカ（町中に出没）</div>
+        <div class="aname-en">Galápagos Sea Lion</div>
+        <div class="aname-sci">Zalophus wollebaeki</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>プエルト・バケリソ・モレノの街中にも出現する</li>
+          <li>公園のベンチ・桟橋で人と共存して昼寝</li>
+          <li>夕方に群れが砂浜に集まり賑やかに鳴き合う</li>
+          <li>「海のラブラドール」と称されるほど人懐っこい</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Microlophus_albemarlensis.jpg/480px-Microlophus_albemarlensis.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="サン・クリストバル・ラバリザード">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ のど元が赤〜オレンジ</div>
+          <div class="sex-f">♀ 褐色・目立たない</div>
+        </div>
+        <span class="rare-badge">固有亜種</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">サン・クリストバルラバリザード</div>
+        <div class="aname-en">San Cristóbal Lava Lizard</div>
+        <div class="aname-sci">Microlophus bivittatus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>サン・クリストバル島固有の亜種</li>
+          <li>岩やフェンスの上でプッシュアップして縄張りを主張</li>
+          <li>尾を自切して天敵から逃れる。数週間で再生する</li>
+          <li>どこにでもいて最もよく目にする爬虫類</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /sancristobal -->
+
+
+<!-- ======================================================
+     NORTH SEYMOUR
+     ====================================================== -->
+<div id="northseymour" class="island-panel">
+  <div class="island-hero hero-teal">
+    <h2>🏝️ ノース・セイモア島 <span style="font-weight:400;font-size:.9rem">North Seymour</span></h2>
+    <div class="sub">バルトラ空港から最も近い日帰りツアーの定番。グンカンドリの大コロニーが有名</div>
+    <div class="island-meta-tags">
+      <span class="itag">日帰りツアー人気No.1</span>
+      <span class="itag hot">グンカンドリ大コロニー</span>
+      <span class="itag">アオアシカツオドリ求愛ダンス</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類・爬虫類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Fregata_magnificens_-Galapagos%2C_Ecuador-8.jpg/480px-Fregata_magnificens_-Galapagos%2C_Ecuador-8.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="グンカンドリ">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 全黒・巨大な赤い喉袋を膨らます</div>
+          <div class="sex-f">♀ 黒+白い胸・赤い眼周囲リング</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">オオグンカンドリ（大コロニー）</div>
+        <div class="aname-en">Magnificent Frigatebird</div>
+        <div class="aname-sci">Fregata magnificens</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ノース・セイモアはガラパゴス最大のグンカンドリコロニーの一つ</li>
+          <li>繁殖期（6〜9月）は何百羽もの♂が喉袋を膨らませ♀を呼ぶ</li>
+          <li>喉袋の膨らましには最大20分かかる</li>
+          <li>トレイルを歩くと頭上すぐのところに巣がある</li>
+          <li>♀は翼のある♂を選ぶため最も翼の大きいオスが選ばれやすい</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Footed_Booby.jpg/480px-Blue_Footed_Booby.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アオアシカツオドリ求愛">
+        <span class="fallback">🐦</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ ダンス中に青い足を高く上げる</div>
+          <div class="sex-f">♀ 足の青さが健康の証</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アオアシカツオドリ（求愛ダンス）</div>
+        <div class="aname-en">Blue-footed Booby</div>
+        <div class="aname-sci">Sula nebouxii</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ノース・セイモアのトレイルではすぐそばで求愛ダンスが見られる</li>
+          <li>♂は青い足を交互にゆっくり上げながら歩くダンスで♀を誘う</li>
+          <li>空中でも材料（木の枝など）を♀に贈るプレゼント行動がある</li>
+          <li>ヒナの頃から親に連れられて海へ泳ぎの練習をする</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Land_iguana_Galapagos.jpg/480px-Land_iguana_Galapagos.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="陸イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 黄金色・大型</div>
+          <div class="sex-f">♀ より褐色・小型</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">陸イグアナ</div>
+        <div class="aname-en">Land Iguana</div>
+        <div class="aname-sci">Conolophus subcristatus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ノース・セイモアの陸イグアナはバルトラ島から移植された群れ</li>
+          <li>島全体がサボテンが少ないため競争が激しい</li>
+          <li>トレイル上で日光浴しているため踏まないように注意</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /northseymour -->
+
+
+<!-- ======================================================
+     FLOREANA
+     ====================================================== -->
+<div id="floreana" class="island-panel">
+  <div class="island-hero hero-purple">
+    <h2>🏝️ フロレアナ島 <span style="font-weight:400;font-size:.9rem">Floreana / Charles</span></h2>
+    <div class="sub">謎の失踪事件の歴史ある島。ガラパゴス随一のシュノーケルスポット・デビルズ・クラウン</div>
+    <div class="island-meta-tags">
+      <span class="itag">少人数居住者あり</span>
+      <span class="itag hot">デビルズ・クラウン（最高シュノーケル）</span>
+      <span class="itag">ウミガメ産卵ビーチ</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類・海洋生物</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Phoenicopterus_ruber_-Santa_Cruz_Island%2C_Galapagos-8a_%281%29.jpg/480px-Phoenicopterus_ruber_-Santa_Cruz_Island%2C_Galapagos-8a_%281%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="フラミンゴ">
+        <span class="fallback">🦩</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ わずかに大型</div>
+          <div class="sex-f">♀ 巣作りを主導</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アメリカフラミンゴ</div>
+        <div class="aname-en">American Flamingo</div>
+        <div class="aname-sci">Phoenicopterus ruber</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>フロレアナのラグーンはガラパゴスで最も観察しやすいフラミンゴの生息地</li>
+          <li>コロニー・ラグーンへは短いトレイルで行ける</li>
+          <li>繁殖期（1〜3月）には求愛ダンスと泥の巣作りが見られる</li>
+          <li>幼鳥は白〜灰色。3年かけてピンクに変化する</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Chelonia_mydas_is_going_to_the_beach.jpg/480px-Chelonia_mydas_is_going_to_the_beach.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アオウミガメ産卵">
+        <span class="fallback">🐢</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 交尾のため海で待機</div>
+          <div class="sex-f">♀ 夜間砂浜に上陸して産卵</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">アオウミガメ（産卵期）</div>
+        <div class="aname-en">Green Sea Turtle (nesting)</div>
+        <div class="aname-sci">Chelonia mydas agassizii</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>コロニー・ビーチは主要なウミガメ産卵ビーチの一つ</li>
+          <li>12〜5月の夜間に♀が上陸し深さ50cmの穴に80〜120個産卵</li>
+          <li>♀は2〜4週間おきに複数回産卵し、シーズン中に5〜7回上陸</li>
+          <li>孵化まで約60日。夜間のみ自力で海へ向かう</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Triaenodon_obesus_uw.jpg/480px-Triaenodon_obesus_uw.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ホワイトチップシャーク">
+        <span class="fallback">🦈</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ（♀がわずかに大型）</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ホワイトチップリーフシャーク</div>
+        <div class="aname-en">Whitetip Reef Shark</div>
+        <div class="aname-sci">Triaenodon obesus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>デビルズ・クラウンの岩陰で複数頭が重なって休んでいる</li>
+          <li>人を襲うことはほぼなく、シュノーケラーが近づいても動じない</li>
+          <li>夜行性で昼は休息・夜にサンゴ礁の隙間で魚を狩る</li>
+          <li>体長1.6m程度。背びれと尾びれの先端が白いのが特徴</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Manta_birostris-Thailand4.jpg/480px-Manta_birostris-Thailand4.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="マンタ">
+        <span class="fallback">🐟</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 交尾のために♀を追跡</div>
+          <div class="sex-f">♀ 大型・翼開長最大5m</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">マンタレイ（オニイトマキエイ）</div>
+        <div class="aname-en">Giant Manta Ray</div>
+        <div class="aname-sci">Mobula birostris</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>デビルズ・クラウン付近で遭遇率が高い</li>
+          <li>翼開長最大7m・体重3トンに達する世界最大のエイ</li>
+          <li>プランクトン・小魚を口を開けながら泳いで濾し取る</li>
+          <li>水面からジャンプして着水する「ブリーチング」行動がある</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /floreana -->
+
+
+<!-- ======================================================
+     SANTA FÉ
+     ====================================================== -->
+<div id="santafe" class="island-panel">
+  <div class="island-hero hero-gold">
+    <h2>🏝️ サンタ・フェ島 <span style="font-weight:400;font-size:.9rem">Santa Fé / Barrington</span></h2>
+    <div class="sub">固有の陸イグアナと巨大サボテンの森が特徴的。透明な湾でのシュノーケルが人気</div>
+    <div class="island-meta-tags">
+      <span class="itag">サンタクルスから1時間半</span>
+      <span class="itag hot">⭐ 固有の陸イグアナ</span>
+      <span class="itag">巨大サボテンの森</span>
+    </div>
+  </div>
+  <div class="section-label">爬虫類・鳥類・海洋生物</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Conolophus_pallidus_Santa_Fe_Island.jpg/480px-Conolophus_pallidus_Santa_Fe_Island.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="サンタフェ陸イグアナ">
+        <span class="fallback">🦎</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 黄白色・頭部が大きい</div>
+          <div class="sex-f">♀ 小型・より灰色がかる</div>
+        </div>
+        <span class="rare-badge">⭐ サンタフェのみ</span>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">サンタ・フェ陸イグアナ</div>
+        <div class="aname-en">Santa Fé Land Iguana</div>
+        <div class="aname-sci">Conolophus pallidus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>サンタ・フェ島にのみ生息する固有種（他の陸イグアナとは別種）</li>
+          <li>体色がより淡い白黄色〜クリーム色で大型（体長1.2m超）</li>
+          <li>背中の棘が長く鋭い</li>
+          <li>巨大なオプンティアサボテンの実・葉が主食</li>
+          <li>上陸地点すぐそばで日光浴しているため、船から降りてすぐ出会える</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Triaenodon_obesus_uw.jpg/480px-Triaenodon_obesus_uw.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="シャーク">
+        <span class="fallback">🦈</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ホワイトチップリーフシャーク</div>
+        <div class="aname-en">Whitetip Reef Shark</div>
+        <div class="aname-sci">Triaenodon obesus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>サンタ・フェ湾の澄んだ水中で複数頭が砂底で休んでいる</li>
+          <li>穏やかな性格でシュノーケラーを無視することがほとんど</li>
+          <li>鱗に細かいトゲがあり触ると切れる（触れないこと）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Buteo_galapagoensis_%28cropped%29.jpg/480px-Buteo_galapagoensis_%28cropped%29.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ガラパゴスタカ">
+        <span class="fallback">🦅</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 複数で協力育雛</div>
+          <div class="sex-f">♀ 大型・縄張り主</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスタカ</div>
+        <div class="aname-en">Galápagos Hawk</div>
+        <div class="aname-sci">Buteo galapagoensis</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>サンタ・フェでも観察できる群島唯一の猛禽類</li>
+          <li>サボテンの天辺に止まり縄張りを監視する姿がよく見られる</li>
+          <li>ラバリザードやイグアナ幼体を主な獲物にする</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /santafe -->
+
+
+<!-- ======================================================
+     BARTOLOMÉ
+     ====================================================== -->
+<div id="bartolome" class="island-panel">
+  <div class="island-hero">
+    <h2>🏝️ バルトロメ島 <span style="font-weight:400;font-size:.9rem">Bartolomé</span></h2>
+    <div class="sub">ガラパゴスの絶景スポット。ピナクル・ロックとペンギン・シュノーケルが同時に楽しめる</div>
+    <div class="island-meta-tags">
+      <span class="itag">絶景No.1</span>
+      <span class="itag hot">ペンギン×シュノーケル</span>
+      <span class="itag">火山地形ウォーク</span>
+    </div>
+  </div>
+  <div class="section-label">鳥類・海洋生物・哺乳類</div>
+  <div class="animals-grid">
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Galapagos_penguin_%28Spheniscus_mendiculus%29_3.jpg/480px-Galapagos_penguin_%28Spheniscus_mendiculus%29_3.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ペンギン">
+        <span class="fallback">🐧</span>
+        <div class="sex-strip">
+          <div class="sex-same">♂♀ 外見はほぼ同じ（♂わずかに大型）</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスペンギン（ピナクル・ロック）</div>
+        <div class="aname-en">Galápagos Penguin</div>
+        <div class="aname-sci">Spheniscus mendiculus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>ピナクル・ロック周辺の岩礁が主な生息地</li>
+          <li>シュノーケル中に水中を一緒に高速で泳ぐ体験ができる</li>
+          <li>岩の上でよちよち歩く姿と水中の素早さのギャップが魅力</li>
+          <li>翼は完全に水中用に特化しており、空は飛べない</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Galapagos_sea_lion_Zalophus_wollebaeki.jpg/480px-Galapagos_sea_lion_Zalophus_wollebaeki.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="アシカ">
+        <span class="fallback">🦭</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 250kgまで成長・縄張り防衛</div>
+          <div class="sex-f">♀ 60〜100kg・子育て担当</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">ガラパゴスアシカ（シュノーケル同伴）</div>
+        <div class="aname-en">Galápagos Sea Lion</div>
+        <div class="aname-sci">Zalophus wollebaeki</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>バルトロメ島のビーチでシュノーケルすると一緒に泳いでくれる確率が高い</li>
+          <li>水中でスパイラルや急旋回など遊び行動を見せる</li>
+          <li>砂浜では人のすぐ近くで昼寝。近づきすぎると威嚇される</li>
+          <li>母子の間では独自の鳴き声を使って見分ける</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grapsus_grapsus_Galapagos.jpg/480px-Grapsus_grapsus_Galapagos.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="サリーライトフットクラブ">
+        <span class="fallback">🦀</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 大型・より赤みが強い</div>
+          <div class="sex-f">♀ 小型・幼体は黒色</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">サリーライトフットクラブ</div>
+        <div class="aname-en">Sally Lightfoot Crab</div>
+        <div class="aname-sci">Grapsus grapsus</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>黒い溶岩岩礁に赤橙色が映える。バルトロメは溶岩が多く特に鮮やか</li>
+          <li>幼体は黒で溶岩に擬態・成体は鮮やかな色に変化する</li>
+          <li>波の打ち付ける岩で素早く移動できる6脚歩行が得意</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acard">
+      <div class="acard-photo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sphyrna_lewini_2010.jpg/480px-Sphyrna_lewini_2010.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="ハンマーヘッドシャーク">
+        <span class="fallback">🦈</span>
+        <div class="sex-strip">
+          <div class="sex-m">♂ 小型・群れの外縁を泳ぐ</div>
+          <div class="sex-f">♀ 大型・群れの中心を泳ぐ</div>
+        </div>
+      </div>
+      <div class="acard-body">
+        <div class="aname-ja">シュモクザメ（スキャロップドハンマーヘッド）</div>
+        <div class="aname-en">Scalloped Hammerhead Shark</div>
+        <div class="aname-sci">Sphyrna lewini</div>
+        <hr class="divider">
+        <div class="features-title">特徴</div>
+        <ul class="features">
+          <li>バルトロメ付近を数十〜数百頭の大群で回遊することがある</li>
+          <li>ハンマー状の頭部（セファロフォイル）で電気感覚を持つ</li>
+          <li>♀が大型で群れの中心を形成。♂は外周を泳ぐ</li>
+          <li>人間への攻撃はほぼないが、大型個体には距離を保つこと</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /bartolome -->
+
+<footer>
+  ガラパゴス諸島 島別動物図鑑 | 2026-04-04 作成<br>
+  ⚠️ 動物との距離は最低2m。触れないこと。国立公園のルールを厳守してください。
+</footer>
+
+<script>
+function showIsland(id, btn) {
+  document.querySelectorAll('.island-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Image error handling
+document.querySelectorAll('.acard-photo img').forEach(img => {
+  img.addEventListener('error', function() {
+    this.style.display = 'none';
+    const fb = this.parentElement.querySelector('.fallback');
+    if(fb) fb.style.display = 'block';
+  });
+});
+</script>
+</body>
+</html>
