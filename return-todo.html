@@ -381,7 +381,7 @@ async function fetchTodos(t) {
   if (!res.ok) throw new Error('fetch failed');
   const data = await res.json();
   fileSha = data.sha;
-  const decoded = atob(data.content.replace(/\n/g, ''));
+  const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
   const parsed = JSON.parse(decoded);
   todos = parsed.todos || [];
 }
@@ -436,7 +436,9 @@ function addTodo() {
 
 function toggleTodo(id) {
   const todo = todos.find(t => t.id === id);
-  if (todo) { todo.done = !todo.done; }
+  if (!todo) return;
+  if (!todo.done && !confirm(`「${todo.text}」を完了にしますか？`)) return;
+  todo.done = !todo.done;
   render();
   scheduleSave();
 }
