@@ -23,14 +23,13 @@ function getWeekEvents() {
   var cal = CalendarApp.getDefaultCalendar();
   var now = new Date();
 
-  var mon = new Date(now);
-  mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  mon.setHours(0, 0, 0, 0);
-  var sun = new Date(mon);
-  sun.setDate(mon.getDate() + 6);
-  sun.setHours(23, 59, 59, 999);
+  var start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  var end = new Date(start);
+  end.setDate(start.getDate() + 7);
+  end.setHours(23, 59, 59, 999);
 
-  var events = cal.getEvents(mon, sun);
+  var events = cal.getEvents(start, end);
 
   var items = events.map(function(ev) {
     var isAllDay = ev.isAllDayEvent();

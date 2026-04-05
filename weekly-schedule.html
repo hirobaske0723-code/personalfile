@@ -1009,11 +1009,10 @@ async function syncNotion() {
 (function init() {
   // 週ラベル
   const now = new Date();
-  const mon = new Date(now);
-  mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const start = new Date(now); start.setHours(0,0,0,0);
+  const end = new Date(start); end.setDate(start.getDate() + 7);
   document.getElementById('week-label').textContent =
-    `${now.getFullYear()}年 ${mon.getMonth()+1}/${mon.getDate()}〜${sun.getMonth()+1}/${sun.getDate()}`;
+    `${now.getFullYear()}年 ${start.getMonth()+1}/${start.getDate()}〜${end.getMonth()+1}/${end.getDate()}`;
 
   document.getElementById('updated-at').textContent =
     `updated ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`;
