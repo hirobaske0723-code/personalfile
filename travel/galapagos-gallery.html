@@ -511,6 +511,7 @@ function render() {
   list.forEach(s => { if (groups[s.cat]) groups[s.cat].push(s); });
 
   let html = '';
+  let gIdx = 0;
   catOrder.forEach(cat => {
     const items = groups[cat];
     if (items.length === 0) return;
@@ -520,50 +521,13 @@ function render() {
       html += `<div class="category-heading">${info.icon} ${info.label} <span class="cat-count">${items.length}</span></div>`;
     }
     html += `<div class="animals-grid">`;
-    items.forEach((s, idx) => {
-      html += cardHTML(s, idx);
+    items.forEach(s => {
+      html += cardHTML(s, gIdx++);
     });
     html += `</div></div>`;
   });
 
   gallery.innerHTML = html;
-}
-
-function cardHTML(s, idx) {
-  const hasTwo = s.imgs.length === 2;
-
-  let photoHTML = '';
-  if (hasTwo) {
-    photoHTML = `<div class="acard-photo split-photo">
-      <div class="photo-half">
-        <img src="${s.imgs[0].src}" alt="${escH(s.imgs[0].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
-        <div class="sex-half-label sex-m-label">${escH(s.imgs[0].alt)}</div>
-      </div>
-      <div class="photo-half">
-        <img src="${s.imgs[1].src}" alt="${escH(s.imgs[1].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
-        <div class="sex-half-label sex-f-label">${escH(s.imgs[1].alt)}</div>
-      </div>
-    </div>`;
-  } else {
-    photoHTML = `<div class="acard-photo">
-      <img src="${s.imgs[0].src}" alt="${escH(s.imgs[0].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
-      ${s.rare ? '<span class="rare-badge">⭐ 固有種</span>' : ''}
-    </div>`;
-  }
-
-  const badgesHTML = s.islands.map(isl =>
-    `<span class="ibadge ${ISLAND_CLASS[isl] || ''}">${isl}</span>`
-  ).join('');
-
-  return `<div class="acard" onclick='openLb(${idx})'>
-    ${photoHTML}
-    <div class="acard-body">
-      <div class="aname-ja">${escH(s.ja)}</div>
-      <div class="aname-en">${escH(s.en)}</div>
-      <div class="aname-sci">${escH(s.sci)}</div>
-      <div class="island-badges">${badgesHTML}</div>
-    </div>
-  </div>`;
 }
 
 // ── Lightbox ──
@@ -613,8 +577,6 @@ document.getElementById('island-filter').addEventListener('change', e => {
   render();
 });
 
-// ── openLb をfilteredベースに修正 ──
-// cardHTMLのonclick引数をfilteredリスト内インデックスに
 function cardHTML(s, idx) {
   const hasTwo = s.imgs.length === 2;
 
