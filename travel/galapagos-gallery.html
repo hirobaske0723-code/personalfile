@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ガラパゴス 動物ギャラリー</title>
+<style>
+:root {
+  --ocean:#00607d; --ocean2:#0095b6; --bg:#f0f8ff; --card:#fff;
+  --radius:14px; --text:#1a1a2e;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Segoe UI','Hiragino Sans',Arial,sans-serif; background:var(--bg); color:var(--text); }
+
+/* ── HEADER ── */
+header{
+  background:linear-gradient(135deg,var(--ocean) 0%,var(--ocean2) 60%,#2db36b 100%);
+  color:#fff; padding:36px 16px 50px; text-align:center; position:relative; overflow:hidden;
+}
+header::after{
+  content:''; position:absolute; bottom:-1px; left:0; right:0; height:46px;
+  background:var(--bg); clip-path:ellipse(54% 100% at 50% 100%);
+}
+header h1{ font-size:clamp(1.4rem,4vw,2.2rem); font-weight:900; text-shadow:0 2px 8px rgba(0,0,0,.3); }
+header p{ margin-top:6px; font-size:.9rem; opacity:.9; }
+.back-link{
+  display:inline-flex; align-items:center; gap:5px;
+  color:rgba(255,255,255,.7); text-decoration:none; font-size:.82rem;
+  margin-bottom:14px; transition:.15s;
+}
+.back-link:hover{ color:#fff; }
+.stats-row{ display:flex; justify-content:center; gap:24px; margin-top:14px; }
+.stat{ text-align:center; }
+.stat-num{ font-size:1.6rem; font-weight:800; }
+.stat-label{ font-size:.65rem; opacity:.6; text-transform:uppercase; letter-spacing:.1em; }
+
+/* ── FILTERS ── */
+.filter-bar{
+  position:sticky; top:0; z-index:200;
+  background:#fff; box-shadow:0 2px 14px rgba(0,0,0,.1);
+  padding:10px 12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+  justify-content:center;
+}
+.filter-group{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.fbtn{
+  border:1.5px solid #d0dde8; background:#fff; color:#555;
+  border-radius:20px; padding:6px 14px; font-size:.78rem; font-weight:600;
+  cursor:pointer; transition:.15s; white-space:nowrap;
+}
+.fbtn:hover{ border-color:var(--ocean); color:var(--ocean); }
+.fbtn.active{ background:var(--ocean); color:#fff; border-color:var(--ocean); }
+
+.filter-divider{ width:1px; height:28px; background:#e0e8f0; margin:0 2px; }
+
+.island-select{
+  border:1.5px solid #d0dde8; background:#fff; color:#555;
+  border-radius:20px; padding:6px 14px; font-size:.78rem; font-weight:600;
+  cursor:pointer; outline:none;
+}
+.island-select:focus{ border-color:var(--ocean); }
+
+/* ── COUNT BAR ── */
+.count-bar{
+  text-align:center; font-size:.78rem; color:#999;
+  padding:10px 0 0;
+}
+
+/* ── GRID ── */
+.gallery-wrap{ max-width:1300px; margin:0 auto; padding:12px 12px 60px; }
+
+.category-block{ margin-bottom:32px; }
+.category-heading{
+  display:flex; align-items:center; gap:10px;
+  font-size:.72rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:.14em; color:var(--ocean);
+  border-left:4px solid var(--ocean); padding-left:10px;
+  margin:20px 0 12px;
+}
+.category-heading .cat-count{
+  background:var(--ocean); color:#fff;
+  border-radius:10px; padding:2px 8px; font-size:.65rem; letter-spacing:0;
+}
+
+.animals-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:14px;
+}
+
+/* ── CARD ── */
+.acard{
+  background:var(--card); border-radius:var(--radius);
+  box-shadow:0 3px 16px rgba(0,0,0,.08); overflow:hidden;
+  transition:transform .22s, box-shadow .22s;
+  cursor:pointer;
+}
+.acard:hover{ transform:translateY(-4px); box-shadow:0 10px 28px rgba(0,0,0,.14); }
+
+/* Photo area */
+.acard-photo{
+  position:relative; width:100%; height:180px; overflow:hidden;
+  background:#dde8f0; display:flex; align-items:center; justify-content:center;
+}
+.acard-photo img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s; }
+.acard:hover .acard-photo img{ transform:scale(1.04); }
+.fallback{ font-size:3.5rem; position:absolute; }
+
+/* Split photo */
+.split-photo{ flex-direction:row!important; gap:0; }
+.photo-half{ flex:1; position:relative; overflow:hidden; height:100%; }
+.photo-half:first-child{ border-right:2px solid #fff; }
+.photo-half img{ width:100%; height:100%; object-fit:cover; display:block; }
+.sex-half-label{
+  position:absolute; bottom:0; left:0; right:0;
+  font-size:.63rem; font-weight:700; text-align:center;
+  padding:3px 2px; color:#fff;
+}
+.sex-m-label{ background:rgba(30,90,180,.82); }
+.sex-f-label{ background:rgba(180,60,100,.82); }
+
+/* Body */
+.acard-body{ padding:12px 14px 14px; }
+.aname-ja{ font-size:.95rem; font-weight:800; line-height:1.3; }
+.aname-en{ font-size:.75rem; color:#777; margin-top:2px; }
+.aname-sci{ font-size:.68rem; color:#aaa; font-style:italic; margin-top:1px; }
+
+/* Island badges */
+.island-badges{ display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+.ibadge{
+  font-size:.62rem; font-weight:700; border-radius:8px;
+  padding:2px 7px; white-space:nowrap;
+}
+
+/* ── ISLAND BADGE COLORS ── */
+.ib-santacruz    { background:#e0f4f8; color:#007a96; }
+.ib-espanola     { background:#ffe8e0; color:#b33000; }
+.ib-genovesa     { background:#ede8f8; color:#6030a0; }
+.ib-isabela      { background:#e0f2e8; color:#1b6635; }
+.ib-fernandina   { background:#e0e8f8; color:#203a8a; }
+.ib-northseymour { background:#fff0e0; color:#a05000; }
+.ib-santafe      { background:#f8f4e0; color:#8a6000; }
+.ib-floreana     { background:#f8e0ee; color:#a02060; }
+.ib-sancristobal { background:#e0eaf8; color:#20408a; }
+.ib-bartolome    { background:#e8e8e8; color:#404040; }
+
+/* rare badge */
+.rare-badge{
+  position:absolute; top:8px; right:8px;
+  background:#e8a800; color:#fff; font-size:.62rem; font-weight:700;
+  border-radius:20px; padding:2px 8px; z-index:1;
+}
+
+/* ── LIGHTBOX ── */
+.lb-overlay{
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,.93); align-items:center; justify-content:center;
+  cursor:zoom-out;
+}
+.lb-overlay.open{ display:flex; }
+.lb-inner{ position:relative; display:flex; gap:4px; max-width:96vw; max-height:90vh; }
+.lb-inner img{
+  max-width:calc(50vw - 12px); max-height:88vh;
+  object-fit:contain; border-radius:6px;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+  animation:lb-in .18s ease;
+}
+.lb-inner.single img{ max-width:90vw; }
+@keyframes lb-in{ from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+.lb-close{
+  position:fixed; top:14px; right:18px;
+  color:#fff; font-size:2rem; font-weight:300; cursor:pointer; opacity:.8; line-height:1;
+}
+.lb-close:hover{ opacity:1; }
+.lb-caption{
+  position:fixed; bottom:16px; left:0; right:0;
+  text-align:center; color:rgba(255,255,255,.75); font-size:.85rem; pointer-events:none;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  text-align:center; padding:60px 20px;
+  color:#aaa; font-size:.9rem;
+}
+
+/* ── FOOTER ── */
+footer{ text-align:center; padding:20px; font-size:.75rem; color:#bbb; border-top:1px solid #e8e8e8; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:500px){
+  .animals-grid{ grid-template-columns:1fr 1fr; }
+  .acard-photo{ height:140px; }
+}
+@media(max-width:320px){
+  .animals-grid{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="galapagos-wildlife-guide.html" class="back-link">&#x2190; 島別図鑑に戻る</a>
+  <div style="font-size:2rem;margin-bottom:8px">🐢🦎🐧🦭🦈</div>
+  <h1>ガラパゴス 動物ギャラリー</h1>
+  <p>全 <span id="total-count">34</span> 種を種類別に一覧</p>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">9</div><div class="stat-label">爬虫類</div></div>
+    <div class="stat"><div class="stat-num">19</div><div class="stat-label">鳥類</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">哺乳類</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">海洋生物</div></div>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-group" id="cat-filters">
+    <button class="fbtn active" data-cat="all">🌍 すべて</button>
+    <button class="fbtn" data-cat="reptile">🦎 爬虫類</button>
+    <button class="fbtn" data-cat="bird">🐦 鳥類</button>
+    <button class="fbtn" data-cat="mammal">🦭 哺乳類</button>
+    <button class="fbtn" data-cat="marine">🦈 海洋生物</button>
+  </div>
+  <div class="filter-divider"></div>
+  <select class="island-select" id="island-filter">
+    <option value="all">🏝️ すべての島</option>
+    <option value="サンタクルス">サンタクルス</option>
+    <option value="エスパニョーラ">エスパニョーラ</option>
+    <option value="ジェノベサ">ジェノベサ</option>
+    <option value="イサベラ">イサベラ</option>
+    <option value="フェルナンディナ">フェルナンディナ</option>
+    <option value="N.セイモア">N.セイモア</option>
+    <option value="サンタフェ">サンタフェ</option>
+    <option value="フロレアナ">フロレアナ</option>
+    <option value="S.クリストバル">S.クリストバル</option>
+    <option value="バルトロメ">バルトロメ</option>
+  </select>
+</div>
+
+<div class="gallery-wrap">
+  <div class="count-bar" id="count-bar"></div>
+  <div id="gallery"></div>
+</div>
+
+<footer>
+  写真: iNaturalist (CC BY / CC BY-NC ライセンス) &nbsp;|&nbsp;
+  <a href="galapagos-wildlife-guide.html" style="color:var(--ocean)">島別図鑑で詳細を見る</a>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lb-overlay" id="lb" onclick="closeLb()">
+  <span class="lb-close" onclick="closeLb()">&#x2715;</span>
+  <div class="lb-inner" id="lb-inner"></div>
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
+<script>
+const SPECIES = [
+  // ── 爬虫類 ──
+  {
+    cat:'reptile', ja:'ガラパゴスゾウガメ', en:'Galápagos Giant Tortoise',
+    sci:'Chelonoidis niger', rare:true,
+    imgs:[{src:'img/tortoise.jpg', alt:'ガラパゴスゾウガメ'}],
+    islands:['サンタクルス','エスパニョーラ'],
+  },
+  {
+    cat:'reptile', ja:'海イグアナ', en:'Marine Iguana',
+    sci:'Amblyrhynchus cristatus', rare:true,
+    imgs:[{src:'img/marine-iguana-m.jpg', alt:'♂ 繁殖期に赤く発色'},{src:'img/marine-iguana.jpg', alt:'♀ 黒色・小型'}],
+    islands:['サンタクルス','イサベラ','フェルナンディナ'],
+  },
+  {
+    cat:'reptile', ja:'エスパニョーラ海イグアナ', en:'Española Marine Iguana',
+    sci:'Amblyrhynchus cristatus venustissimus', rare:true,
+    imgs:[{src:'img/espanola-marine-iguana-m.jpg', alt:'♂ 赤×緑の鮮やかな体色'},{src:'img/espanola-marine-iguana-f.jpg', alt:'♀'}],
+    islands:['エスパニョーラ'],
+  },
+  {
+    cat:'reptile', ja:'ガラパゴス陸イグアナ', en:'Galápagos Land Iguana',
+    sci:'Conolophus subcristatus', rare:true,
+    imgs:[{src:'img/land-iguana-m.jpg', alt:'♂ 鮮やかな黄金色'},{src:'img/land-iguana-f.jpg', alt:'♀ やや褐色'}],
+    islands:['サンタクルス','イサベラ','N.セイモア'],
+  },
+  {
+    cat:'reptile', ja:'サンタフェ陸イグアナ', en:'Santa Fé Land Iguana',
+    sci:'Conolophus pallidus', rare:true,
+    imgs:[{src:'img/santa-fe-iguana.jpg', alt:'サンタフェ陸イグアナ'}],
+    islands:['サンタフェ'],
+  },
+  {
+    cat:'reptile', ja:'ガラパゴスラバリザード', en:'Galápagos Lava Lizard',
+    sci:'Microlophus albemarlensis', rare:true,
+    imgs:[{src:'img/lava-lizard-m.jpg', alt:'♂ のど元がオレンジ〜赤'},{src:'img/lava-lizard-f.jpg', alt:'♀ 褐色'}],
+    islands:['サンタクルス','イサベラ','フェルナンディナ','N.セイモア'],
+  },
+  {
+    cat:'reptile', ja:'チャサムラバリザード', en:'San Cristóbal Lava Lizard',
+    sci:'Microlophus bivittatus', rare:true,
+    imgs:[{src:'img/lava-lizard.jpg', alt:'チャサムラバリザード'}],
+    islands:['S.クリストバル'],
+  },
+  {
+    cat:'reptile', ja:'アオウミガメ', en:'Green Sea Turtle',
+    sci:'Chelonia mydas agassizii',
+    imgs:[{src:'img/sea-turtle.jpg', alt:'アオウミガメ'}],
+    islands:['サンタクルス','フロレアナ','バルトロメ'],
+  },
+
+  // ── 鳥類 ──
+  {
+    cat:'bird', ja:'アオアシカツオドリ', en:'Blue-footed Booby',
+    sci:'Sula nebouxii',
+    imgs:[{src:'img/blue-footed-booby-m.jpg', alt:'♂ 瞳孔が小さい・足が鮮青'},{src:'img/blue-footed-booby-f.jpg', alt:'♀ 瞳孔大きい・体やや大'}],
+    islands:['サンタクルス','エスパニョーラ','N.セイモア','S.クリストバル'],
+  },
+  {
+    cat:'bird', ja:'ナスカカツオドリ', en:'Nazca Booby',
+    sci:'Sula granti',
+    imgs:[{src:'img/nazca-booby-m.jpg', alt:'♂ 白い体・オレンジのクチバシ'},{src:'img/nazca-booby-f.jpg', alt:'♀'}],
+    islands:['エスパニョーラ','ジェノベサ'],
+  },
+  {
+    cat:'bird', ja:'アカアシカツオドリ', en:'Red-footed Booby',
+    sci:'Sula sula websteri',
+    imgs:[{src:'img/red-footed-booby-m.jpg', alt:'♂ 赤い足'},{src:'img/red-footed-booby-f.jpg', alt:'♀'}],
+    islands:['ジェノベサ'],
+  },
+  {
+    cat:'bird', ja:'カッショクペリカン', en:'Brown Pelican',
+    sci:'Pelecanus occidentalis urinator',
+    imgs:[{src:'img/brown-pelican.jpg', alt:'カッショクペリカン'}],
+    islands:['サンタクルス','S.クリストバル'],
+  },
+  {
+    cat:'bird', ja:'オオグンカンドリ', en:'Magnificent Frigatebird',
+    sci:'Fregata magnificens',
+    imgs:[{src:'img/frigatebird.jpg', alt:'♂ 赤いのど袋を膨らませる'},{src:'img/frigatebird-f.jpg', alt:'♀ 白い胸'}],
+    islands:['ジェノベサ','N.セイモア','サンタクルス'],
+  },
+  {
+    cat:'bird', ja:'コグンカンドリ', en:'Great Frigatebird',
+    sci:'Fregata minor ridgwayi',
+    imgs:[{src:'img/great-frigatebird.jpg', alt:'♂'},{src:'img/great-frigatebird-f.jpg', alt:'♀ 白い胸・赤いアイリング'}],
+    islands:['ジェノベサ'],
+  },
+  {
+    cat:'bird', ja:'ウェーブドアルバトロス', en:'Waved Albatross',
+    sci:'Phoebastria irrorata', rare:true,
+    imgs:[{src:'img/waved-albatross.jpg', alt:'ウェーブドアルバトロス'}],
+    islands:['エスパニョーラ'],
+  },
+  {
+    cat:'bird', ja:'ガラパゴスペンギン', en:'Galápagos Penguin',
+    sci:'Spheniscus mendiculus', rare:true,
+    imgs:[{src:'img/galapagos-penguin.jpg', alt:'ガラパゴスペンギン'}],
+    islands:['イサベラ','フェルナンディナ','バルトロメ'],
+  },
+  {
+    cat:'bird', ja:'ガラパゴスウミウ（飛べないウミウ）', en:'Flightless Cormorant',
+    sci:'Nannopterum harrisi', rare:true,
+    imgs:[{src:'img/flightless-cormorant.jpg', alt:'ガラパゴスウミウ'}],
+    islands:['イサベラ','フェルナンディナ'],
+  },
+  {
+    cat:'bird', ja:'アメリカフラミンゴ', en:'American Flamingo',
+    sci:'Phoenicopterus ruber',
+    imgs:[{src:'img/flamingo.jpg', alt:'アメリカフラミンゴ'}],
+    islands:['イサベラ','フロレアナ'],
+  },
+  {
+    cat:'bird', ja:'ガラパゴスタカ', en:'Galápagos Hawk',
+    sci:'Buteo galapagoensis', rare:true,
+    imgs:[{src:'img/galapagos-hawk-m.jpg', alt:'♂'},{src:'img/galapagos-hawk-f.jpg', alt:'♀ やや大型'}],
+    islands:['イサベラ','フェルナンディナ','サンタフェ'],
+  },
+  {
+    cat:'bird', ja:'ガラパゴスモッキングバード', en:'Galápagos Mockingbird',
+    sci:'Mimus parvulus', rare:true,
+    imgs:[{src:'img/mockingbird.jpg', alt:'ガラパゴスモッキングバード'}],
+    islands:['サンタクルス','イサベラ','N.セイモア'],
+  },
+  {
+    cat:'bird', ja:'エスパニョーラモッキングバード', en:'Española Mockingbird',
+    sci:'Mimus macdonaldi', rare:true,
+    imgs:[{src:'img/espanola-mockingbird.jpg', alt:'エスパニョーラモッキングバード'}],
+    islands:['エスパニョーラ'],
+  },
+  {
+    cat:'bird', ja:'チャサムモッキングバード', en:'Chatham Mockingbird',
+    sci:'Mimus melanotis', rare:true,
+    imgs:[{src:'img/chatham-mockingbird.jpg', alt:'チャサムモッキングバード'}],
+    islands:['S.クリストバル'],
+  },
+  {
+    cat:'bird', ja:'ガラパゴスバト', en:'Galápagos Dove',
+    sci:'Zenaida galapagoensis', rare:true,
+    imgs:[{src:'img/galapagos-dove.jpg', alt:'ガラパゴスバト'}],
+    islands:['サンタクルス','エスパニョーラ'],
+  },
+  {
+    cat:'bird', ja:'ヒムネヒタキ', en:'Vermilion Flycatcher',
+    sci:'Pyrocephalus rubinus',
+    imgs:[{src:'img/vermilion-flycatcher.jpg', alt:'♂ 頭と腹が真っ赤'},{src:'img/vermilion-flycatcher-f.jpg', alt:'♀ 褐色・腹に橙斑'}],
+    islands:['サンタクルス','イサベラ'],
+  },
+  {
+    cat:'bird', ja:'キイロアメリカムシクイ', en:'Yellow Warbler',
+    sci:'Setophaga petechia aureola',
+    imgs:[{src:'img/yellow-warbler-m.jpg', alt:'♂ 全身鮮やかな黄色'},{src:'img/yellow-warbler-f.jpg', alt:'♀ やや淡い黄色'}],
+    islands:['サンタクルス','エスパニョーラ','ジェノベサ'],
+  },
+  {
+    cat:'bird', ja:'ガラパゴスコミミズク', en:'Short-eared Owl',
+    sci:'Asio flammeus galapagoensis', rare:true,
+    imgs:[{src:'img/short-eared-owl.jpg', alt:'ガラパゴスコミミズク'}],
+    islands:['ジェノベサ'],
+  },
+  {
+    cat:'bird', ja:'マデラウミツバメ', en:'Band-rumped Storm Petrel',
+    sci:'Hydrobates castro',
+    imgs:[{src:'img/storm-petrel.jpg', alt:'マデラウミツバメ'}],
+    islands:['ジェノベサ'],
+  },
+
+  // ── 哺乳類 ──
+  {
+    cat:'mammal', ja:'ガラパゴスアシカ', en:'Galápagos Sea Lion',
+    sci:'Zalophus wollebaeki', rare:true,
+    imgs:[{src:'img/sea-lion-m.jpg', alt:'♂ 大型・頭にたてがみ状の隆起'},{src:'img/sea-lion.jpg', alt:'♀ 細身・活発'}],
+    islands:['サンタクルス','S.クリストバル','バルトロメ','エスパニョーラ'],
+  },
+  {
+    cat:'mammal', ja:'ガラパゴスオットセイ', en:'Galápagos Fur Seal',
+    sci:'Arctocephalus galapagoensis', rare:true,
+    imgs:[{src:'img/fur-seal-m.jpg', alt:'♂ 大型・たてがみあり'},{src:'img/fur-seal-f.jpg', alt:'♀'}],
+    islands:['イサベラ','フェルナンディナ'],
+  },
+
+  // ── 海洋生物 ──
+  {
+    cat:'marine', ja:'サリーライトフットクラブ', en:'Sally Lightfoot Crab',
+    sci:'Grapsus grapsus',
+    imgs:[{src:'img/sally-lightfoot-crab.jpg', alt:'サリーライトフットクラブ'}],
+    islands:['サンタクルス','バルトロメ','エスパニョーラ'],
+  },
+  {
+    cat:'marine', ja:'ホワイトチップリーフシャーク', en:'Whitetip Reef Shark',
+    sci:'Triaenodon obesus',
+    imgs:[{src:'img/reef-shark.jpg', alt:'ホワイトチップリーフシャーク'}],
+    islands:['フロレアナ','サンタフェ','バルトロメ'],
+  },
+  {
+    cat:'marine', ja:'シュモクザメ', en:'Scalloped Hammerhead Shark',
+    sci:'Sphyrna lewini',
+    imgs:[{src:'img/hammerhead.jpg', alt:'シュモクザメ'}],
+    islands:['バルトロメ'],
+  },
+  {
+    cat:'marine', ja:'マンタレイ（オニイトマキエイ）', en:'Giant Manta Ray',
+    sci:'Mobula birostris',
+    imgs:[{src:'img/manta-ray.jpg', alt:'マンタレイ'}],
+    islands:['フロレアナ','バルトロメ'],
+  },
+];
+
+const CAT_LABELS = {
+  reptile: { label:'爬虫類', icon:'🦎' },
+  bird:    { label:'鳥類',   icon:'🐦' },
+  mammal:  { label:'哺乳類', icon:'🦭' },
+  marine:  { label:'海洋生物', icon:'🦈' },
+};
+
+const ISLAND_CLASS = {
+  'サンタクルス':  'ib-santacruz',
+  'エスパニョーラ':'ib-espanola',
+  'ジェノベサ':    'ib-genovesa',
+  'イサベラ':      'ib-isabela',
+  'フェルナンディナ':'ib-fernandina',
+  'N.セイモア':    'ib-northseymour',
+  'サンタフェ':    'ib-santafe',
+  'フロレアナ':    'ib-floreana',
+  'S.クリストバル':'ib-sancristobal',
+  'バルトロメ':    'ib-bartolome',
+};
+
+let currentCat = 'all';
+let currentIsland = 'all';
+
+function filtered() {
+  return SPECIES.filter(s => {
+    const catOk = currentCat === 'all' || s.cat === currentCat;
+    const islandOk = currentIsland === 'all' || s.islands.includes(currentIsland);
+    return catOk && islandOk;
+  });
+}
+
+function render() {
+  const list = filtered();
+  const gallery = document.getElementById('gallery');
+  const countBar = document.getElementById('count-bar');
+
+  countBar.textContent = `${list.length} 種を表示中`;
+
+  if (list.length === 0) {
+    gallery.innerHTML = '<div class="empty-state">該当する動物が見つかりませんでした</div>';
+    return;
+  }
+
+  // カテゴリ順にグループ化
+  const catOrder = ['reptile','bird','mammal','marine'];
+  const groups = {};
+  catOrder.forEach(c => { groups[c] = []; });
+  list.forEach(s => { if (groups[s.cat]) groups[s.cat].push(s); });
+
+  let html = '';
+  catOrder.forEach(cat => {
+    const items = groups[cat];
+    if (items.length === 0) return;
+    const info = CAT_LABELS[cat];
+    html += `<div class="category-block" data-cat="${cat}">`;
+    if (currentCat === 'all') {
+      html += `<div class="category-heading">${info.icon} ${info.label} <span class="cat-count">${items.length}</span></div>`;
+    }
+    html += `<div class="animals-grid">`;
+    items.forEach((s, idx) => {
+      html += cardHTML(s, idx);
+    });
+    html += `</div></div>`;
+  });
+
+  gallery.innerHTML = html;
+}
+
+function cardHTML(s, idx) {
+  const hasTwo = s.imgs.length === 2;
+
+  let photoHTML = '';
+  if (hasTwo) {
+    photoHTML = `<div class="acard-photo split-photo">
+      <div class="photo-half">
+        <img src="${s.imgs[0].src}" alt="${escH(s.imgs[0].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
+        <div class="sex-half-label sex-m-label">${escH(s.imgs[0].alt)}</div>
+      </div>
+      <div class="photo-half">
+        <img src="${s.imgs[1].src}" alt="${escH(s.imgs[1].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
+        <div class="sex-half-label sex-f-label">${escH(s.imgs[1].alt)}</div>
+      </div>
+    </div>`;
+  } else {
+    photoHTML = `<div class="acard-photo">
+      <img src="${s.imgs[0].src}" alt="${escH(s.imgs[0].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
+      ${s.rare ? '<span class="rare-badge">⭐ 固有種</span>' : ''}
+    </div>`;
+  }
+
+  const badgesHTML = s.islands.map(isl =>
+    `<span class="ibadge ${ISLAND_CLASS[isl] || ''}">${isl}</span>`
+  ).join('');
+
+  return `<div class="acard" onclick='openLb(${idx})'>
+    ${photoHTML}
+    <div class="acard-body">
+      <div class="aname-ja">${escH(s.ja)}</div>
+      <div class="aname-en">${escH(s.en)}</div>
+      <div class="aname-sci">${escH(s.sci)}</div>
+      <div class="island-badges">${badgesHTML}</div>
+    </div>
+  </div>`;
+}
+
+// ── Lightbox ──
+let lbList = [];
+function openLb(globalIdx) {
+  // globalIdx は SPECIES 内のインデックスではなく、filteredのidxをとるため
+  // cardHTML の onclick に filtered()リスト内のインデックスを渡す
+  const list = filtered();
+  const s = list[globalIdx];
+  if (!s) return;
+
+  const inner = document.getElementById('lb-inner');
+  const caption = document.getElementById('lb-caption');
+
+  inner.className = 'lb-inner' + (s.imgs.length === 1 ? ' single' : '');
+  inner.innerHTML = s.imgs.map(img =>
+    `<img src="${img.src}" alt="${escH(img.alt)}">`
+  ).join('');
+
+  caption.textContent = `${s.ja}  ${s.en}  /  ${s.sci}`;
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLb() {
+  document.getElementById('lb').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+document.getElementById('lb').addEventListener('click', function(e) {
+  if (e.target === this) closeLb();
+});
+
+// ── Filter events ──
+document.getElementById('cat-filters').addEventListener('click', e => {
+  const btn = e.target.closest('.fbtn');
+  if (!btn) return;
+  currentCat = btn.dataset.cat;
+  document.querySelectorAll('#cat-filters .fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+});
+
+document.getElementById('island-filter').addEventListener('change', e => {
+  currentIsland = e.target.value;
+  render();
+});
+
+// ── openLb をfilteredベースに修正 ──
+// cardHTMLのonclick引数をfilteredリスト内インデックスに
+function cardHTML(s, idx) {
+  const hasTwo = s.imgs.length === 2;
+
+  let photoHTML = '';
+  if (hasTwo) {
+    photoHTML = `<div class="acard-photo split-photo">
+      <div class="photo-half">
+        <img src="${s.imgs[0].src}" alt="${escH(s.imgs[0].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
+        <div class="sex-half-label sex-m-label">${escH(s.imgs[0].alt)}</div>
+      </div>
+      <div class="photo-half">
+        <img src="${s.imgs[1].src}" alt="${escH(s.imgs[1].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
+        <div class="sex-half-label sex-f-label">${escH(s.imgs[1].alt)}</div>
+      </div>
+    </div>`;
+  } else {
+    photoHTML = `<div class="acard-photo">
+      <img src="${s.imgs[0].src}" alt="${escH(s.imgs[0].alt)}" onerror="this.style.opacity='.2'" loading="lazy">
+      ${s.rare ? '<span class="rare-badge">⭐ 固有種</span>' : ''}
+    </div>`;
+  }
+
+  const badgesHTML = s.islands.map(isl =>
+    `<span class="ibadge ${ISLAND_CLASS[isl] || ''}">${isl}</span>`
+  ).join('');
+
+  return `<div class="acard" onclick="openLb(${idx})">
+    ${photoHTML}
+    <div class="acard-body">
+      <div class="aname-ja">${escH(s.ja)}</div>
+      <div class="aname-en">${escH(s.en)}</div>
+      <div class="aname-sci">${escH(s.sci)}</div>
+      <div class="island-badges">${badgesHTML}</div>
+    </div>
+  </div>`;
+}
+
+function escH(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// 初期レンダリング
+render();
+</script>
+</body>
+</html>
