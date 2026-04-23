@@ -613,7 +613,7 @@ function setSyncStatus(status, label) {
 async function loadFromNotion() {
   setSyncStatus('syncing', '同期中...');
   try {
-    const r = await fetch('/api/visited-get');
+    const r = await fetch('/api/visited');
     const data = await r.json();
     if (data.error === 'env not set') { setSyncStatus('', ''); return; }
     const remote = data.countries || [];
@@ -636,7 +636,7 @@ function saveToNotion() {
   saveTimer = setTimeout(async () => {
     setSyncStatus('syncing', '保存中...');
     try {
-      await fetch('/api/visited-save', {
+      await fetch('/api/visited', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ countries: visited }),

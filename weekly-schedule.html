@@ -981,7 +981,7 @@ async function syncNotion() {
   try {
     for (const checkEl of checked) {
       const item = checkEl.closest('.todo-item');
-      const res = await fetch('/api/notion-update', {
+      const res = await fetch('/api/notion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pageId: item.dataset.pageId, propName: item.dataset.propName, value: '完了' }),
