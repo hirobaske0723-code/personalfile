@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,7 +34,13 @@ export default async function handler(req, res) {
       }
     );
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (data.error) {
+      return res.status(200).json({ error: `解析エラー: ${data.error.message || JSON.stringify(data.error)}` });
+    }
+    if (!data.candidates?.length) {
+      return res.status(200).json({ error: '解析結果が取得できませんでした（画像を変えてお試しください）' });
+    }
+    const text = data.candidates[0]?.content?.parts?.[0]?.text || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return res.status(200).json({ error: '解析に失敗しました' });
     res.status(200).json(JSON.parse(jsonMatch[0]));
