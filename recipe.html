@@ -461,7 +461,7 @@
       renderGrid();
     } catch (e) {
       document.getElementById('recipe-grid').innerHTML =
-        `<div class="empty-state">⚠️ 読み込みに失敗しました<p>${e.message}</p></div>`;
+        `<div class="empty-state">⚠️ 読み込みに失敗しました<p>${escHtml(e.message)}</p></div>`;
     }
   }
 
